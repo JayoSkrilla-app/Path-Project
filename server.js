@@ -15,13 +15,13 @@ const User = require('./user');
 app.use(cors()); 
 app.use(express.json()); 
 
-// --- EMAIL CONFIG (Fixed for Render) ---
+// --- EMAIL CONFIG (Port 587 Fix) ---
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  family: 4, // <--- THIS FIXES THE IPV6 ERROR
+  port: 587,              // Uses the modern standard port
+  secure: false,          // Must be false for 587 (it upgrades to secure later)
+  requireTLS: true,       // Forces a secure connection
+  family: 4,              // Forces IPv4 to prevent connection errors
   auth: {
     user: 'pathproject.verify@gmail.com',
     pass: process.env.EMAIL_PASS // Your 16-digit App Password
@@ -33,7 +33,7 @@ transporter.verify((error, success) => {
   if (error) {
     console.log("Email Config Error:", error);
   } else {
-    console.log("Server is ready to send emails!");
+    console.log("Server is ready to send emails via Port 587!");
   }
 });
 
