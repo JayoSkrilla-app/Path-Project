@@ -19,87 +19,47 @@
 
     body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-    /* --- AUTH STYLES --- */
     #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; z-index: 1000; }
     .auth-box { background: var(--bg-panel); padding: 40px; border-radius: 12px; border: 1px solid var(--border); width: 380px; text-align: center; }
     .auth-box h1 { color: var(--path-blue); margin-bottom: 5px; font-size: 32px; text-shadow: 0 0 10px rgba(0, 123, 255, 0.3); }
     .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
 
-    /* FIXED INPUT WRAPPER */
     .input-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
-    
-    .auth-input { 
-        width: 100%; 
-        padding: 12px; 
-        padding-right: 45px; 
-        background-color: var(--input-bg); 
-        border: 1px solid var(--border); 
-        color: white; 
-        border-radius: 6px; 
-        box-sizing: border-box; 
-        outline: none; 
-        transition: 0.2s;
-    }
+    .auth-input { width: 100%; padding: 12px; padding-right: 45px; background-color: var(--input-bg); border: 1px solid var(--border); color: white; border-radius: 6px; box-sizing: border-box; outline: none; transition: 0.2s; }
     .auth-input:focus { border-color: var(--path-blue); }
 
-    /* --- FIX FOR WHITE BOX GLITCH --- */
-    /* Forces the background to stay dark even when Chrome tries to turn it white */
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover, 
-    input:-webkit-autofill:focus, 
-    input:-webkit-autofill:active {
+    /* Fix White Box Glitch */
+    input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
         -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
         -webkit-text-fill-color: white !important;
         transition: background-color 5000s ease-in-out 0s;
     }
 
-    /* Keeps the box dark even when disabled during "Creating..." */
-    .auth-input:disabled {
-        background-color: var(--input-bg);
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    /* ICON STYLES */
-    .toggle-pass { 
-        position: absolute; 
-        right: 12px; 
-        top: 50%; 
-        transform: translateY(-50%); 
-        cursor: pointer; 
-        color: var(--text-muted); 
-        display: flex; 
-        align-items: center; 
-        justify-content: center;
-        transition: 0.2s;
-    }
+    .toggle-pass { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
     .toggle-pass:hover { color: var(--path-blue); }
     .toggle-pass svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     .auth-btn { width: 100%; padding: 12px; background-color: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .auth-btn:disabled { background-color: #0056b3; cursor: wait; opacity: 0.7; }
+    .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
     
     .switch-link { margin-top: 25px; cursor: pointer; color: var(--text-muted); font-size: 14px; display: inline-block; transition: 0.2s; }
     .switch-link span { color: var(--path-blue); font-weight: bold; text-decoration: underline; padding-left: 4px; }
     .switch-link:hover span { color: var(--neon-glow); }
 
-    /* --- APP LAYOUT --- */
+    /* APP CSS */
     #main-app { display: none; width: 100%; height: 100%; display: flex; }
     #sidebar { width: 72px; background: var(--bg-sidebar); display: flex; flex-direction: column; align-items: center; padding-top: 15px; border-right: 1px solid var(--border); }
     .nav-item { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; cursor: pointer; transition: 0.2s; background-color: var(--bg-panel); border: 1px solid var(--border); font-weight: bold; }
     .nav-item:hover, .nav-item.active { border-radius: 16px; background-color: var(--path-blue); color: white; }
-
     #view-friends { flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-dark); }
     .top-bar { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; background: var(--bg-panel); }
     .friend-tab { padding: 6px 12px; margin: 0 4px; cursor: pointer; color: var(--text-muted); font-size: 14px; border-radius: 6px; }
     .friend-tab.active { background-color: rgba(255,255,255,0.1); color: white; }
-    
     .dashboard-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
     .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin: 5px 20px; background: rgba(255,255,255,0.02); }
     .f-avatar-wrapper { position: relative; margin-right: 15px; }
     .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; }
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background-color: #3ba55c; position: absolute; bottom: 0; right: 0; border: 2px solid var(--bg-dark); }
-
     #view-chat { flex-grow: 1; display: none; flex-direction: column; }
     #messages { list-style: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; }
     .message-item { display: flex; gap: 12px; margin-bottom: 15px; }
@@ -111,18 +71,15 @@
     <div id="login-form" class="auth-box">
       <h1>Path</h1>
       <div class="subtitle">To new beginnings.</div>
-      
       <div class="input-wrapper">
         <input type="text" id="login-user" placeholder="Username" class="auth-input">
       </div>
-
       <div class="input-wrapper">
         <input type="password" id="login-pass" placeholder="Password" class="auth-input">
         <span class="toggle-pass" onclick="togglePass(this, 'login-pass')">
            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         </span>
       </div>
-      
       <div id="login-error" style="color:var(--error); margin-bottom:10px; display:none; font-size: 13px;"></div>
       <button onclick="handleLogin()" class="auth-btn">Log In</button>
       <div class="switch-link" onclick="switchView('register')">Need an account? <span>Register</span></div>
@@ -131,29 +88,24 @@
     <div id="register-form" class="auth-box" style="display:none;">
       <h1>Register</h1>
       <div class="subtitle">Join the Path Project.</div>
-      
       <div class="input-wrapper">
         <input type="text" id="reg-user" placeholder="Username" class="auth-input">
       </div>
-
       <div class="input-wrapper">
          <input type="email" id="reg-email" placeholder="Email Address" class="auth-input">
       </div>
-      
       <div class="input-wrapper">
         <input type="password" id="reg-pass" placeholder="Password" class="auth-input">
         <span class="toggle-pass" onclick="togglePass(this, 'reg-pass')">
             <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         </span>
       </div>
-      
       <div class="input-wrapper">
         <input type="password" id="reg-confirm" placeholder="Confirm Password" class="auth-input">
         <span class="toggle-pass" onclick="togglePass(this, 'reg-confirm')">
             <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         </span>
       </div>
-      
       <div style="font-size: 11px; color: var(--text-muted); text-align: left; margin-bottom: 15px;">Must be 8+ chars with a symbol (!@#$)</div>
       <button id="reg-btn" onclick="handleRegister()" class="auth-btn">Create Account</button>
       <div class="switch-link" onclick="switchView('login')">Already have an account? <span>Log In</span></div>
@@ -194,10 +146,8 @@
         const input = document.getElementById(id);
         const isPass = input.type === "password";
         input.type = isPass ? "text" : "password";
-        
         const eyeOpen = '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
         const eyeSlash = '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-
         el.innerHTML = isPass ? eyeSlash : eyeOpen;
     }
 
@@ -217,41 +167,26 @@
         if (p !== cp) return alert("Passwords do not match!");
         if (p.length < 8 || !/[^a-zA-Z0-9]/.test(p)) return alert("Password must be 8+ chars with a symbol.");
 
-        // UI LOCK
         const originalText = btn.innerText;
         btn.innerText = "Creating...";
         btn.disabled = true;
 
         try {
-            // TIMEOUT PROTECTION (15 seconds max)
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
-
             const res = await fetch(`${SERVER_URL}/register`, { 
                 method: 'POST', 
                 headers: {'Content-Type': 'application/json'}, 
-                body: JSON.stringify({ username: u, email: e, password: p }),
-                signal: controller.signal
+                body: JSON.stringify({ username: u, email: e, password: p })
             });
-            
-            clearTimeout(timeoutId); 
             const data = await res.json();
             
             if(res.ok) {
-                alert("Account Created! Check your email to verify before logging in.");
-                switchView('login'); 
+                alert("Account Created Successfully! Please log in.");
+                switchView('login');
             } else {
                 alert(data.msg || "Registration failed.");
             }
-        } catch(err) { 
-            console.error(err);
-            if (err.name === 'AbortError') {
-                alert("Request timed out. The server took too long to send the email.");
-            } else {
-                alert("Network error. Please check the Render Logs."); 
-            }
-        } finally {
-            // ALWAYS UNLOCK BUTTON
+        } catch(err) { alert("Server error. Check connection."); } 
+        finally {
             btn.innerText = originalText;
             btn.disabled = false;
         }
@@ -262,52 +197,44 @@
         const p = document.getElementById('login-pass').value;
         const errorDiv = document.getElementById('login-error');
 
-        const res = await fetch(`${SERVER_URL}/login`, { 
-            method: 'POST', 
-            headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify({ username: u, password: p }) 
-        });
-        const d = await res.json();
-
-        if(res.ok) {
-            localStorage.setItem('path_token', d.token);
-            localStorage.setItem('path_username', u);
-            startApp(u);
-        } else {
-            errorDiv.innerText = d.msg;
-            errorDiv.style.display = 'block';
-        }
+        try {
+            const res = await fetch(`${SERVER_URL}/login`, { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ username: u, password: p }) 
+            });
+            const d = await res.json();
+            if(res.ok) {
+                localStorage.setItem('path_token', d.token);
+                localStorage.setItem('path_username', u);
+                startApp(u);
+            } else {
+                errorDiv.innerText = d.msg;
+                errorDiv.style.display = 'block';
+            }
+        } catch(e) { alert("Login failed. Server might be waking up."); }
     }
 
     function startApp(u) {
         document.getElementById('auth-overlay').style.display = 'none';
         document.getElementById('main-app').style.display = 'flex';
-        
         const socket = io(SERVER_URL, { reconnection: true });
         const token = localStorage.getItem('path_token');
         const myId = JSON.parse(atob(token.split('.')[1])).id;
-
         socket.on('connect', () => { socket.emit('identify', myId); });
-        socket.on('user status change', (ids) => {
-            globalOnlineUsers = ids;
-            renderFriends();
-        });
-
+        socket.on('user status change', (ids) => { globalOnlineUsers = ids; renderFriends(); });
         socket.on('chat message', (msg) => {
             const li = document.createElement('li'); li.className = 'message-item';
             li.innerHTML = `<div class="f-avatar">${msg.name[0].toUpperCase()}</div><div><b>${msg.name}</b><br>${msg.text}</div>`;
             document.getElementById('messages').appendChild(li);
             document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
         });
-
         document.getElementById('chat-form').onsubmit = (e) => {
             e.preventDefault();
             const t = document.getElementById('chat-input').value;
             if(t) { socket.emit('chat message', { name: u, text: t }); document.getElementById('chat-input').value = ''; }
         };
-
-        fetchMyData();
-        showChat(); 
+        fetchMyData(); showChat(); 
     }
 
     async function fetchMyData() {
@@ -331,20 +258,8 @@
             container.appendChild(el);
         });
     }
-
-    function showFriends() { 
-        document.getElementById('view-friends').style.display = 'flex'; 
-        document.getElementById('view-chat').style.display = 'none';
-        document.getElementById('nav-f').classList.add('active');
-        document.getElementById('nav-c').classList.remove('active');
-    }
-    function showChat() { 
-        document.getElementById('view-friends').style.display = 'none'; 
-        document.getElementById('view-chat').style.display = 'flex';
-        document.getElementById('nav-c').classList.add('active');
-        document.getElementById('nav-f').classList.remove('active');
-    }
-
+    function showFriends() { document.getElementById('view-friends').style.display = 'flex'; document.getElementById('view-chat').style.display = 'none'; document.getElementById('nav-f').classList.add('active'); document.getElementById('nav-c').classList.remove('active'); }
+    function showChat() { document.getElementById('view-friends').style.display = 'none'; document.getElementById('view-chat').style.display = 'flex'; document.getElementById('nav-c').classList.add('active'); document.getElementById('nav-f').classList.remove('active'); }
     window.onload = () => { if(localStorage.getItem('path_token')) startApp(localStorage.getItem('path_username')); }
   </script>
 </body>
