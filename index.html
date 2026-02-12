@@ -49,13 +49,29 @@
     /* --- FRIENDS DASHBOARD --- */
     #view-friends { flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-dark); }
     .top-bar { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; background: var(--bg-panel); }
-    .friend-tab { padding: 4px 12px; margin: 0 8px; cursor: pointer; color: var(--text-muted); font-size: 14px; }
-    .friend-tab.active { color: var(--neon-glow); font-weight: bold; }
+    
+    /* NEW TAB BOX STYLING */
+    .friend-tab { 
+        padding: 6px 12px; 
+        margin: 0 4px; 
+        cursor: pointer; 
+        color: var(--text-muted); 
+        font-size: 14px; 
+        border-radius: 6px;
+        transition: 0.2s;
+        font-weight: 500;
+    }
+    .friend-tab:hover { background-color: rgba(255,255,255,0.05); color: var(--text-main); }
+    .friend-tab.active { 
+        background-color: rgba(255,255,255,0.1); 
+        color: white; 
+        font-weight: 600;
+    }
+
     .add-friend-btn { background-color: var(--success); color: white; padding: 6px 14px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; margin-left: auto; }
 
     .dashboard-content { padding: 20px; flex-grow: 1; overflow-y: auto; }
     
-    /* --- FRIEND LIST ITEM --- */
     .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; position: relative; }
     .friend-item:hover { background-color: rgba(255,255,255,0.03); }
     .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; margin-right: 15px; display:flex; align-items:center; justify-content:center; font-weight:bold; }
@@ -96,7 +112,7 @@
     .m-cancel { background: transparent; color: white; border: 1px solid var(--border); }
     .m-danger { background: var(--error); color: white; }
 
-    /* --- CHAT VIEW (Unchanged) --- */
+    /* --- CHAT VIEW --- */
     #view-chat { flex-grow: 1; display: none; flex-direction: column; }
     #messages { list-style: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; }
     .message-item { display: flex; gap: 12px; margin-bottom: 15px; }
@@ -110,7 +126,7 @@
       <p id="modal-desc">This action cannot be undone.</p>
       <div class="modal-btns">
         <button class="m-btn m-cancel" onclick="closeModal()">Cancel</button>
-        <button id="modal-confirm-btn" class="m-btn m-danger">Delete</button>
+        <button id="modal-confirm-btn" class="m-btn m-danger">Confirm</button>
       </div>
     </div>
   </div>
@@ -145,7 +161,8 @@
     <div id="view-friends">
         <div class="top-bar">
             <span style="font-weight: bold; margin-right: 20px;">Friends</span>
-            <div class="friend-tab active" onclick="setTab('all')">All</div>
+            <div class="friend-tab active" onclick="setTab('online')">Online</div>
+            <div class="friend-tab" onclick="setTab('all')">All</div>
             <div class="friend-tab" onclick="setTab('pending')">Pending</div>
             <div class="friend-tab" onclick="setTab('blocked')">Blocked</div>
             <div class="add-friend-btn" onclick="setTab('add')">Add Friend</div>
@@ -167,15 +184,15 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const SERVER_URL = window.location.origin.includes('http') ? window.location.origin : 'https://path-project.onrender.com';
-    let currentTab = 'all';
+    let currentTab = 'online'; // DEFAULT TO ONLINE
     let myData = { friends: [], requests: [], blocked: [] };
 
-    // --- DROPDOWN & MODAL LOGIC ---
+    // --- DROPDOWN & MODAL ---
     function toggleDropdown(id) {
-        document.querySelectorAll('.dropdown-menu').forEach(m => {
-            if(m.id !== 'drop-' + id) m.classList.remove('show');
-        });
-        document.getElementById('drop-' + id).classList.toggle('show');
+        const menu = document.getElementById('drop-' + id);
+        const isOpen = menu.classList.contains('show');
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+        if(!isOpen) menu.classList.add('show');
     }
 
     window.onclick = (e) => {
@@ -204,9 +221,17 @@
         document.getElementById('view-friends').style.display = 'none';
         document.getElementById('view-chat').style.display = 'flex';
     }
+
     function setTab(tab) {
         currentTab = tab;
-        document.querySelectorAll('.friend-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.friend-tab').forEach(t => {
+            t.classList.remove('active');
+            if(t.innerText.toLowerCase() === tab) t.classList.add('active');
+        });
+        // Extra check for 'Add Friend' button case
+        if(tab === 'add') {
+            document.querySelectorAll('.friend-tab').forEach(t => t.classList.remove('active'));
+        }
         renderDashboard();
     }
 
@@ -225,8 +250,22 @@
             return;
         }
 
-        let list = (currentTab === 'all') ? myData.friends : (currentTab === 'pending') ? myData.requests : myData.blocked;
-        if(!list || list.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:40px;">No one here yet...</div>`; return; }
+        let list = [];
+        if (currentTab === 'online') {
+            // Placeholder: For now, shows all friends as "online" until we add real presence logic
+            list = myData.friends; 
+        } else if (currentTab === 'all') {
+            list = myData.friends;
+        } else if (currentTab === 'pending') {
+            list = myData.requests;
+        } else if (currentTab === 'blocked') {
+            list = myData.blocked;
+        }
+
+        if(!list || list.length === 0) { 
+            container.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:40px;">No ${currentTab} friends yet...</div>`; 
+            return; 
+        }
 
         list.forEach(item => {
             const username = item.username || "Unknown";
@@ -235,15 +274,15 @@
             el.className = 'friend-item';
 
             let actionHtml = '';
-            if(currentTab === 'all') {
+            if(currentTab === 'all' || currentTab === 'online') {
                 actionHtml = `
                 <div class="f-actions">
                     <div class="action-icon" onclick="showChat()" title="Message"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
                     <div class="dropdown">
                         <div class="action-icon" onclick="toggleDropdown('${id}')" title="More"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></div>
                         <div id="drop-${id}" class="dropdown-menu">
-                            <div class="dropdown-item danger" onclick="confirmAction('Remove Friend', 'Are you sure you want to unfriend ${username}?', () => removeFriend('${id}'))">Remove Friend</div>
-                            <div class="dropdown-item danger" onclick="confirmAction('Block User', 'Are you sure you want to block ${username}?', () => blockUser('${id}'))">Block User</div>
+                            <div class="dropdown-item danger" onclick="confirmAction('Remove Friend', 'Unfriend ${username}?', () => removeFriend('${id}'))">Remove Friend</div>
+                            <div class="dropdown-item danger" onclick="confirmAction('Block User', 'Block ${username}?', () => blockUser('${id}'))">Block User</div>
                         </div>
                     </div>
                 </div>`;
@@ -279,7 +318,7 @@
         fetchMyData();
     }
 
-    // --- LOGIN LOGIC (Shortened) ---
+    // --- LOGIN ---
     function switchView(v) { document.getElementById('login-form').style.display = (v==='login'?'block':'none'); document.getElementById('register-form').style.display = (v==='register'?'block':'none'); }
     async function handleLogin() {
         const u = document.getElementById('login-user').value; const p = document.getElementById('login-pass').value;
