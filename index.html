@@ -97,6 +97,7 @@
     /* --- CHAT --- */
     #view-chat { flex-grow: 1; display: none; flex-direction: column; }
     #messages { list-style: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; }
+    .message-item { display: flex; gap: 12px; margin-bottom: 15px; }
   </style>
 </head>
 <body>
@@ -174,7 +175,8 @@
 
     function toggleDropdown(id) {
         document.querySelectorAll('.dropdown-menu').forEach(m => { if(m.id !== 'drop-'+id) m.classList.remove('show'); });
-        document.getElementById('drop-' + id).classList.toggle('show');
+        const menu = document.getElementById('drop-' + id);
+        if(menu) menu.classList.toggle('show');
     }
 
     function confirmAction(title, desc, actionFn) {
@@ -283,14 +285,30 @@
         await fetch(`${SERVER_URL}/register`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) }); switchView('login');
     }
 
-    function switchView(v) { document.getElementById('login-form').style.display = (v==='login'?'block':'none'); document.getElementById('register-form').style.display = (v==='register'?'block':'none'); }
+    function switchView(v) { 
+        document.getElementById('login-form').style.display = (v==='login'?'block':'none'); 
+        document.getElementById('register-form').style.display = (v==='register'?'block':'none'); 
+        document.getElementById('login-error').style.display = 'none';
+    }
 
     function startApp(u) {
         document.getElementById('auth-overlay').style.display = 'none'; document.getElementById('main-app').style.display = 'flex';
         fetchMyData();
-        const socket = io(SERVER_URL);
+        
+        // RECONNECTION LOGIC:
+        const socket = io(SERVER_URL, { 
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000 
+        });
+        
         const myId = parseJwt(localStorage.getItem('path_token')).id;
-        socket.emit('identify', myId);
+
+        // Automatically identify every time the socket connects/reconnects
+        socket.on('connect', () => { 
+            console.log("Connected to server!");
+            socket.emit('identify', myId); 
+        });
 
         socket.on('user status change', (onlineIds) => { globalOnlineUsers = onlineIds; renderDashboard(); });
 
@@ -304,6 +322,7 @@
             const li = document.createElement('li'); li.className = 'message-item';
             li.innerHTML = `<div class="f-avatar">${msg.name[0].toUpperCase()}</div><div><span style="color:var(--neon-glow);font-weight:bold;">${msg.name}</span><br><span>${msg.text}</span></div>`;
             document.getElementById('messages').appendChild(li);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
         });
     }
     window.onload = () => { if(localStorage.getItem('path_username')) startApp(localStorage.getItem('path_username')); }

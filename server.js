@@ -52,17 +52,10 @@ app.post('/login', async (req, res) => {
 });
 
 // --- FRIEND SYSTEM ---
-
 app.get('/my-data', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id)
-      .populate('friends', 'username')
-      .populate('blocked', 'username'); 
-    res.json({ 
-      friends: user.friends, 
-      requests: user.friendRequests,
-      blocked: user.blocked 
-    });
+    const user = await User.findById(req.user.id).populate('friends', 'username').populate('blocked', 'username'); 
+    res.json({ friends: user.friends, requests: user.friendRequests, blocked: user.blocked });
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
 });
 
@@ -71,17 +64,11 @@ app.post('/add-friend', auth, async (req, res) => {
   try {
     const sender = await User.findById(req.user.id);
     const target = await User.findOne({ username: targetUsername });
-
     if (!target) return res.status(404).json({ msg: "User not found" });
     if (target.username === sender.username) return res.status(400).json({ msg: "Cannot add yourself" });
-    
-    if (target.blocked.includes(sender._id) || sender.blocked.includes(target._id)) {
-        return res.status(400).json({ msg: "Unable to add user" });
-    }
-
+    if (target.blocked.includes(sender._id) || sender.blocked.includes(target._id)) return res.status(400).json({ msg: "Unable to add user" });
     if (target.friends.includes(sender._id)) return res.status(400).json({ msg: "Already friends" });
     if (target.friendRequests.some(r => r.from.equals(sender._id))) return res.status(400).json({ msg: "Request already sent" });
-
     target.friendRequests.push({ from: sender._id, username: sender.username });
     await target.save();
     res.json({ msg: "Friend request sent!" });
@@ -93,18 +80,10 @@ app.post('/accept-friend', auth, async (req, res) => {
   try {
     const me = await User.findById(req.user.id);
     const requester = await User.findById(requesterId);
-
-    if (!requester) return res.status(404).json({ msg: "User not found" });
-
     me.friends.push(requester._id);
     requester.friends.push(me._id);
-
-    me.friendRequests = me.friendRequests.filter(r => 
-        r.from.toString() !== requesterId && r._id.toString() !== requesterId
-    );
-    
-    await me.save();
-    await requester.save();
+    me.friendRequests = me.friendRequests.filter(r => r.from.toString() !== requesterId && r._id.toString() !== requesterId);
+    await me.save(); await requester.save();
     res.json({ msg: "Friend added!" });
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
 });
@@ -113,9 +92,7 @@ app.post('/deny-friend', auth, async (req, res) => {
   const { requesterId } = req.body;
   try {
     const me = await User.findById(req.user.id);
-    me.friendRequests = me.friendRequests.filter(r => 
-        r.from.toString() !== requesterId && r._id.toString() !== requesterId
-    );
+    me.friendRequests = me.friendRequests.filter(r => r.from.toString() !== requesterId && r._id.toString() !== requesterId);
     await me.save();
     res.json({ msg: "Request denied" });
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
@@ -126,14 +103,9 @@ app.post('/remove-friend', auth, async (req, res) => {
   try {
     const me = await User.findById(req.user.id);
     const friend = await User.findById(friendId);
-
     me.friends = me.friends.filter(id => id.toString() !== friendId);
-    if(friend) {
-        friend.friends = friend.friends.filter(id => id.toString() !== me._id.toString());
-        await friend.save();
-    }
-    await me.save();
-    res.json({ msg: "Friend removed" });
+    if(friend) { friend.friends = friend.friends.filter(id => id.toString() !== me._id.toString()); await friend.save(); }
+    await me.save(); res.json({ msg: "Friend removed" });
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
 });
 
@@ -141,46 +113,37 @@ app.post('/block-user', auth, async (req, res) => {
   const { targetId } = req.body;
   try {
     const me = await User.findById(req.user.id);
-    
-    if (!me.blocked.includes(targetId)) {
-        me.blocked.push(targetId);
-    }
-
+    if (!me.blocked.includes(targetId)) me.blocked.push(targetId);
     me.friends = me.friends.filter(id => id.toString() !== targetId);
-    me.friendRequests = me.friendRequests.filter(r => 
-        r.from.toString() !== targetId && r._id.toString() !== targetId
-    );
-
-    await me.save();
-    res.json({ msg: "User blocked" });
+    me.friendRequests = me.friendRequests.filter(r => r.from.toString() !== targetId && r._id.toString() !== targetId);
+    await me.save(); res.json({ msg: "User blocked" });
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
 });
 
-// --- SOCKET & PRESENCE TRACKING ---
-const onlineUsers = new Map(); // Stores UserId -> SocketId
+// --- SOCKET & GLOBAL PRESENCE ---
+const onlineUsers = new Map(); 
 
 io.on('connection', (socket) => {
-  // When a user logs in, the frontend sends their ID to 'identify' them
   socket.on('identify', (userId) => {
+    if (!userId) return;
     socket.userId = userId;
     onlineUsers.set(userId, socket.id);
     
-    // Broadcast the list of ALL online user IDs to every connected client
     io.emit('user status change', Array.from(onlineUsers.keys()));
-    console.log(`User ${userId} connected.`);
+    console.log(`User ${userId} is online.`);
   });
 
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
-  });
+  socket.on('chat message', (msg) => io.emit('chat message', msg));
 
   socket.on('disconnect', () => {
-    if (socket.userId) {
-      onlineUsers.delete(socket.userId);
-      // Let everyone know someone went offline
-      io.emit('user status change', Array.from(onlineUsers.keys()));
-      console.log(`User ${socket.userId} disconnected.`);
-    }
+
+    setTimeout(() => {
+        if (socket.userId && onlineUsers.get(socket.userId) === socket.id) {
+            onlineUsers.delete(socket.userId);
+            io.emit('user status change', Array.from(onlineUsers.keys()));
+            console.log(`User ${socket.userId} is offline.`);
+        }
+    }, 5000);
   });
 });
 
