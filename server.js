@@ -7,38 +7,76 @@ const io = require('socket.io')(http, { cors: { origin: "*" } });
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 const User = require('./user'); 
 
 // --- MIDDLEWARE ---
 app.use(cors()); 
 app.use(express.json()); 
 
+// --- EMAIL CONFIG ---
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'pathproject.verify@gmail.com',
+    pass: process.env.EMAIL_PASS // The 16-digit App Password
+  }
+});
+
 const auth = (req, res, next) => {
     const token = req.header('x-auth-token');
-    if (!token) return res.status(401).json({ msg: 'No token, authorization denied' });
+    if (!token) return res.status(401).json({ msg: 'No token' });
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded; 
         next();
-    } catch (e) { res.status(400).json({ msg: 'Token is not valid' }); }
+    } catch (e) { res.status(400).json({ msg: 'Invalid token' }); }
 };
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB!'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .catch(err => console.error('MongoDB error:', err));
 
-// --- ROUTES ---
+// --- AUTH & VERIFICATION ---
+
 app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
 
 app.post('/register', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
     if (await User.findOne({ username })) return res.status(400).json({ msg: "Username taken" });
+    if (await User.findOne({ email })) return res.status(400).json({ msg: "Email in use" });
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, password: hashedPassword });
+    const vToken = crypto.randomBytes(32).toString('hex');
+
+    const newUser = new User({ 
+        username, email, password: hashedPassword, verificationToken: vToken 
+    });
     await newUser.save();
-    res.json({ msg: "Account created" });
+
+    const verifyUrl = `${process.env.BASE_URL}/verify-email/${vToken}`;
+    await transporter.sendMail({
+      from: '"Path Project" <pathproject.verify@gmail.com>',
+      to: email,
+      subject: "Verify your Path Account",
+      html: `<h1>Welcome to Path!</h1><p>Click the link to verify your email:</p><a href="${verifyUrl}">${verifyUrl}</a>`
+    });
+
+    res.json({ msg: "Account created! Check your email to verify." });
   } catch (err) { res.status(500).json({ msg: "Error" }); }
+});
+
+app.get('/verify-email/:token', async (req, res) => {
+  try {
+    const user = await User.findOne({ verificationToken: req.params.token });
+    if (!user) return res.status(400).send("<h1>Invalid Link</h1>");
+    user.isVerified = true;
+    user.verificationToken = undefined; 
+    await user.save();
+    res.send("<h1>Email Verified!</h1><p>You can now log in.</p>");
+  } catch (err) { res.status(500).send("Error"); }
 });
 
 app.post('/login', async (req, res) => {
@@ -46,17 +84,20 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
     if (!user || !(await bcrypt.compare(password, user.password))) return res.status(400).json({ msg: "Invalid credentials" });
+    if (!user.isVerified) return res.status(400).json({ msg: "Please verify your email first!" });
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, username: user.username });
   } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
 // --- FRIEND SYSTEM ---
+
 app.get('/my-data', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate('friends', 'username').populate('blocked', 'username'); 
     res.json({ friends: user.friends, requests: user.friendRequests, blocked: user.blocked });
-  } catch (err) { res.status(500).json({ msg: "Server error" }); }
+  } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
 app.post('/add-friend', auth, async (req, res) => {
@@ -65,62 +106,25 @@ app.post('/add-friend', auth, async (req, res) => {
     const sender = await User.findById(req.user.id);
     const target = await User.findOne({ username: targetUsername });
     if (!target) return res.status(404).json({ msg: "User not found" });
-    if (target.username === sender.username) return res.status(400).json({ msg: "Cannot add yourself" });
-    if (target.blocked.includes(sender._id) || sender.blocked.includes(target._id)) return res.status(400).json({ msg: "Unable to add user" });
-    if (target.friends.includes(sender._id)) return res.status(400).json({ msg: "Already friends" });
-    if (target.friendRequests.some(r => r.from.equals(sender._id))) return res.status(400).json({ msg: "Request already sent" });
     target.friendRequests.push({ from: sender._id, username: sender.username });
     await target.save();
-    res.json({ msg: "Friend request sent!" });
-  } catch (err) { res.status(500).json({ msg: "Server error" }); }
+    res.json({ msg: "Request sent!" });
+  } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
 app.post('/accept-friend', auth, async (req, res) => {
-  const { requesterId } = req.body;
   try {
     const me = await User.findById(req.user.id);
-    const requester = await User.findById(requesterId);
+    const requester = await User.findById(req.body.requesterId);
     me.friends.push(requester._id);
     requester.friends.push(me._id);
-    me.friendRequests = me.friendRequests.filter(r => r.from.toString() !== requesterId && r._id.toString() !== requesterId);
+    me.friendRequests = me.friendRequests.filter(r => r.from.toString() !== req.body.requesterId);
     await me.save(); await requester.save();
-    res.json({ msg: "Friend added!" });
-  } catch (err) { res.status(500).json({ msg: "Server error" }); }
+    res.json({ msg: "Added!" });
+  } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
-app.post('/deny-friend', auth, async (req, res) => {
-  const { requesterId } = req.body;
-  try {
-    const me = await User.findById(req.user.id);
-    me.friendRequests = me.friendRequests.filter(r => r.from.toString() !== requesterId && r._id.toString() !== requesterId);
-    await me.save();
-    res.json({ msg: "Request denied" });
-  } catch (err) { res.status(500).json({ msg: "Server error" }); }
-});
-
-app.post('/remove-friend', auth, async (req, res) => {
-  const { friendId } = req.body;
-  try {
-    const me = await User.findById(req.user.id);
-    const friend = await User.findById(friendId);
-    me.friends = me.friends.filter(id => id.toString() !== friendId);
-    if(friend) { friend.friends = friend.friends.filter(id => id.toString() !== me._id.toString()); await friend.save(); }
-    await me.save(); res.json({ msg: "Friend removed" });
-  } catch (err) { res.status(500).json({ msg: "Server error" }); }
-});
-
-app.post('/block-user', auth, async (req, res) => {
-  const { targetId } = req.body;
-  try {
-    const me = await User.findById(req.user.id);
-    if (!me.blocked.includes(targetId)) me.blocked.push(targetId);
-    me.friends = me.friends.filter(id => id.toString() !== targetId);
-    me.friendRequests = me.friendRequests.filter(r => r.from.toString() !== targetId && r._id.toString() !== targetId);
-    await me.save(); res.json({ msg: "User blocked" });
-  } catch (err) { res.status(500).json({ msg: "Server error" }); }
-});
-
-// --- SOCKET & GLOBAL PRESENCE ---
+// --- SOCKET & PRESENCE ---
 const onlineUsers = new Map(); 
 
 io.on('connection', (socket) => {
@@ -128,20 +132,16 @@ io.on('connection', (socket) => {
     if (!userId) return;
     socket.userId = userId;
     onlineUsers.set(userId, socket.id);
-    
     io.emit('user status change', Array.from(onlineUsers.keys()));
-    console.log(`User ${userId} is online.`);
   });
 
   socket.on('chat message', (msg) => io.emit('chat message', msg));
 
   socket.on('disconnect', () => {
-
     setTimeout(() => {
         if (socket.userId && onlineUsers.get(socket.userId) === socket.id) {
             onlineUsers.delete(socket.userId);
             io.emit('user status change', Array.from(onlineUsers.keys()));
-            console.log(`User ${socket.userId} is offline.`);
         }
     }, 5000);
   });
