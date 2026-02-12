@@ -15,13 +15,22 @@ const User = require('./user');
 app.use(cors()); 
 app.use(express.json()); 
 
-// --- EMAIL CONFIG ---
+// --- EMAIL CONFIG (Optimized for your dedicated project email) ---
 const transporter = nodemailer.createTransport({
   service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: 'pathproject.verify@gmail.com',
-    pass: process.env.EMAIL_PASS // The 16-digit App Password
+    pass: process.env.EMAIL_PASS // Your 16-digit App Password from Google
   }
+});
+
+// Logs whether the email server is actually working when you start the app
+transporter.verify((error, success) => {
+  if (error) console.log("Email Config Error: ", error);
+  else console.log("Email server is ready to send verification links!");
 });
 
 const auth = (req, res, next) => {
@@ -38,7 +47,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB!'))
   .catch(err => console.error('MongoDB error:', err));
 
-// --- AUTH & VERIFICATION ---
+// --- AUTH & REGISTRATION ---
 
 app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
 
@@ -57,38 +66,54 @@ app.post('/register', async (req, res) => {
     await newUser.save();
 
     const verifyUrl = `${process.env.BASE_URL}/verify-email/${vToken}`;
+    
+    // SEND THE EMAIL
     await transporter.sendMail({
       from: '"Path Project" <pathproject.verify@gmail.com>',
       to: email,
       subject: "Verify your Path Account",
-      html: `<h1>Welcome to Path!</h1><p>Click the link to verify your email:</p><a href="${verifyUrl}">${verifyUrl}</a>`
+      html: `
+        <div style="font-family: sans-serif; padding: 20px; color: #333;">
+          <h2>Welcome to Path!</h2>
+          <p>Please click the link below to verify your email and activate your account:</p>
+          <a href="${verifyUrl}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">Verify My Email</a>
+          <br><br>
+          <p>Or copy this link: ${verifyUrl}</p>
+        </div>`
     });
 
-    res.json({ msg: "Account created! Check your email to verify." });
-  } catch (err) { res.status(500).json({ msg: "Error" }); }
+    res.json({ msg: "Account created! Check your email to verify before logging in." });
+  } catch (err) { 
+    console.error("Registration Error:", err);
+    res.status(500).json({ msg: "Error during registration. Check server logs." }); 
+  }
 });
 
 app.get('/verify-email/:token', async (req, res) => {
   try {
     const user = await User.findOne({ verificationToken: req.params.token });
-    if (!user) return res.status(400).send("<h1>Invalid Link</h1>");
+    if (!user) return res.status(400).send("<h1>Invalid or expired link.</h1>");
     user.isVerified = true;
     user.verificationToken = undefined; 
     await user.save();
-    res.send("<h1>Email Verified!</h1><p>You can now log in.</p>");
-  } catch (err) { res.status(500).send("Error"); }
+    res.send("<h1>Email Verified!</h1><p>You can now return to the app and log in.</p>");
+  } catch (err) { res.status(500).send("Server Error"); }
 });
 
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
-    if (!user || !(await bcrypt.compare(password, user.password))) return res.status(400).json({ msg: "Invalid credentials" });
-    if (!user.isVerified) return res.status(400).json({ msg: "Please verify your email first!" });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.status(400).json({ msg: "Invalid username or password." });
+    }
+    if (!user.isVerified) {
+        return res.status(400).json({ msg: "Please verify your email before logging in!" });
+    }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, username: user.username });
-  } catch (err) { res.status(500).json({ msg: "Error" }); }
+  } catch (err) { res.status(500).json({ msg: "Server error." }); }
 });
 
 // --- FRIEND SYSTEM ---
@@ -97,18 +122,17 @@ app.get('/my-data', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate('friends', 'username').populate('blocked', 'username'); 
     res.json({ friends: user.friends, requests: user.friendRequests, blocked: user.blocked });
-  } catch (err) { res.status(500).json({ msg: "Error" }); }
+  } catch (err) { res.status(500).json({ msg: "Error fetching data" }); }
 });
 
 app.post('/add-friend', auth, async (req, res) => {
-  const { targetUsername } = req.body;
   try {
     const sender = await User.findById(req.user.id);
-    const target = await User.findOne({ username: targetUsername });
+    const target = await User.findOne({ username: req.body.targetUsername });
     if (!target) return res.status(404).json({ msg: "User not found" });
     target.friendRequests.push({ from: sender._id, username: sender.username });
     await target.save();
-    res.json({ msg: "Request sent!" });
+    res.json({ msg: "Friend request sent!" });
   } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
@@ -120,11 +144,11 @@ app.post('/accept-friend', auth, async (req, res) => {
     requester.friends.push(me._id);
     me.friendRequests = me.friendRequests.filter(r => r.from.toString() !== req.body.requesterId);
     await me.save(); await requester.save();
-    res.json({ msg: "Added!" });
+    res.json({ msg: "Friendship confirmed!" });
   } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
-// --- SOCKET & PRESENCE ---
+// --- SOCKET & PRESENCE (Real-time only) ---
 const onlineUsers = new Map(); 
 
 io.on('connection', (socket) => {
@@ -135,7 +159,9 @@ io.on('connection', (socket) => {
     io.emit('user status change', Array.from(onlineUsers.keys()));
   });
 
-  socket.on('chat message', (msg) => io.emit('chat message', msg));
+  socket.on('chat message', (msg) => {
+    io.emit('chat message', msg); // Just broadcast, no saving
+  });
 
   socket.on('disconnect', () => {
     setTimeout(() => {
@@ -148,4 +174,4 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+http.listen(PORT, () => console.log(`Path server running on port ${PORT}`));

@@ -22,21 +22,25 @@
     /* --- AUTH STYLES --- */
     #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; z-index: 1000; }
     .auth-box { background: var(--bg-panel); padding: 40px; border-radius: 12px; border: 1px solid var(--border); width: 380px; text-align: center; }
-    
     .auth-box h1 { color: var(--path-blue); margin-bottom: 5px; font-size: 32px; text-shadow: 0 0 10px rgba(0, 123, 255, 0.3); }
     .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
 
+    .input-wrapper { position: relative; width: 100%; }
     .auth-input { width: 100%; padding: 12px; background-color: var(--input-bg); border: 1px solid var(--border); color: white; border-radius: 6px; margin-bottom: 15px; box-sizing: border-box; outline: none; }
-    .auth-input:focus { border-color: var(--path-blue); }
-    
+    .toggle-pass { position: absolute; right: 12px; top: 12px; cursor: pointer; color: var(--text-muted); font-size: 18px; user-select: none; }
+    .toggle-pass:hover { color: var(--path-blue); }
+
     .auth-btn { width: 100%; padding: 12px; background-color: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .switch-link { margin-top: 20px; cursor: pointer; color: var(--text-muted); font-size: 14px; display: inline-block; }
+    
+    .switch-link { margin-top: 25px; cursor: pointer; color: var(--text-muted); font-size: 14px; display: inline-block; transition: 0.2s; }
+    .switch-link span { color: var(--path-blue); font-weight: bold; text-decoration: underline; padding-left: 4px; }
+    .switch-link:hover span { color: var(--neon-glow); }
 
     /* --- APP LAYOUT --- */
     #main-app { display: none; width: 100%; height: 100%; display: flex; }
     #sidebar { width: 72px; background: var(--bg-sidebar); display: flex; flex-direction: column; align-items: center; padding-top: 15px; border-right: 1px solid var(--border); }
-    .nav-item { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; cursor: pointer; transition: 0.2s; background-color: var(--bg-panel); border: 1px solid var(--border); }
-    .nav-item:hover { border-radius: 16px; background-color: var(--path-blue); }
+    .nav-item { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; cursor: pointer; transition: 0.2s; background-color: var(--bg-panel); border: 1px solid var(--border); font-weight: bold; }
+    .nav-item:hover, .nav-item.active { border-radius: 16px; background-color: var(--path-blue); color: white; }
 
     #view-friends { flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-dark); }
     .top-bar { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; background: var(--bg-panel); }
@@ -61,10 +65,13 @@
       <h1>Path</h1>
       <div class="subtitle">To new beginnings.</div>
       <input type="text" id="login-user" placeholder="Username" class="auth-input">
-      <input type="password" id="login-pass" placeholder="Password" class="auth-input">
+      <div class="input-wrapper">
+        <input type="password" id="login-pass" placeholder="Password" class="auth-input">
+        <span class="toggle-pass" onclick="togglePass('login-pass')">👁</span>
+      </div>
       <div id="login-error" style="color:var(--error); margin-bottom:10px; display:none; font-size: 13px;"></div>
       <button onclick="handleLogin()" class="auth-btn">Log In</button>
-      <div class="switch-link" onclick="switchView('register')">Register a new account</div>
+      <div class="switch-link" onclick="switchView('register')">Need an account? <span>Register</span></div>
     </div>
 
     <div id="register-form" class="auth-box" style="display:none;">
@@ -72,22 +79,27 @@
       <div class="subtitle">Join the Path Project.</div>
       <input type="text" id="reg-user" placeholder="Username" class="auth-input">
       <input type="email" id="reg-email" placeholder="Email Address" class="auth-input">
-      <input type="password" id="reg-pass" placeholder="Password" class="auth-input">
-      <input type="password" id="reg-confirm" placeholder="Confirm Password" class="auth-input" style="margin-bottom: 5px;">
       
-      <div style="font-size: 11px; color: var(--text-muted); text-align: left; margin-bottom: 15px; padding-left: 2px;">
-        Must be 8+ characters with a symbol (!@#$)
+      <div class="input-wrapper">
+        <input type="password" id="reg-pass" placeholder="Password" class="auth-input">
+        <span class="toggle-pass" onclick="togglePass('reg-pass')">👁</span>
       </div>
-
-      <button onclick="handleRegister()" class="auth-btn">Create Account</button>
-      <div class="switch-link" onclick="switchView('login')">Back to Login</div>
+      
+      <div class="input-wrapper">
+        <input type="password" id="reg-confirm" placeholder="Confirm Password" class="auth-input" style="margin-bottom: 5px;">
+        <span class="toggle-pass" onclick="togglePass('reg-confirm')">👁</span>
+      </div>
+      
+      <div style="font-size: 11px; color: var(--text-muted); text-align: left; margin-bottom: 15px;">Must be 8+ chars with a symbol (!@#$)</div>
+      <button id="reg-btn" onclick="handleRegister()" class="auth-btn">Create Account</button>
+      <div class="switch-link" onclick="switchView('login')">Already have an account? <span>Log In</span></div>
     </div>
   </div>
 
   <div id="main-app">
     <div id="sidebar">
-        <div class="nav-item" onclick="showFriends()">F</div>
-        <div class="nav-item" onclick="showChat()">C</div>
+        <div class="nav-item" id="nav-f" onclick="showFriends()">F</div>
+        <div class="nav-item" id="nav-c" onclick="showChat()">C</div>
     </div>
     <div id="view-friends">
         <div class="top-bar">
@@ -114,6 +126,11 @@
     let globalOnlineUsers = [];
     let myData = { friends: [] };
 
+    function togglePass(id) {
+        const input = document.getElementById(id);
+        input.type = input.type === "password" ? "text" : "password";
+    }
+
     function switchView(v) {
         document.getElementById('login-form').style.display = (v==='login'?'block':'none');
         document.getElementById('register-form').style.display = (v==='register'?'block':'none');
@@ -123,34 +140,55 @@
         const u = document.getElementById('reg-user').value;
         const e = document.getElementById('reg-email').value;
         const p = document.getElementById('reg-pass').value;
-        const confirmP = document.getElementById('reg-confirm').value;
+        const cp = document.getElementById('reg-confirm').value;
+        const btn = document.getElementById('reg-btn');
 
-        if (p !== confirmP) return alert("Passwords do not match!");
-        if (p.length < 8) return alert("Password must be 8+ characters.");
-        if (!/[^a-zA-Z0-9]/.test(p)) return alert("Password must include a symbol.");
+        if (!u || !e || !p) return alert("Please fill in all fields.");
+        if (p !== cp) return alert("Passwords do not match!");
+        if (p.length < 8 || !/[^a-zA-Z0-9]/.test(p)) return alert("Password must be 8+ chars with a symbol.");
 
-        const res = await fetch(`${SERVER_URL}/register`, { 
-            method: 'POST', 
-            headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify({ username: u, email: e, password: p }) 
-        });
-        const data = await res.json();
-        alert(data.msg);
-        if(res.ok) switchView('login');
+        btn.innerText = "Creating...";
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`${SERVER_URL}/register`, { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ username: u, email: e, password: p }) 
+            });
+            const data = await res.json();
+            
+            if(res.ok) {
+                alert("Account Created! Check your email to verify before logging in.");
+                switchView('login'); 
+            } else {
+                alert(data.msg || "Registration failed.");
+            }
+        } catch(err) { alert("Server error. Check your internet or Render logs."); }
+        
+        btn.innerText = "Create Account";
+        btn.disabled = false;
     }
 
     async function handleLogin() {
         const u = document.getElementById('login-user').value;
         const p = document.getElementById('login-pass').value;
-        const res = await fetch(`${SERVER_URL}/login`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ username: u, password: p }) });
+        const errorDiv = document.getElementById('login-error');
+
+        const res = await fetch(`${SERVER_URL}/login`, { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify({ username: u, password: p }) 
+        });
         const d = await res.json();
+
         if(res.ok) {
             localStorage.setItem('path_token', d.token);
             localStorage.setItem('path_username', u);
             startApp(u);
         } else {
-            document.getElementById('login-error').innerText = d.msg;
-            document.getElementById('login-error').style.display = 'block';
+            errorDiv.innerText = d.msg;
+            errorDiv.style.display = 'block';
         }
     }
 
@@ -163,7 +201,6 @@
         const myId = JSON.parse(atob(token.split('.')[1])).id;
 
         socket.on('connect', () => { socket.emit('identify', myId); });
-
         socket.on('user status change', (ids) => {
             globalOnlineUsers = ids;
             renderFriends();
@@ -183,6 +220,7 @@
         };
 
         fetchMyData();
+        showChat(); // Default view
     }
 
     async function fetchMyData() {
@@ -207,8 +245,18 @@
         });
     }
 
-    function showFriends() { document.getElementById('view-friends').style.display = 'flex'; document.getElementById('view-chat').style.display = 'none'; }
-    function showChat() { document.getElementById('view-friends').style.display = 'none'; document.getElementById('view-chat').style.display = 'flex'; }
+    function showFriends() { 
+        document.getElementById('view-friends').style.display = 'flex'; 
+        document.getElementById('view-chat').style.display = 'none';
+        document.getElementById('nav-f').classList.add('active');
+        document.getElementById('nav-c').classList.remove('active');
+    }
+    function showChat() { 
+        document.getElementById('view-friends').style.display = 'none'; 
+        document.getElementById('view-chat').style.display = 'flex';
+        document.getElementById('nav-c').classList.add('active');
+        document.getElementById('nav-f').classList.remove('active');
+    }
 
     window.onload = () => { if(localStorage.getItem('path_token')) startApp(localStorage.getItem('path_username')); }
   </script>
