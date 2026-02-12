@@ -31,7 +31,7 @@
     .auth-input { 
         width: 100%; 
         padding: 12px; 
-        padding-right: 45px; /* Space for the icon so text doesn't overlap */
+        padding-right: 45px; 
         background-color: var(--input-bg); 
         border: 1px solid var(--border); 
         color: white; 
@@ -42,12 +42,30 @@
     }
     .auth-input:focus { border-color: var(--path-blue); }
 
-    /* NEW CLEAN ICON STYLES */
+    /* --- FIX FOR WHITE BOX GLITCH --- */
+    /* Forces the background to stay dark even when Chrome tries to turn it white */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
+        -webkit-text-fill-color: white !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* Keeps the box dark even when disabled during "Creating..." */
+    .auth-input:disabled {
+        background-color: var(--input-bg);
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* ICON STYLES */
     .toggle-pass { 
         position: absolute; 
         right: 12px; 
         top: 50%; 
-        transform: translateY(-50%); /* Perfect vertical centering */
+        transform: translateY(-50%); 
         cursor: pointer; 
         color: var(--text-muted); 
         display: flex; 
@@ -59,6 +77,7 @@
     .toggle-pass svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     .auth-btn { width: 100%; padding: 12px; background-color: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .auth-btn:disabled { background-color: #0056b3; cursor: wait; opacity: 0.7; }
     
     .switch-link { margin-top: 25px; cursor: pointer; color: var(--text-muted); font-size: 14px; display: inline-block; transition: 0.2s; }
     .switch-link span { color: var(--path-blue); font-weight: bold; text-decoration: underline; padding-left: 4px; }
@@ -171,16 +190,12 @@
     let globalOnlineUsers = [];
     let myData = { friends: [] };
 
-    // UPDATED: Now swaps the SVG icon when clicked
     function togglePass(el, id) {
         const input = document.getElementById(id);
         const isPass = input.type === "password";
         input.type = isPass ? "text" : "password";
         
-        // Eye Open SVG
         const eyeOpen = '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-        
-        // Eye Slash SVG (Crossed out)
         const eyeSlash = '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
 
         el.innerHTML = isPass ? eyeSlash : eyeOpen;
@@ -202,15 +217,24 @@
         if (p !== cp) return alert("Passwords do not match!");
         if (p.length < 8 || !/[^a-zA-Z0-9]/.test(p)) return alert("Password must be 8+ chars with a symbol.");
 
+        // UI LOCK
+        const originalText = btn.innerText;
         btn.innerText = "Creating...";
         btn.disabled = true;
 
         try {
+            // TIMEOUT PROTECTION (15 seconds max)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
             const res = await fetch(`${SERVER_URL}/register`, { 
                 method: 'POST', 
                 headers: {'Content-Type': 'application/json'}, 
-                body: JSON.stringify({ username: u, email: e, password: p }) 
+                body: JSON.stringify({ username: u, email: e, password: p }),
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId); 
             const data = await res.json();
             
             if(res.ok) {
@@ -219,10 +243,18 @@
             } else {
                 alert(data.msg || "Registration failed.");
             }
-        } catch(err) { alert("Server error. Check your internet or Render logs."); }
-        
-        btn.innerText = "Create Account";
-        btn.disabled = false;
+        } catch(err) { 
+            console.error(err);
+            if (err.name === 'AbortError') {
+                alert("Request timed out. The server took too long to send the email.");
+            } else {
+                alert("Network error. Please check the Render Logs."); 
+            }
+        } finally {
+            // ALWAYS UNLOCK BUTTON
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
     }
 
     async function handleLogin() {
