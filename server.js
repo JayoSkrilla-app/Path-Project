@@ -15,22 +15,26 @@ const User = require('./user');
 app.use(cors()); 
 app.use(express.json()); 
 
-// --- EMAIL CONFIG (Optimized for your dedicated project email) ---
+// --- EMAIL CONFIG (Fixed for Render) ---
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   host: 'smtp.gmail.com',
   port: 465,
   secure: true,
+  family: 4, // <--- THIS FIXES THE IPV6 ERROR
   auth: {
     user: 'pathproject.verify@gmail.com',
-    pass: process.env.EMAIL_PASS // Your 16-digit App Password from Google
+    pass: process.env.EMAIL_PASS // Your 16-digit App Password
   }
 });
 
-// Logs whether the email server is actually working when you start the app
+// Log connection status on startup
 transporter.verify((error, success) => {
-  if (error) console.log("Email Config Error: ", error);
-  else console.log("Email server is ready to send verification links!");
+  if (error) {
+    console.log("Email Config Error:", error);
+  } else {
+    console.log("Server is ready to send emails!");
+  }
 });
 
 const auth = (req, res, next) => {
@@ -47,7 +51,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB!'))
   .catch(err => console.error('MongoDB error:', err));
 
-// --- AUTH & REGISTRATION ---
+// --- ROUTES ---
 
 app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
 
@@ -67,7 +71,6 @@ app.post('/register', async (req, res) => {
 
     const verifyUrl = `${process.env.BASE_URL}/verify-email/${vToken}`;
     
-    // SEND THE EMAIL
     await transporter.sendMail({
       from: '"Path Project" <pathproject.verify@gmail.com>',
       to: email,
@@ -85,7 +88,7 @@ app.post('/register', async (req, res) => {
     res.json({ msg: "Account created! Check your email to verify before logging in." });
   } catch (err) { 
     console.error("Registration Error:", err);
-    res.status(500).json({ msg: "Error during registration. Check server logs." }); 
+    res.status(500).json({ msg: "Error during registration." }); 
   }
 });
 
@@ -148,7 +151,7 @@ app.post('/accept-friend', auth, async (req, res) => {
   } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
-// --- SOCKET & PRESENCE (Real-time only) ---
+// --- SOCKET & PRESENCE ---
 const onlineUsers = new Map(); 
 
 io.on('connection', (socket) => {
@@ -160,7 +163,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('chat message', (msg) => {
-    io.emit('chat message', msg); // Just broadcast, no saving
+    io.emit('chat message', msg);
   });
 
   socket.on('disconnect', () => {

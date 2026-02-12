@@ -25,10 +25,38 @@
     .auth-box h1 { color: var(--path-blue); margin-bottom: 5px; font-size: 32px; text-shadow: 0 0 10px rgba(0, 123, 255, 0.3); }
     .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
 
-    .input-wrapper { position: relative; width: 100%; }
-    .auth-input { width: 100%; padding: 12px; background-color: var(--input-bg); border: 1px solid var(--border); color: white; border-radius: 6px; margin-bottom: 15px; box-sizing: border-box; outline: none; }
-    .toggle-pass { position: absolute; right: 12px; top: 12px; cursor: pointer; color: var(--text-muted); font-size: 18px; user-select: none; }
+    /* FIXED INPUT WRAPPER */
+    .input-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
+    
+    .auth-input { 
+        width: 100%; 
+        padding: 12px; 
+        padding-right: 45px; /* Space for the icon so text doesn't overlap */
+        background-color: var(--input-bg); 
+        border: 1px solid var(--border); 
+        color: white; 
+        border-radius: 6px; 
+        box-sizing: border-box; 
+        outline: none; 
+        transition: 0.2s;
+    }
+    .auth-input:focus { border-color: var(--path-blue); }
+
+    /* NEW CLEAN ICON STYLES */
+    .toggle-pass { 
+        position: absolute; 
+        right: 12px; 
+        top: 50%; 
+        transform: translateY(-50%); /* Perfect vertical centering */
+        cursor: pointer; 
+        color: var(--text-muted); 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        transition: 0.2s;
+    }
     .toggle-pass:hover { color: var(--path-blue); }
+    .toggle-pass svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     .auth-btn { width: 100%; padding: 12px; background-color: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     
@@ -48,7 +76,7 @@
     .friend-tab.active { background-color: rgba(255,255,255,0.1); color: white; }
     
     .dashboard-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
-    .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; background: rgba(255,255,255,0.02); }
+    .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin: 5px 20px; background: rgba(255,255,255,0.02); }
     .f-avatar-wrapper { position: relative; margin-right: 15px; }
     .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; }
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background-color: #3ba55c; position: absolute; bottom: 0; right: 0; border: 2px solid var(--bg-dark); }
@@ -64,11 +92,18 @@
     <div id="login-form" class="auth-box">
       <h1>Path</h1>
       <div class="subtitle">To new beginnings.</div>
-      <input type="text" id="login-user" placeholder="Username" class="auth-input">
+      
+      <div class="input-wrapper">
+        <input type="text" id="login-user" placeholder="Username" class="auth-input">
+      </div>
+
       <div class="input-wrapper">
         <input type="password" id="login-pass" placeholder="Password" class="auth-input">
-        <span class="toggle-pass" onclick="togglePass('login-pass')">👁</span>
+        <span class="toggle-pass" onclick="togglePass(this, 'login-pass')">
+           <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </span>
       </div>
+      
       <div id="login-error" style="color:var(--error); margin-bottom:10px; display:none; font-size: 13px;"></div>
       <button onclick="handleLogin()" class="auth-btn">Log In</button>
       <div class="switch-link" onclick="switchView('register')">Need an account? <span>Register</span></div>
@@ -77,17 +112,27 @@
     <div id="register-form" class="auth-box" style="display:none;">
       <h1>Register</h1>
       <div class="subtitle">Join the Path Project.</div>
-      <input type="text" id="reg-user" placeholder="Username" class="auth-input">
-      <input type="email" id="reg-email" placeholder="Email Address" class="auth-input">
       
       <div class="input-wrapper">
-        <input type="password" id="reg-pass" placeholder="Password" class="auth-input">
-        <span class="toggle-pass" onclick="togglePass('reg-pass')">👁</span>
+        <input type="text" id="reg-user" placeholder="Username" class="auth-input">
+      </div>
+
+      <div class="input-wrapper">
+         <input type="email" id="reg-email" placeholder="Email Address" class="auth-input">
       </div>
       
       <div class="input-wrapper">
-        <input type="password" id="reg-confirm" placeholder="Confirm Password" class="auth-input" style="margin-bottom: 5px;">
-        <span class="toggle-pass" onclick="togglePass('reg-confirm')">👁</span>
+        <input type="password" id="reg-pass" placeholder="Password" class="auth-input">
+        <span class="toggle-pass" onclick="togglePass(this, 'reg-pass')">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </span>
+      </div>
+      
+      <div class="input-wrapper">
+        <input type="password" id="reg-confirm" placeholder="Confirm Password" class="auth-input">
+        <span class="toggle-pass" onclick="togglePass(this, 'reg-confirm')">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </span>
       </div>
       
       <div style="font-size: 11px; color: var(--text-muted); text-align: left; margin-bottom: 15px;">Must be 8+ chars with a symbol (!@#$)</div>
@@ -126,9 +171,19 @@
     let globalOnlineUsers = [];
     let myData = { friends: [] };
 
-    function togglePass(id) {
+    // UPDATED: Now swaps the SVG icon when clicked
+    function togglePass(el, id) {
         const input = document.getElementById(id);
-        input.type = input.type === "password" ? "text" : "password";
+        const isPass = input.type === "password";
+        input.type = isPass ? "text" : "password";
+        
+        // Eye Open SVG
+        const eyeOpen = '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        
+        // Eye Slash SVG (Crossed out)
+        const eyeSlash = '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+
+        el.innerHTML = isPass ? eyeSlash : eyeOpen;
     }
 
     function switchView(v) {
@@ -220,7 +275,7 @@
         };
 
         fetchMyData();
-        showChat(); // Default view
+        showChat(); 
     }
 
     async function fetchMyData() {
