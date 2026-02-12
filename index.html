@@ -123,10 +123,17 @@
       <button onclick="handleLogin()" class="auth-btn">Log In</button>
       <div style="margin-top:15px; cursor:pointer; color:var(--text-muted);" onclick="switchView('register')">Register</div>
     </div>
+    
     <div id="register-form" class="auth-box" style="display:none;">
       <h1>Register</h1>
       <input type="text" id="reg-user" placeholder="Username" class="auth-input">
-      <input type="password" id="reg-pass" placeholder="Password" class="auth-input">
+      <input type="email" id="reg-email" placeholder="Email Address" class="auth-input">
+      <input type="password" id="reg-pass" placeholder="Password" class="auth-input" style="margin-bottom: 5px;">
+      
+      <div style="font-size: 11px; color: var(--text-muted); text-align: left; margin-bottom: 15px; padding-left: 2px;">
+        Requires 8+ characters and at least 1 symbol (e.g. !@#$)
+      </div>
+
       <button onclick="handleRegister()" class="auth-btn">Create Account</button>
       <div style="margin-top:15px; cursor:pointer; color:var(--text-muted);" onclick="switchView('login')">Back to Login</div>
     </div>
@@ -280,9 +287,34 @@
         if(res.ok) { localStorage.setItem('path_token', d.token); localStorage.setItem('path_username', u); startApp(u); }
         else { document.getElementById('login-error').innerText = d.msg; document.getElementById('login-error').style.display='block'; }
     }
+    
+    // UPDATED REGISTRATION LOGIC
     async function handleRegister() {
-        const u = document.getElementById('reg-user').value; const p = document.getElementById('reg-pass').value;
-        await fetch(`${SERVER_URL}/register`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) }); switchView('login');
+        const u = document.getElementById('reg-user').value;
+        const email = document.getElementById('reg-email').value;
+        const p = document.getElementById('reg-pass').value;
+
+        // Security check: Length
+        if (p.length < 8) {
+            alert("Password must be at least 8 characters long.");
+            return;
+        }
+
+        // Security check: Symbol
+        const symbolRegex = /[^a-zA-Z0-9]/;
+        if (!symbolRegex.test(p)) {
+            alert("Password must contain at least one symbol (like ! @ # $ %)");
+            return;
+        }
+
+        const res = await fetch(`${SERVER_URL}/register`, { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify({ username: u, email: email, password: p }) 
+        });
+        const d = await res.json();
+        alert(d.msg);
+        if(res.ok) switchView('login');
     }
 
     function switchView(v) { 
@@ -295,7 +327,6 @@
         document.getElementById('auth-overlay').style.display = 'none'; document.getElementById('main-app').style.display = 'flex';
         fetchMyData();
         
-        // RECONNECTION LOGIC:
         const socket = io(SERVER_URL, { 
             reconnection: true,
             reconnectionAttempts: Infinity,
@@ -304,7 +335,6 @@
         
         const myId = parseJwt(localStorage.getItem('path_token')).id;
 
-        // Automatically identify every time the socket connects/reconnects
         socket.on('connect', () => { 
             console.log("Connected to server!");
             socket.emit('identify', myId); 
