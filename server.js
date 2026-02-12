@@ -30,7 +30,6 @@ mongoose.connect(process.env.MONGO_URI)
 // --- ROUTES ---
 app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
 
-// REGISTER
 app.post('/register', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -42,7 +41,6 @@ app.post('/register', async (req, res) => {
   } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
-// LOGIN
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -55,17 +53,11 @@ app.post('/login', async (req, res) => {
 
 // --- FRIEND SYSTEM ---
 
-// 1. GET DASHBOARD
 app.get('/my-data', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
       .populate('friends', 'username')
       .populate('blocked', 'username'); 
-    
-    // Manual populate for requests since it's a custom object structure
-    // We get the list, then look up the usernames manually if needed, 
-    // but typically we stored username in the request object directly to save time.
-    
     res.json({ 
       friends: user.friends, 
       requests: user.friendRequests,
@@ -74,7 +66,6 @@ app.get('/my-data', auth, async (req, res) => {
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
 });
 
-// 2. SEND REQUEST
 app.post('/add-friend', auth, async (req, res) => {
   const { targetUsername } = req.body;
   try {
@@ -84,7 +75,6 @@ app.post('/add-friend', auth, async (req, res) => {
     if (!target) return res.status(404).json({ msg: "User not found" });
     if (target.username === sender.username) return res.status(400).json({ msg: "Cannot add yourself" });
     
-    // Check Block Status
     if (target.blocked.includes(sender._id) || sender.blocked.includes(target._id)) {
         return res.status(400).json({ msg: "Unable to add user" });
     }
@@ -98,21 +88,20 @@ app.post('/add-friend', auth, async (req, res) => {
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
 });
 
-// 3. ACCEPT REQUEST
 app.post('/accept-friend', auth, async (req, res) => {
   const { requesterId } = req.body;
   try {
     const me = await User.findById(req.user.id);
     const requester = await User.findById(requesterId);
 
-    if(!requester) return res.status(404).json({msg: "User not found"});
+    if (!requester) return res.status(404).json({ msg: "User not found" });
 
-    // Add to friends
     me.friends.push(requester._id);
     requester.friends.push(me._id);
 
-    // Remove request
-    me.friendRequests = me.friendRequests.filter(r => !r.from.equals(requester._id));
+    me.friendRequests = me.friendRequests.filter(r => 
+        r.from.toString() !== requesterId && r._id.toString() !== requesterId
+    );
     
     await me.save();
     await requester.save();
@@ -120,28 +109,27 @@ app.post('/accept-friend', auth, async (req, res) => {
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
 });
 
-// 4. DENY REQUEST (This was missing!)
 app.post('/deny-friend', auth, async (req, res) => {
   const { requesterId } = req.body;
   try {
     const me = await User.findById(req.user.id);
-    // Just remove the request, don't add to friends
-    me.friendRequests = me.friendRequests.filter(r => !r.from.equals(requesterId));
+    me.friendRequests = me.friendRequests.filter(r => 
+        r.from.toString() !== requesterId && r._id.toString() !== requesterId
+    );
     await me.save();
     res.json({ msg: "Request denied" });
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
 });
 
-// 5. REMOVE FRIEND
 app.post('/remove-friend', auth, async (req, res) => {
   const { friendId } = req.body;
   try {
     const me = await User.findById(req.user.id);
     const friend = await User.findById(friendId);
 
-    me.friends = me.friends.filter(id => !id.equals(friendId));
+    me.friends = me.friends.filter(id => id.toString() !== friendId);
     if(friend) {
-        friend.friends = friend.friends.filter(id => !id.equals(me._id));
+        friend.friends = friend.friends.filter(id => id.toString() !== me._id.toString());
         await friend.save();
     }
     await me.save();
@@ -149,25 +137,19 @@ app.post('/remove-friend', auth, async (req, res) => {
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
 });
 
-// 6. BLOCK USER
 app.post('/block-user', auth, async (req, res) => {
   const { targetId } = req.body;
   try {
     const me = await User.findById(req.user.id);
-    const target = await User.findById(targetId);
-
+    
     if (!me.blocked.includes(targetId)) {
         me.blocked.push(targetId);
     }
 
-    // Force remove from friends/requests if they exist
-    me.friends = me.friends.filter(id => !id.equals(targetId));
-    me.friendRequests = me.friendRequests.filter(r => !r.from.equals(targetId));
-
-    if(target) {
-        target.friends = target.friends.filter(id => !id.equals(me._id));
-        await target.save();
-    }
+    me.friends = me.friends.filter(id => id.toString() !== targetId);
+    me.friendRequests = me.friendRequests.filter(r => 
+        r.from.toString() !== targetId && r._id.toString() !== targetId
+    );
 
     await me.save();
     res.json({ msg: "User blocked" });
