@@ -3,60 +3,143 @@
 <head>
   <title>Path Project</title>
   <style>
+    /* --- THEME & COLORS --- */
     :root {
-      --background-dark: #0d1117;
-      --background-sidebar: #05070a;
-      --path-blue: #007bff;
-      --neon-glow: #00d4ff;
+      --bg-dark: #0d1117;
+      --bg-panel: #161b22;
+      --primary-blue: #007bff;
+      --neon-cyan: #00d4ff;
       --text-main: #e6edf3;
-      --text-muted: #7d8590;
-      --input-bg: #161b22;
-      --error-red: #ff4b4b;
+      --text-muted: #8b949e;
+      --input-bg: #0d1117;
+      --border: #30363d;
+      --error: #ff4b4b;
     }
-    body { font-family: 'Segoe UI', sans-serif; background-color: var(--background-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-    
-    /* --- Auth Overlay CSS --- */
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* --- AUTH SCREENS --- */
     #auth-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: var(--background-dark);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: var(--bg-dark);
+      display: flex; align-items: center; justify-content: center;
       z-index: 1000;
     }
-    .auth-box { background: var(--background-sidebar); padding: 40px; border-radius: 12px; border: 1px solid #30363d; width: 350px; text-align: center; }
-    
-    /* Input Labels */
-    .input-label { display: block; text-align: left; font-size: 11px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
-    
-    .auth-input { width: 100%; padding: 12px; margin-bottom: 20px; background: var(--input-bg); border: 1px solid #30363d; color: white; border-radius: 5px; box-sizing: border-box; outline: none; }
-    .auth-input:focus { border-color: var(--path-blue); }
 
-    .auth-btn { width: 100%; padding: 12px; background: var(--path-blue); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 5px; }
-    .auth-btn:hover { background: var(--neon-glow); }
+    .auth-box {
+      background: var(--bg-panel);
+      padding: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      width: 380px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      text-align: center;
+    }
 
-    /* The Link Styling - Big and Visible */
-    .switch-link { margin-top: 20px; font-size: 14px; cursor: pointer; }
-    .switch-link span { color: var(--text-muted); }
-    .switch-link strong { color: var(--path-blue); }
+    /* The New Professional Header */
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 25px;
+      font-size: 15px;
+    }
+
+    /* Inputs & Password Toggles */
+    .input-group {
+      text-align: left;
+      margin-bottom: 15px;
+      position: relative; /* Needed for the eye icon */
+    }
+    
+    .input-label {
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 12px;
+      padding-right: 40px; /* Make room for the eye icon */
+      background-color: var(--input-bg);
+      border: 1px solid var(--border);
+      color: white;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .auth-input:focus { border-color: var(--primary-blue); }
+
+    /* The "Eye" Icon */
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 32px; /* Aligns with input box */
+      cursor: pointer;
+      color: var(--text-muted);
+      user-select: none;
+    }
+    .toggle-password:hover { color: var(--text-main); }
+
+    .auth-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary-blue);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    .auth-btn:hover { background-color: var(--neon-cyan); }
+
+    .switch-link { margin-top: 20px; font-size: 14px; color: var(--text-muted); cursor: pointer; }
+    .switch-link strong { color: var(--primary-blue); }
     .switch-link:hover strong { text-decoration: underline; }
 
-    .error-msg { font-size: 12px; margin-top: 10px; color: var(--error-red); display: none; }
+    .error-msg { color: var(--error); font-size: 13px; margin-top: 10px; display: none; font-weight: bold;}
 
-    /* --- Existing Chat CSS --- */
-    #main-app { display: none; width: 100%; height: 100%; display: flex; } 
-    #sidebar { width: 72px; background-color: var(--background-sidebar); display: flex; flex-direction: column; align-items: center; padding-top: 15px; border-right: 1px solid #1f242c; }
-    .server-icon { width: 54px; height: 54px; background: var(--path-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 14px; text-transform: uppercase; cursor: pointer; }
-    #chat-container { flex-grow: 1; display: flex; flex-direction: column; }
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f242c; padding-right: 15px; }
-    h2 { font-size: 16px; padding: 15px; margin: 0; color: var(--path-blue); }
-    ul { list-style-type: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; }
-    li { margin-bottom: 12px; padding: 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.02); }
-    .username { color: var(--neon-glow); font-weight: bold; margin-right: 8px; }
-    .timestamp { color: var(--text-muted); font-size: 0.75rem; }
-    #form-container { padding: 20px; }
-    form { background-color: var(--input-bg); border: 1px solid #30363d; border-radius: 10px; display: flex; padding: 5px 15px; gap: 10px; }
-    input { background: transparent; border: none; color: white; padding: 10px 0; flex-grow: 1; outline: none; }
-    #username-display { color: var(--path-blue); font-weight: bold; border-right: 1px solid #30363d; padding-right: 10px; line-height: 35px; }
-    .logout-btn { color: var(--text-muted); background: none; border: none; cursor: pointer; font-size: 12px; }
+    /* --- CHAT UI (Unchanged) --- */
+    #main-app { display: none; width: 100%; height: 100%; display: flex; }
+    #sidebar { width: 72px; background: var(--bg-panel); display: flex; flex-direction: column; align-items: center; padding-top: 15px; border-right: 1px solid var(--border); }
+    .server-icon { width: 50px; height: 50px; background: var(--primary-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; cursor: pointer; }
+    
+    #chat-area { flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-dark); }
+    .header { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; justify-content: space-between; }
+    
+    #messages { list-style: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; display: flex; flex-direction: column; gap: 15px; }
+    .message-item { display: flex; gap: 12px; }
+    .avatar { width: 35px; height: 35px; background: var(--primary-blue); border-radius: 50%; flex-shrink: 0; }
+    .msg-content { display: flex; flex-direction: column; }
+    .username { color: var(--neon-cyan); font-weight: bold; margin-right: 8px; font-size: 15px; }
+    .timestamp { color: var(--text-muted); font-size: 11px; }
+    .msg-text { color: var(--text-main); margin-top: 2px; line-height: 1.4; }
+
+    #input-area { padding: 0 20px 20px; }
+    .input-wrapper { background: var(--input-bg); border-radius: 8px; padding: 12px; display: flex; border: 1px solid var(--border); }
+    #chat-input { background: transparent; border: none; color: white; flex-grow: 1; outline: none; font-size: 15px; }
   </style>
 </head>
 <body>
@@ -64,21 +147,24 @@
   <div id="auth-overlay">
     
     <div id="login-form" class="auth-box">
-      <h1 style="color: var(--path-blue); margin-bottom: 5px;">Path</h1>
-      <p style="color: var(--text-muted); margin-bottom: 30px;">Welcome back!</p>
+      <h1>To new beginnings.</h1>
+      <div class="subtitle">Welcome back! We're glad you're here.</div>
       
-      <div>
-        <label class="input-label">USERNAME</label>
+      <div class="input-group">
+        <label class="input-label">Username</label>
         <input type="text" id="login-user" class="auth-input">
       </div>
-      <div>
-        <label class="input-label">PASSWORD</label>
-        <input type="password" id="login-pass" class="auth-input">
-      </div>
       
-      <div id="login-error" class="error-msg"></div>
+      <div class="input-group">
+        <label class="input-label">Password</label>
+        <input type="password" id="login-pass" class="auth-input">
+        <span class="toggle-password" onclick="togglePass('login-pass')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </span>
+      </div>
 
-      <button id="login-btn" class="auth-btn" onclick="handleLogin()">Login</button>
+      <div id="login-error" class="error-msg"></div>
+      <button onclick="handleLogin()" class="auth-btn">Log In</button>
       
       <div class="switch-link" onclick="switchView('register')">
         <span>Need an account?</span> <strong>Register</strong>
@@ -86,22 +172,33 @@
     </div>
 
     <div id="register-form" class="auth-box" style="display: none;">
-      <h1 style="color: var(--path-blue); margin-bottom: 5px;">Create Account</h1>
-      <p style="color: var(--text-muted); margin-bottom: 30px;">Join the project</p>
+      <h1>Create an account</h1>
+      <div class="subtitle">Start your journey with Path.</div>
       
-      <div>
-        <label class="input-label">USERNAME</label>
+      <div class="input-group">
+        <label class="input-label">Username</label>
         <input type="text" id="reg-user" class="auth-input">
       </div>
-      <div>
-        <label class="input-label">PASSWORD</label>
+      
+      <div class="input-group">
+        <label class="input-label">Password</label>
         <input type="password" id="reg-pass" class="auth-input">
+        <span class="toggle-password" onclick="togglePass('reg-pass')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </span>
       </div>
-      
-      <div id="reg-error" class="error-msg"></div>
 
-      <button id="register-btn" class="auth-btn" onclick="handleRegister()">Continue</button>
-      
+      <div class="input-group">
+        <label class="input-label">Confirm Password</label>
+        <input type="password" id="reg-confirm" class="auth-input">
+        <span class="toggle-password" onclick="togglePass('reg-confirm')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </span>
+      </div>
+
+      <div id="reg-error" class="error-msg"></div>
+      <button onclick="handleRegister()" class="auth-btn">Continue</button>
+
       <div class="switch-link" onclick="switchView('login')">
         <span>Already have an account?</span> <strong>Log In</strong>
       </div>
@@ -109,19 +206,24 @@
 
   </div>
 
-  <div id="main-app" style="display: none;">
-    <div id="sidebar"><div class="server-icon">Path</div></div>
-    <div id="chat-container">
+  <div id="main-app">
+    <div id="sidebar">
+      <div class="server-icon">P</div>
+    </div>
+    <div id="chat-area">
       <div class="header">
-        <h2># general-chat</h2>
-        <button class="logout-btn" onclick="logout()">Logout</button>
+        <div>
+          <span style="font-weight: bold; color: var(--text-muted); margin-right: 5px;">#</span>
+          <span style="font-weight: bold; color: var(--text-main);">general-chat</span>
+        </div>
+        <button onclick="logout()" style="background: none; border: none; color: var(--error); cursor: pointer; font-weight: bold;">Logout</button>
       </div>
+      
       <ul id="messages"></ul>
-      <div id="form-container">
-        <form id="form">
-          <div id="username-display">User</div>
-          <input id="input" placeholder="Message Path Project..." autocomplete="off" />
-          <button type="submit" style="display:none"></button>
+      
+      <div id="input-area">
+        <form id="chat-form" class="input-wrapper">
+          <input id="chat-input" placeholder="Message #general-chat" autocomplete="off" />
         </form>
       </div>
     </div>
@@ -129,29 +231,27 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const mainApp = document.getElementById('main-app');
-    const authOverlay = document.getElementById('auth-overlay');
-    const userDisplay = document.getElementById('username-display');
-
-    // SERVER CONFIG
     const SERVER_URL = window.location.origin.includes('http') 
                        ? window.location.origin 
                        : 'https://path-project.onrender.com';
 
-    // --- SESSION PERSISTENCE ---
-    window.onload = function() {
-      const savedToken = localStorage.getItem('path_token');
-      const savedName = localStorage.getItem('path_username');
-      
-      if (savedToken && savedName) {
-        startChat(savedName);
-      }
-    };
+    // --- TOGGLE PASSWORD VISIBILITY ---
+    function togglePass(id) {
+        const input = document.getElementById(id);
+        if (input.type === "password") {
+            input.type = "text";
+        } else {
+            input.type = "password";
+        }
+    }
 
-    // --- SWITCH BETWEEN LOGIN & REGISTER ---
+    // --- VIEW SWITCHING ---
     function switchView(view) {
       document.getElementById('login-error').style.display = 'none';
       document.getElementById('reg-error').style.display = 'none';
+      
+      // Reset inputs
+      document.querySelectorAll('.auth-input').forEach(i => i.value = '');
 
       if (view === 'register') {
         document.getElementById('login-form').style.display = 'none';
@@ -162,114 +262,123 @@
       }
     }
 
-    // --- LOGIN LOGIC ---
+    // --- LOGIN ---
     async function handleLogin() {
       const user = document.getElementById('login-user').value;
       const pass = document.getElementById('login-pass').value;
-      const errorDiv = document.getElementById('login-error');
+      const err = document.getElementById('login-error');
 
-      if (!user || !pass) {
-        errorDiv.innerText = "Please fill in all fields";
-        errorDiv.style.display = 'block';
-        return;
+      if(!user || !pass) {
+          err.innerText = "Please fill in all fields";
+          err.style.display = 'block';
+          return;
       }
 
       try {
-        const response = await fetch(`${SERVER_URL}/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: user, password: pass })
+        const res = await fetch(`${SERVER_URL}/login`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ username: user, password: pass })
         });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          localStorage.setItem('path_token', data.token);
-          localStorage.setItem('path_username', user);
-          startChat(user);
+        const data = await res.json();
+        
+        if(res.ok) {
+            localStorage.setItem('path_token', data.token);
+            localStorage.setItem('path_username', user);
+            startChat(user);
         } else {
-          errorDiv.innerText = data.msg || "Login failed";
-          errorDiv.style.display = 'block';
+            err.innerText = data.msg;
+            err.style.display = 'block';
         }
-      } catch (e) {
-        errorDiv.innerText = "Server connection failed.";
-        errorDiv.style.display = 'block';
+      } catch(e) {
+        err.innerText = "Server connection error";
+        err.style.display = 'block';
       }
     }
 
-    // --- REGISTER LOGIC ---
+    // --- REGISTER ---
     async function handleRegister() {
       const user = document.getElementById('reg-user').value;
       const pass = document.getElementById('reg-pass').value;
-      const errorDiv = document.getElementById('reg-error');
+      const confirm = document.getElementById('reg-confirm').value;
+      const err = document.getElementById('reg-error');
 
-      if (!user || !pass) {
-        errorDiv.innerText = "Please fill in all fields";
-        errorDiv.style.display = 'block';
-        return;
+      // 1. Check if empty
+      if(!user || !pass || !confirm) {
+          err.innerText = "Please fill in all fields";
+          err.style.display = 'block';
+          return;
+      }
+
+      // 2. Check if passwords match (NEW FEATURE)
+      if(pass !== confirm) {
+          err.innerText = "Passwords do not match!";
+          err.style.display = 'block';
+          return;
       }
 
       try {
-        const response = await fetch(`${SERVER_URL}/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: user, password: pass })
+        const res = await fetch(`${SERVER_URL}/register`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ username: user, password: pass })
         });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          // SUCCESS: Switch to login and autofill name
-          alert("Account created! Redirecting to login...");
-          switchView('login');
-          document.getElementById('login-user').value = user;
-          document.getElementById('login-pass').focus();
+        const data = await res.json();
+        
+        if(res.ok) {
+            alert("Account created! Redirecting...");
+            switchView('login');
+            document.getElementById('login-user').value = user;
         } else {
-          errorDiv.innerText = data.msg || "Registration failed";
-          errorDiv.style.display = 'block';
+            err.innerText = data.msg;
+            err.style.display = 'block';
         }
-      } catch (e) {
-        errorDiv.innerText = "Server connection failed.";
-        errorDiv.style.display = 'block';
+      } catch(e) {
+        err.innerText = "Server connection error";
+        err.style.display = 'block';
       }
     }
 
     function logout() {
-      localStorage.removeItem('path_token');
-      localStorage.removeItem('path_username');
+      localStorage.clear();
       location.reload();
     }
 
-    // --- CHAT LOGIC ---
     function startChat(username) {
-      authOverlay.style.display = 'none';
-      mainApp.style.display = 'flex';
-      userDisplay.innerText = username;
+      document.getElementById('auth-overlay').style.display = 'none';
+      document.getElementById('main-app').style.display = 'flex';
+      
+      const socket = io(SERVER_URL);
+      const form = document.getElementById('chat-form');
+      const input = document.getElementById('chat-input');
+      const messages = document.getElementById('messages');
 
-      var socket = io(SERVER_URL);
-      var form = document.getElementById('form');
-      var input = document.getElementById('input');
-      var messages = document.getElementById('messages');
-
-      form.onsubmit = function(e) {
+      form.onsubmit = (e) => {
         e.preventDefault();
-        if (input.value) {
-          socket.emit('chat message', { name: username, text: input.value });
-          input.value = '';
+        if(input.value) {
+            socket.emit('chat message', { name: username, text: input.value });
+            input.value = '';
         }
       };
 
-      socket.on('chat message', function(msg) {
-        var item = document.createElement('li');
-        var time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        item.innerHTML = `<div><span class="username">${msg.name}</span><span class="timestamp">${time}</span></div><div>${msg.text}</div>`;
-        messages.appendChild(item);
+      socket.on('chat message', (msg) => {
+        const li = document.createElement('li');
+        li.className = 'message-item';
+        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        li.innerHTML = `
+            <div class="avatar"></div>
+            <div class="msg-content">
+                <div><span class="username">${msg.name}</span><span class="timestamp">${time}</span></div>
+                <div class="msg-text">${msg.text}</div>
+            </div>`;
+        messages.appendChild(li);
         messages.scrollTop = messages.scrollHeight;
       });
+    }
 
-      socket.on('connect_error', (err) => {
-        console.error("Chat connection error:", err);
-      });
+    window.onload = () => {
+        const user = localStorage.getItem('path_username');
+        if(user) startChat(user);
     }
   </script>
 </body>
