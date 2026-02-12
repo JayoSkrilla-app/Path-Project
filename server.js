@@ -15,25 +15,21 @@ const User = require('./user');
 app.use(cors()); 
 app.use(express.json()); 
 
-// --- EMAIL CONFIG (Port 587 Fix) ---
+// --- EMAIL CONFIG (The Service Shortcut Fix) ---
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,              // Uses the modern standard port
-  secure: false,          // Must be false for 587 (it upgrades to secure later)
-  requireTLS: true,       // Forces a secure connection
-  family: 4,              // Forces IPv4 to prevent connection errors
+  service: 'gmail', // <--- This auto-selects the best connection method
   auth: {
     user: 'pathproject.verify@gmail.com',
-    pass: process.env.EMAIL_PASS // Your 16-digit App Password
+    pass: process.env.EMAIL_PASS 
   }
 });
 
-// Log connection status on startup
+// Log connection status
 transporter.verify((error, success) => {
   if (error) {
     console.log("Email Config Error:", error);
   } else {
-    console.log("Server is ready to send emails via Port 587!");
+    console.log("Server is ready to send emails!");
   }
 });
 
@@ -78,10 +74,9 @@ app.post('/register', async (req, res) => {
       html: `
         <div style="font-family: sans-serif; padding: 20px; color: #333;">
           <h2>Welcome to Path!</h2>
-          <p>Please click the link below to verify your email and activate your account:</p>
+          <p>Click below to verify your email:</p>
           <a href="${verifyUrl}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">Verify My Email</a>
-          <br><br>
-          <p>Or copy this link: ${verifyUrl}</p>
+          <br><br><p>Or copy: ${verifyUrl}</p>
         </div>`
     });
 
@@ -119,13 +114,11 @@ app.post('/login', async (req, res) => {
   } catch (err) { res.status(500).json({ msg: "Server error." }); }
 });
 
-// --- FRIEND SYSTEM ---
-
 app.get('/my-data', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate('friends', 'username').populate('blocked', 'username'); 
     res.json({ friends: user.friends, requests: user.friendRequests, blocked: user.blocked });
-  } catch (err) { res.status(500).json({ msg: "Error fetching data" }); }
+  } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
 app.post('/add-friend', auth, async (req, res) => {
@@ -135,7 +128,7 @@ app.post('/add-friend', auth, async (req, res) => {
     if (!target) return res.status(404).json({ msg: "User not found" });
     target.friendRequests.push({ from: sender._id, username: sender.username });
     await target.save();
-    res.json({ msg: "Friend request sent!" });
+    res.json({ msg: "Request sent!" });
   } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
@@ -147,11 +140,10 @@ app.post('/accept-friend', auth, async (req, res) => {
     requester.friends.push(me._id);
     me.friendRequests = me.friendRequests.filter(r => r.from.toString() !== req.body.requesterId);
     await me.save(); await requester.save();
-    res.json({ msg: "Friendship confirmed!" });
+    res.json({ msg: "Added!" });
   } catch (err) { res.status(500).json({ msg: "Error" }); }
 });
 
-// --- SOCKET & PRESENCE ---
 const onlineUsers = new Map(); 
 
 io.on('connection', (socket) => {
@@ -177,4 +169,4 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => console.log(`Path server running on port ${PORT}`));
+http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
