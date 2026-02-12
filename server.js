@@ -156,9 +156,32 @@ app.post('/block-user', auth, async (req, res) => {
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
 });
 
-// --- SOCKET ---
+// --- SOCKET & PRESENCE TRACKING ---
+const onlineUsers = new Map(); // Stores UserId -> SocketId
+
 io.on('connection', (socket) => {
-  socket.on('chat message', (msg) => io.emit('chat message', msg));
+  // When a user logs in, the frontend sends their ID to 'identify' them
+  socket.on('identify', (userId) => {
+    socket.userId = userId;
+    onlineUsers.set(userId, socket.id);
+    
+    // Broadcast the list of ALL online user IDs to every connected client
+    io.emit('user status change', Array.from(onlineUsers.keys()));
+    console.log(`User ${userId} connected.`);
+  });
+
+  socket.on('chat message', (msg) => {
+    io.emit('chat message', msg);
+  });
+
+  socket.on('disconnect', () => {
+    if (socket.userId) {
+      onlineUsers.delete(socket.userId);
+      // Let everyone know someone went offline
+      io.emit('user status change', Array.from(onlineUsers.keys()));
+      console.log(`User ${socket.userId} disconnected.`);
+    }
+  });
 });
 
 const PORT = process.env.PORT || 3000;
