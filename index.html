@@ -48,20 +48,21 @@
         box-sizing: border-box; 
         outline: none; 
         transition: 0.2s;
+        -webkit-text-fill-color: white !important; /* Forces text to be white */
     }
     .auth-input:focus { border-color: var(--path-blue); }
 
-    /* --- THE AGGRESSIVE AUTOFILL FIX --- */
-    /* This forces the input to stay dark and text white by filling the box with a shadow 
-       instead of a background color that Chrome can override */
+    /* --- THE NUCLEAR AUTOFILL FIX --- */
+    /* This overrides Chrome's forced styles using a 5000-second delay on the color change */
     input:-webkit-autofill,
     input:-webkit-autofill:hover, 
     input:-webkit-autofill:focus, 
     input:-webkit-autofill:active {
-        -webkit-background-clip: text;
+        -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
         -webkit-text-fill-color: white !important;
-        box-shadow: 0 0 0 50px var(--input-bg) inset !important; /* Fills the background */
+        transition: background-color 5000s ease-in-out 0s;
         caret-color: white !important;
+        text-decoration: none !important; /* Kills the red underline glitch */
     }
 
     /* Toggle Icon Style */
@@ -272,11 +273,8 @@
 
         if (!u || !e || !p) return alert("Please fill in all fields.");
         if (p !== cp) return alert("Passwords do not match!");
-        
-        if (p.length < 8 || !/[^a-zA-Z0-9]/.test(p)) return alert("Password must be 8+ characters with a symbol.");
-        if (!/[A-Z]/.test(p)) return alert("Password must contain at least one capital letter.");
+        if (p.length < 8 || !/[A-Z]/.test(p) || !/[^a-zA-Z0-9]/.test(p)) return alert("Requirements: 8+ characters, symbol, capital letter.");
 
-        const originalText = btn.innerText;
         btn.innerText = "Creating...";
         btn.disabled = true;
 
@@ -289,11 +287,11 @@
             if(res.ok && data.token) {
                 localStorage.setItem('path_token', data.token);
                 localStorage.setItem('path_username', data.username);
-                alert("Account Created! Logging in...");
+                alert("Account Created!");
                 startApp(data.username);
             } else { alert(data.msg || "Registration failed."); }
         } catch(err) { alert("Server error."); } 
-        finally { btn.innerText = originalText; btn.disabled = false; }
+        finally { btn.innerText = "Create Account"; btn.disabled = false; }
     }
 
     async function handleLogin() {
@@ -312,12 +310,9 @@
         const token = localStorage.getItem('path_token');
         if(!token) return logout();
         const myId = parseJwt(token).id;
-
         socket.on('connect', () => { socket.emit('identify', myId); });
         socket.on('user status change', (onlineIds) => { globalOnlineUsers = onlineIds; renderDashboard(); });
-
-        const form = document.getElementById('chat-form');
-        form.onsubmit = (e) => {
+        document.getElementById('chat-form').onsubmit = (e) => {
             e.preventDefault();
             const text = document.getElementById('chat-input').value;
             if(text) { socket.emit('chat message', { name: u, text }); document.getElementById('chat-input').value = ''; }
@@ -342,51 +337,29 @@
             container.innerHTML = `<div style="text-align:center; margin-top:50px;"><h2>Add Friend</h2><input id="af-input" class="auth-input" style="width:300px;" placeholder="Username"><br><button class="auth-btn" style="width:150px;" onclick="sendFriendRequest()">Send Request</button></div>`;
             return;
         }
-
         let list = [];
         if (currentTab === 'online') list = myData.friends.filter(f => globalOnlineUsers.includes(f._id));
         else if (currentTab === 'all') list = myData.friends;
         else if (currentTab === 'pending') list = myData.requests;
         else if (currentTab === 'blocked') list = myData.blocked;
-
         if(!list || list.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:40px;">No one here yet...</div>`; return; }
-
         list.forEach(item => {
             const username = item.username || "Unknown";
             const id = (currentTab === 'pending') ? item.from : item._id;
             const isOnline = globalOnlineUsers.includes(id);
             const el = document.createElement('div');
             el.className = 'friend-item';
-
             let actionHtml = '';
             if(currentTab === 'all' || currentTab === 'online') {
-                actionHtml = `
-                <div class="f-actions">
-                    <div class="action-icon" onclick="showChat()" title="Message"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
-                    <div class="dropdown">
-                        <div class="action-icon" onclick="toggleDropdown('${id}')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></div>
-                        <div id="drop-${id}" class="dropdown-menu">
-                            <div class="dropdown-item danger" onclick="confirmAction('Remove Friend', 'Unfriend ${username}?', () => removeFriend('${id}'))">Remove Friend</div>
-                            <div class="dropdown-item danger" onclick="confirmAction('Block User', 'Block ${username}?', () => blockUser('${id}'))">Block User</div>
-                        </div>
-                    </div>
-                </div>`;
+                actionHtml = `<div class="f-actions"><div class="action-icon" onclick="showChat()" title="Message"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div><div class="dropdown"><div class="action-icon" onclick="toggleDropdown('${id}')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></div><div id="drop-${id}" class="dropdown-menu"><div class="dropdown-item danger" onclick="confirmAction('Remove', 'Unfriend ${username}?', () => removeFriend('${id}'))">Remove Friend</div><div class="dropdown-item danger" onclick="confirmAction('Block', 'Block ${username}?', () => blockUser('${id}'))">Block User</div></div></div></div>`;
             } else if(currentTab === 'pending') {
                 actionHtml = `<div class="f-actions"><div class="action-icon" onclick="acceptFriend('${id}')" style="color:var(--success)">✔</div><div class="action-icon" onclick="denyFriend('${id}')" style="color:var(--error)">✖</div></div>`;
             }
-
-            el.innerHTML = `
-                <div class="f-avatar-wrapper">
-                    <div class="f-avatar">${username[0].toUpperCase()}</div>
-                    ${isOnline ? '<div class="status-dot"></div>' : ''}
-                </div>
-                <div class="f-name">${username}</div>
-                ${actionHtml}`;
+            el.innerHTML = `<div class="f-avatar-wrapper"><div class="f-avatar">${username[0].toUpperCase()}</div>${isOnline ? '<div class="status-dot"></div>' : ''}</div><div class="f-name">${username}</div>${actionHtml}`;
             container.appendChild(el);
         });
     }
 
-    // --- API CALLS ---
     async function sendFriendRequest() {
         const target = document.getElementById('af-input').value;
         const res = await fetch(`${SERVER_URL}/add-friend`, { method:'POST', headers:{'Content-Type':'application/json','x-auth-token':localStorage.getItem('path_token')}, body:JSON.stringify({targetUsername:target}) });
