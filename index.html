@@ -41,29 +41,27 @@
         width: 100%; 
         padding: 12px; 
         padding-right: 45px; 
-        background-color: var(--input-bg); 
+        background-color: var(--input-bg) !important; 
         border: 1px solid var(--border); 
-        color: white; 
+        color: white !important; 
         border-radius: 6px; 
         box-sizing: border-box; 
         outline: none; 
         transition: 0.2s;
-        /* Start with white text */
-        -webkit-text-fill-color: white;
     }
     .auth-input:focus { border-color: var(--path-blue); }
 
-    /* --- FIX: AUTOFILL STYLE OVERRIDE --- */
-    /* This block forces the background to be dark and text white when Chrome autofills */
+    /* --- THE AGGRESSIVE AUTOFILL FIX --- */
+    /* This forces the input to stay dark and text white by filling the box with a shadow 
+       instead of a background color that Chrome can override */
     input:-webkit-autofill,
     input:-webkit-autofill:hover, 
     input:-webkit-autofill:focus, 
     input:-webkit-autofill:active {
-        -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
+        -webkit-background-clip: text;
         -webkit-text-fill-color: white !important;
+        box-shadow: 0 0 0 50px var(--input-bg) inset !important; /* Fills the background */
         caret-color: white !important;
-        transition: background-color 5000s ease-in-out 0s;
-        background-clip: content-box !important;
     }
 
     /* Toggle Icon Style */
@@ -142,10 +140,10 @@
       <h1>Path</h1>
       <div class="subtitle">To new beginnings.</div>
       <div class="input-wrapper">
-        <input type="text" id="login-user" placeholder="Username" class="auth-input">
+        <input type="text" id="login-user" placeholder="Username" class="auth-input" autocomplete="username">
       </div>
       <div class="input-wrapper">
-        <input type="password" id="login-pass" placeholder="Password" class="auth-input">
+        <input type="password" id="login-pass" placeholder="Password" class="auth-input" autocomplete="current-password">
         <span class="toggle-pass" onclick="togglePass(this, 'login-pass')">
            <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
         </span>
@@ -158,18 +156,18 @@
     <div id="register-form" class="auth-box" style="display:none;">
       <h1>Register</h1>
       <div class="subtitle">Join the Path Project.</div>
-      <div class="input-wrapper"><input type="text" id="reg-user" placeholder="Username" class="auth-input"></div>
-      <div class="input-wrapper"><input type="email" id="reg-email" placeholder="Email Address" class="auth-input"></div>
+      <div class="input-wrapper"><input type="text" id="reg-user" placeholder="Username" class="auth-input" autocomplete="username"></div>
+      <div class="input-wrapper"><input type="email" id="reg-email" placeholder="Email Address" class="auth-input" autocomplete="email"></div>
       
       <div class="input-wrapper">
-        <input type="password" id="reg-pass" placeholder="Password" class="auth-input">
+        <input type="password" id="reg-pass" placeholder="Password" class="auth-input" autocomplete="new-password">
         <span class="toggle-pass" onclick="togglePass(this, 'reg-pass')">
             <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
         </span>
       </div>
       
       <div class="input-wrapper">
-        <input type="password" id="reg-confirm" placeholder="Confirm Password" class="auth-input">
+        <input type="password" id="reg-confirm" placeholder="Confirm Password" class="auth-input" autocomplete="new-password">
         <span class="toggle-pass" onclick="togglePass(this, 'reg-confirm')">
             <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
         </span>
