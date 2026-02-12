@@ -349,8 +349,15 @@
             const el = document.createElement('div');
             el.className = 'friend-item';
             
-            const username = item.username || item; 
-            const id = item._id || item.from;
+            // Handle different data structures
+            // For friends/blocked, item is { _id, username }
+            // For requests, item is { from, username }
+            // We standardize:
+            const username = item.username || "Unknown"; 
+            const id = item._id || item.from || item; 
+
+            // Debug log to see what ID we are getting
+            console.log("Rendering item:", item, "ID:", id);
 
             let buttons = '';
             // ICONS ARE NOW SVGs FOR PERFECT CENTERING
@@ -369,6 +376,7 @@
                     </div>
                 `;
             } else if (currentTab === 'pending') {
+                // IMPORTANT: The id here MUST be the user ID (from), NOT the request object itself
                 buttons = `
                     <div class="f-actions">
                         <div class="action-btn btn-accept" onclick="acceptFriend('${id}')" title="Accept">
@@ -404,26 +412,43 @@
         alert(data.msg);
         if(res.ok) document.getElementById('add-friend-input').value = '';
     }
+    
     async function acceptFriend(id) {
+        if(!id || id === 'undefined') return alert("Error: ID is missing");
         const token = localStorage.getItem('path_token');
-        await fetch(`${SERVER_URL}/accept-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': token }, body: JSON.stringify({ requesterId: id }) });
+        const res = await fetch(`${SERVER_URL}/accept-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': token }, body: JSON.stringify({ requesterId: id }) });
+        const data = await res.json();
+        alert(data.msg); // Feedback!
         fetchMyData();
     }
+    
     async function denyFriend(id) {
+        if(!id || id === 'undefined') return alert("Error: ID is missing");
+        if(!confirm("Deny this request?")) return;
         const token = localStorage.getItem('path_token');
-        await fetch(`${SERVER_URL}/deny-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': token }, body: JSON.stringify({ requesterId: id }) });
+        const res = await fetch(`${SERVER_URL}/deny-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': token }, body: JSON.stringify({ requesterId: id }) });
+        const data = await res.json();
+        alert(data.msg); // Feedback!
         fetchMyData();
     }
+    
     async function removeFriend(id) {
+        if(!id || id === 'undefined') return alert("Error: ID is missing");
         if(!confirm("Remove friend?")) return;
         const token = localStorage.getItem('path_token');
-        await fetch(`${SERVER_URL}/remove-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': token }, body: JSON.stringify({ friendId: id }) });
+        const res = await fetch(`${SERVER_URL}/remove-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': token }, body: JSON.stringify({ friendId: id }) });
+        const data = await res.json();
+        alert(data.msg);
         fetchMyData();
     }
+    
     async function blockUser(id) {
+        if(!id || id === 'undefined') return alert("Error: ID is missing");
         if(!confirm("Block this user?")) return;
         const token = localStorage.getItem('path_token');
-        await fetch(`${SERVER_URL}/block-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': token }, body: JSON.stringify({ targetId: id }) });
+        const res = await fetch(`${SERVER_URL}/block-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': token }, body: JSON.stringify({ targetId: id }) });
+        const data = await res.json();
+        alert(data.msg);
         fetchMyData();
     }
 
