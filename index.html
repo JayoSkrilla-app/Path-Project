@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Path Project</title>
+  <style>
+    :root {
+      --background-dark: #0d1117;
+      --background-sidebar: #05070a;
+      --path-blue: #007bff;
+      --neon-glow: #00d4ff;
+      --text-main: #e6edf3;
+      --text-muted: #7d8590;
+      --input-bg: #161b22;
+      --error-red: #ff4b4b;
+    }
+    body { font-family: 'Segoe UI', sans-serif; background-color: var(--background-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+    
+    /* --- Auth Overlay CSS --- */
+    #auth-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--background-dark);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    .auth-box { background: var(--background-sidebar); padding: 40px; border-radius: 12px; border: 1px solid #30363d; width: 300px; text-align: center; }
+    .auth-input { width: 100%; padding: 12px; margin: 10px 0; background: var(--input-bg); border: 1px solid #30363d; color: white; border-radius: 5px; box-sizing: border-box; }
+    .auth-btn { width: 100%; padding: 12px; background: var(--path-blue); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    .auth-switch { color: var(--text-muted); font-size: 0.8rem; margin-top: 15px; cursor: pointer; text-decoration: underline; }
+
+    /* --- Existing Chat CSS --- */
+    #main-app { display: none; width: 100%; height: 100%; display: flex; } /* Hidden by default */
+    #sidebar { width: 72px; background-color: var(--background-sidebar); display: flex; flex-direction: column; align-items: center; padding-top: 15px; border-right: 1px solid #1f242c; }
+    .server-icon { width: 54px; height: 54px; background: var(--path-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 14px; text-transform: uppercase; cursor: pointer; }
+    #chat-container { flex-grow: 1; display: flex; flex-direction: column; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f242c; padding-right: 15px; }
+    h2 { font-size: 16px; padding: 15px; margin: 0; color: var(--path-blue); }
+    ul { list-style-type: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; }
+    li { margin-bottom: 12px; padding: 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.02); }
+    .username { color: var(--neon-glow); font-weight: bold; margin-right: 8px; }
+    .timestamp { color: var(--text-muted); font-size: 0.75rem; }
+    #form-container { padding: 20px; }
+    form { background-color: var(--input-bg); border: 1px solid #30363d; border-radius: 10px; display: flex; padding: 5px 15px; gap: 10px; }
+    input { background: transparent; border: none; color: white; padding: 10px 0; flex-grow: 1; outline: none; }
+    #username-display { color: var(--path-blue); font-weight: bold; border-right: 1px solid #30363d; padding-right: 10px; line-height: 35px; }
+    .logout-btn { color: var(--text-muted); background: none; border: none; cursor: pointer; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <div id="auth-overlay">
+    <div class="auth-box">
+      <h1 style="color: var(--path-blue); margin-bottom: 5px;">Path</h1>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">Welcome to the project</p>
+      
+      <input type="text" id="auth-user" class="auth-input" placeholder="Username">
+      <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
+      
+      <button id="login-btn" class="auth-btn">Login</button>
+      <button id="register-btn" class="auth-btn" style="background: transparent; border: 1px solid var(--path-blue); margin-top: 5px;">Create Account</button>
+      
+      <p id="auth-msg" style="font-size: 12px; margin-top: 10px; color: var(--error-red);"></p>
+    </div>
+  </div>
+
+  <div id="main-app" style="display: none;">
+    <div id="sidebar"><div class="server-icon">Path</div></div>
+    <div id="chat-container">
+      <div class="header">
+        <h2># general-chat</h2>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+      <ul id="messages"></ul>
+      <div id="form-container">
+        <form id="form">
+          <div id="username-display">User</div>
+          <input id="input" placeholder="Message Path Project..." autocomplete="off" />
+          <button type="submit" style="display:none"></button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const authOverlay = document.getElementById('auth-overlay');
+    const mainApp = document.getElementById('main-app');
+    const authMsg = document.getElementById('auth-msg');
+    const userDisplay = document.getElementById('username-display');
+
+    const SERVER_URL = window.location.origin.includes('http') 
+                       ? window.location.origin 
+                       : 'https://path-project.onrender.com';
+
+    // --- SESSION PERSISTENCE ---
+    window.onload = function() {
+      const savedToken = localStorage.getItem('path_token');
+      const savedName = localStorage.getItem('path_username');
+      
+      if (savedToken && savedName) {
+        startChat(savedName);
+      }
+    };
+
+    async function handleAuth(type) {
+      const user = document.getElementById('auth-user').value;
+      const pass = document.getElementById('auth-pass').value;
+
+      if (!user || !pass) return authMsg.innerText = "Fill in all fields";
+
+      const endpoint = type === 'login' ? '/login' : '/register';
+      
+      try {
+        authMsg.style.color = "var(--text-muted)";
+        authMsg.innerText = "Connecting...";
+
+        const response = await fetch(`${SERVER_URL}${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user, password: pass })
+        });
+
+        const data = await response.json().catch(() => ({ msg: "Invalid server response" }));
+
+        if (response.ok) {
+          if (type === 'login') {
+            localStorage.setItem('path_token', data.token);
+            localStorage.setItem('path_username', user);
+            startChat(user);
+          } else {
+            authMsg.style.color = "var(--neon-glow)";
+            authMsg.innerText = "Account created! Now login.";
+          }
+        } else {
+          authMsg.style.color = "var(--error-red)";
+          authMsg.innerText = data.msg || "Error occurred";
+        }
+      } catch (e) {
+        console.error("Auth Error:", e);
+        authMsg.innerText = "Connection failed. Is the server live?";
+      }
+    }
+
+    document.getElementById('login-btn').onclick = () => handleAuth('login');
+    document.getElementById('register-btn').onclick = () => handleAuth('register');
+
+    function logout() {
+      localStorage.removeItem('path_token');
+      localStorage.removeItem('path_username');
+      location.reload();
+    }
+
+    // --- CHAT LOGIC ---
+    function startChat(username) {
+      authOverlay.style.display = 'none';
+      mainApp.style.display = 'flex';
+      userDisplay.innerText = username;
+
+      var socket = io(SERVER_URL);
+      var form = document.getElementById('form');
+      var input = document.getElementById('input');
+      var messages = document.getElementById('messages');
+
+      form.onsubmit = function(e) {
+        e.preventDefault();
+        if (input.value) {
+          socket.emit('chat message', { name: username, text: input.value });
+          input.value = '';
+        }
+      };
+
+      socket.on('chat message', function(msg) {
+        var item = document.createElement('li');
+        var time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        item.innerHTML = `<div><span class="username">${msg.name}</span><span class="timestamp">${time}</span></div><div>${msg.text}</div>`;
+        messages.appendChild(item);
+        messages.scrollTop = messages.scrollHeight;
+      });
+
+      socket.on('connect_error', (err) => {
+        console.error("Chat connection error:", err);
+      });
+    }
+  </script>
+</body>
+</html>

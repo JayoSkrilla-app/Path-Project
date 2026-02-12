@@ -1,0 +1,36 @@
+{
+  "name": "path-project",
+  "productName": "Path Project",
+  "version": "1.0.0",
+  "description": "The path to a new beginning",
+  "main": "main.js",
+  "scripts": {
+    "start": "node server.js",
+    "app": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.pathproject.chat",
+    "win": {
+      "target": "portable"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.9.5",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "electron": "^40.4.0",
+    "electron-builder": "^26.7.0"
+  }
+}
