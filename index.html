@@ -46,18 +46,20 @@
         transition: background-color 5000s ease-in-out 0s;
     }
 
+    /* Toggle Icon Style */
     .toggle-pass { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
     .toggle-pass:hover { color: var(--path-blue); }
     .toggle-pass svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     .auth-btn { width: 100%; padding: 12px; background-color: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    
     .switch-link { margin-top: 25px; cursor: pointer; color: var(--text-muted); font-size: 14px; display: inline-block; transition: 0.2s; }
     .switch-link span { color: var(--path-blue); font-weight: bold; text-decoration: underline; padding-left: 4px; }
     .switch-link:hover span { color: var(--neon-glow); }
 
     /* --- MAIN APP LAYOUT --- */
-    #main-app { display: none; width: 100%; height: 100%; } /* Default hidden */
-    
+    #main-app { display: none; width: 100%; height: 100%; }
     #sidebar { width: 72px; background: var(--bg-sidebar); display: flex; flex-direction: column; align-items: center; padding-top: 15px; border-right: 1px solid var(--border); }
     .nav-item { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; cursor: pointer; transition: 0.2s; background-color: var(--bg-panel); border: 1px solid var(--border); }
     .nav-item:hover, .nav-item.active { border-radius: 16px; background-color: var(--path-blue); color: white; }
@@ -66,7 +68,6 @@
 
     .separator { width: 32px; height: 1px; background-color: var(--border); margin: 5px 0 15px 0; }
 
-    /* --- FRIENDS DASHBOARD --- */
     #view-friends { flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-dark); }
     .top-bar { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; background: var(--bg-panel); }
     
@@ -78,30 +79,18 @@
 
     .dashboard-content { padding: 20px; flex-grow: 1; overflow-y: auto; }
     
-    /* --- FRIEND ITEM & STATUS DOT --- */
     .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; position: relative; background: rgba(255,255,255,0.02); }
     .friend-item:hover { background-color: rgba(255,255,255,0.03); }
-    
     .f-avatar-wrapper { position: relative; margin-right: 15px; }
     .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; }
-    
-    .status-dot {
-        width: 10px; height: 10px; border-radius: 50%; background-color: #3ba55c;
-        position: absolute; bottom: 0; right: 0; border: 2px solid var(--bg-dark);
-    }
-
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background-color: #3ba55c; position: absolute; bottom: 0; right: 0; border: 2px solid var(--bg-dark); }
     .f-name { font-weight: 600; flex-grow: 1; }
     .f-actions { display: flex; gap: 10px; align-items: center; }
     .action-icon { cursor: pointer; color: var(--text-muted); transition: 0.2s; display: flex; align-items: center; padding: 5px; border-radius: 4px; }
     .action-icon:hover { color: white; background: var(--border); }
 
-    /* --- DROPDOWN & MODAL --- */
     .dropdown { position: relative; display: inline-block; }
-    .dropdown-menu {
-        display: none; position: absolute; right: 0; top: 100%; background: var(--bg-panel);
-        border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-        z-index: 50; width: 150px; padding: 5px 0; margin-top: 5px;
-    }
+    .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); z-index: 50; width: 150px; padding: 5px 0; margin-top: 5px; }
     .dropdown-menu.show { display: block; }
     .dropdown-item { padding: 10px 15px; font-size: 13px; cursor: pointer; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
     .dropdown-item:hover { background: var(--path-blue); }
@@ -110,7 +99,6 @@
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 2000; align-items: center; justify-content: center; }
     .modal { background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border); width: 400px; text-align: center; }
 
-    /* --- CHAT --- */
     #view-chat { flex-grow: 1; display: none; flex-direction: column; }
     #messages { list-style: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; }
     .message-item { display: flex; gap: 12px; margin-bottom: 15px; }
@@ -133,8 +121,15 @@
     <div id="login-form" class="auth-box">
       <h1>Path</h1>
       <div class="subtitle">To new beginnings.</div>
-      <div class="input-wrapper"><input type="text" id="login-user" placeholder="Username" class="auth-input"></div>
-      <div class="input-wrapper"><input type="password" id="login-pass" placeholder="Password" class="auth-input"><span class="toggle-pass" onclick="togglePass(this, 'login-pass')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></span></div>
+      <div class="input-wrapper">
+        <input type="text" id="login-user" placeholder="Username" class="auth-input">
+      </div>
+      <div class="input-wrapper">
+        <input type="password" id="login-pass" placeholder="Password" class="auth-input">
+        <span class="toggle-pass" onclick="togglePass(this, 'login-pass')">
+           <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+        </span>
+      </div>
       <div id="login-error" style="color:var(--error); margin-bottom:10px; display:none; font-size: 13px;"></div>
       <button onclick="handleLogin()" class="auth-btn">Log In</button>
       <div class="switch-link" onclick="switchView('register')">Need an account? <span>Register</span></div>
@@ -145,9 +140,25 @@
       <div class="subtitle">Join the Path Project.</div>
       <div class="input-wrapper"><input type="text" id="reg-user" placeholder="Username" class="auth-input"></div>
       <div class="input-wrapper"><input type="email" id="reg-email" placeholder="Email Address" class="auth-input"></div>
-      <div class="input-wrapper"><input type="password" id="reg-pass" placeholder="Password" class="auth-input"><span class="toggle-pass" onclick="togglePass(this, 'reg-pass')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></span></div>
-      <div class="input-wrapper"><input type="password" id="reg-confirm" placeholder="Confirm Password" class="auth-input"><span class="toggle-pass" onclick="togglePass(this, 'reg-confirm')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></span></div>
-      <div style="font-size: 11px; color: var(--text-muted); text-align: left; margin-bottom: 15px;">Must be 8+ chars with a symbol (!@#$)</div>
+      
+      <div class="input-wrapper">
+        <input type="password" id="reg-pass" placeholder="Password" class="auth-input">
+        <span class="toggle-pass" onclick="togglePass(this, 'reg-pass')">
+            <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+        </span>
+      </div>
+      
+      <div class="input-wrapper">
+        <input type="password" id="reg-confirm" placeholder="Confirm Password" class="auth-input">
+        <span class="toggle-pass" onclick="togglePass(this, 'reg-confirm')">
+            <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+        </span>
+      </div>
+      
+      <div style="font-size: 11px; color: var(--text-muted); text-align: left; margin-bottom: 15px;">
+        Rules: Must be at least 8 characters, include 1 symbol (!@#$), and 1 capital letter.
+      </div>
+      
       <button id="reg-btn" onclick="handleRegister()" class="auth-btn">Create Account</button>
       <div class="switch-link" onclick="switchView('login')">Already have an account? <span>Log In</span></div>
     </div>
@@ -191,15 +202,18 @@
     let myData = { friends: [], requests: [], blocked: [] };
     let globalOnlineUsers = []; 
 
-    // --- UTILS ---
     function parseJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { return null; } }
 
     function togglePass(el, id) {
         const input = document.getElementById(id);
         const isPass = input.type === "password";
         input.type = isPass ? "text" : "password";
+        
+        // SWAPPED ICONS: Open (Visible), Slash (Hidden)
         const eyeOpen = '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        // CLEANER SLASH ICON
         const eyeSlash = '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+        
         el.innerHTML = isPass ? eyeSlash : eyeOpen;
     }
 
@@ -223,20 +237,8 @@
     }
     function logout() { localStorage.clear(); location.reload(); }
 
-    // --- APP NAVIGATION ---
-    function showFriends() { 
-        document.getElementById('view-friends').style.display = 'flex'; 
-        document.getElementById('view-chat').style.display = 'none'; 
-        document.getElementById('nav-f').classList.add('active'); 
-        document.getElementById('nav-c').classList.remove('active');
-        fetchMyData(); 
-    }
-    function showChat() { 
-        document.getElementById('view-friends').style.display = 'none'; 
-        document.getElementById('view-chat').style.display = 'flex'; 
-        document.getElementById('nav-c').classList.add('active'); 
-        document.getElementById('nav-f').classList.remove('active');
-    }
+    function showFriends() { document.getElementById('view-friends').style.display = 'flex'; document.getElementById('view-chat').style.display = 'none'; document.getElementById('nav-f').classList.add('active'); document.getElementById('nav-c').classList.remove('active'); fetchMyData(); }
+    function showChat() { document.getElementById('view-friends').style.display = 'none'; document.getElementById('view-chat').style.display = 'flex'; document.getElementById('nav-c').classList.add('active'); document.getElementById('nav-f').classList.remove('active'); }
     
     function setTab(tab) {
         currentTab = tab;
@@ -247,7 +249,6 @@
         renderDashboard();
     }
 
-    // --- LOGIC ---
     async function handleRegister() {
         const u = document.getElementById('reg-user').value;
         const e = document.getElementById('reg-email').value;
@@ -257,7 +258,10 @@
 
         if (!u || !e || !p) return alert("Please fill in all fields.");
         if (p !== cp) return alert("Passwords do not match!");
-        if (p.length < 8 || !/[^a-zA-Z0-9]/.test(p)) return alert("Password must be 8+ chars with a symbol.");
+        
+        // CAPITAL LETTER CHECK
+        if (p.length < 8 || !/[^a-zA-Z0-9]/.test(p)) return alert("Password must be 8+ characters with a symbol.");
+        if (!/[A-Z]/.test(p)) return alert("Password must contain at least one capital letter.");
 
         const originalText = btn.innerText;
         btn.innerText = "Creating...";
