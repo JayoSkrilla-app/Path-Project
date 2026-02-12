@@ -16,6 +16,7 @@
       --border: #30363d;        
       --error: #ff4b4b;         
       --success: #238636;       
+      --modal-overlay: rgba(0, 0, 0, 0.85);
     }
 
     body {
@@ -35,155 +36,115 @@
       display: flex; align-items: center; justify-content: center;
       z-index: 1000;
     }
-
-    .auth-box {
-      background: var(--bg-panel);
-      padding: 40px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      width: 380px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      text-align: center;
-    }
-
-    h1 { margin: 0 0 5px 0; font-size: 32px; font-weight: 700; color: var(--path-blue); letter-spacing: -0.5px; }
-    .subtitle { color: var(--text-muted); margin-bottom: 25px; font-size: 16px; }
-
-    .input-group { text-align: left; margin-bottom: 15px; position: relative; }
-    .input-label { color: var(--text-muted); font-size: 11px; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 6px; }
-    .auth-input { width: 100%; padding: 12px; padding-right: 40px; background-color: var(--input-bg); border: 1px solid var(--border); color: white; border-radius: 6px; font-size: 14px; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
-    .auth-input:focus { border-color: var(--path-blue); }
-
-    .toggle-password { position: absolute; right: 12px; top: 32px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; }
-    
-    .auth-btn { width: 100%; padding: 12px; background-color: var(--path-blue); color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
-    .auth-btn:hover { background-color: var(--neon-glow); }
-
-    .switch-link { margin-top: 20px; font-size: 14px; color: var(--text-muted); cursor: pointer; }
-    .switch-link strong { color: var(--path-blue); }
-    .error-msg { color: var(--error); font-size: 13px; margin-top: 10px; display: none; font-weight: bold;}
+    .auth-box { background: var(--bg-panel); padding: 40px; border-radius: 12px; border: 1px solid var(--border); width: 380px; text-align: center; }
+    .auth-input { width: 100%; padding: 12px; background-color: var(--input-bg); border: 1px solid var(--border); color: white; border-radius: 6px; margin-bottom: 15px; box-sizing: border-box; }
+    .auth-btn { width: 100%; padding: 12px; background-color: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
     /* --- MAIN APP LAYOUT --- */
     #main-app { display: none; width: 100%; height: 100%; display: flex; }
-    
-    #sidebar { 
-        width: 72px; background: var(--bg-sidebar); display: flex; 
-        flex-direction: column; align-items: center; padding-top: 15px; 
-        padding-bottom: 20px; border-right: 1px solid var(--border);
-    }
-
-    .nav-item {
-        width: 50px; height: 50px; border-radius: 50%; display: flex; 
-        align-items: center; justify-content: center; margin-bottom: 10px;
-        cursor: pointer; transition: 0.2s; background-color: var(--bg-panel);
-        color: var(--text-main); border: 1px solid var(--border);
-    }
+    #sidebar { width: 72px; background: var(--bg-sidebar); display: flex; flex-direction: column; align-items: center; padding-top: 15px; border-right: 1px solid var(--border); }
+    .nav-item { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; cursor: pointer; transition: 0.2s; background-color: var(--bg-panel); border: 1px solid var(--border); }
     .nav-item:hover, .nav-item.active { border-radius: 16px; background-color: var(--path-blue); color: white; }
-    .nav-item.logout { margin-top: auto; border-color: var(--error); color: var(--error); }
-    .nav-item.logout:hover { background-color: var(--error); color: white; }
 
-    .separator { width: 32px; height: 1px; background-color: var(--border); margin: 5px 0 15px 0; }
-
-    /* FRIENDS DASHBOARD */
+    /* --- FRIENDS DASHBOARD --- */
     #view-friends { flex-grow: 1; display: flex; flex-direction: column; background: var(--bg-dark); }
     .top-bar { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; background: var(--bg-panel); }
-    .friend-tab { padding: 4px 12px; margin: 0 8px; cursor: pointer; font-weight: 500; color: var(--text-muted); border-radius: 4px; font-size: 14px; }
-    .friend-tab.active { background-color: rgba(0, 123, 255, 0.2); color: var(--neon-glow); }
-    .add-friend-btn { background-color: var(--success); color: white; padding: 4px 12px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; margin-left: auto; }
+    .friend-tab { padding: 4px 12px; margin: 0 8px; cursor: pointer; color: var(--text-muted); font-size: 14px; }
+    .friend-tab.active { color: var(--neon-glow); font-weight: bold; }
+    .add-friend-btn { background-color: var(--success); color: white; padding: 6px 14px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; margin-left: auto; }
 
     .dashboard-content { padding: 20px; flex-grow: 1; overflow-y: auto; }
     
-    .friend-item { display: flex; align-items: center; padding: 10px 15px; border-radius: 8px; margin-bottom: 5px; border: 1px solid transparent; }
-    .friend-item:hover { background-color: var(--bg-panel); border-color: var(--border); }
+    /* --- FRIEND LIST ITEM --- */
+    .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; position: relative; }
+    .friend-item:hover { background-color: rgba(255,255,255,0.03); }
+    .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; margin-right: 15px; display:flex; align-items:center; justify-content:center; font-weight:bold; }
+    .f-name { font-weight: 600; flex-grow: 1; }
     
-    .f-avatar { width: 32px; height: 32px; background: var(--path-blue); border-radius: 50%; margin-right: 12px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; }
-    .f-name { font-weight: 600; color: var(--text-main); flex-grow: 1; }
-    
-    .f-actions { display: flex; gap: 8px; }
-    .action-btn { 
-        width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); 
-        background: var(--bg-dark); color: var(--text-muted); 
-        display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
+    .f-actions { display: flex; gap: 10px; align-items: center; }
+    .action-icon { cursor: pointer; color: var(--text-muted); transition: 0.2s; display: flex; align-items: center; padding: 5px; border-radius: 4px; }
+    .action-icon:hover { color: white; background: var(--border); }
+
+    /* --- DROPDOWN MENU --- */
+    .dropdown { position: relative; display: inline-block; }
+    .dropdown-menu {
+        display: none; position: absolute; right: 0; top: 100%; background: var(--bg-panel);
+        border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+        z-index: 50; width: 150px; padding: 5px 0; margin-top: 5px;
     }
-    .action-btn:hover { color: white; transform: scale(1.05); }
-    .btn-msg:hover { background: var(--path-blue); }
-    .btn-del:hover, .btn-deny:hover { background: var(--error); }
-    .btn-accept:hover { background: var(--success); }
+    .dropdown-menu.show { display: block; }
+    .dropdown-item { 
+        padding: 10px 15px; font-size: 13px; cursor: pointer; color: var(--text-main); transition: 0.2s;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .dropdown-item:hover { background: var(--path-blue); }
+    .dropdown-item.danger:hover { background: var(--error); }
 
-    /* ADD FRIEND WRAPPER */
-    .add-friend-wrapper { max-width: 600px; margin: 0 auto; text-align: center; margin-top: 50px; }
-    .add-input-large { width: 100%; padding: 15px; background: var(--bg-dark); border: 2px solid var(--border); border-radius: 8px; color: white; font-size: 16px; margin-bottom: 20px; outline: none; }
+    /* --- CONFIRMATION MODAL --- */
+    .modal-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: var(--modal-overlay); z-index: 2000; align-items: center; justify-content: center;
+    }
+    .modal {
+        background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border);
+        width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+    .modal h2 { margin-top: 0; color: white; }
+    .modal p { color: var(--text-muted); margin-bottom: 25px; }
+    .modal-btns { display: flex; justify-content: center; gap: 15px; }
+    .m-btn { padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; border: none; min-width: 100px; }
+    .m-cancel { background: transparent; color: white; border: 1px solid var(--border); }
+    .m-danger { background: var(--error); color: white; }
 
-    /* CHAT */
-    #view-chat { flex-grow: 1; display: none; flex-direction: column; background: var(--bg-dark); }
-    .chat-header { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; background: var(--bg-panel); }
-    #messages { list-style: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; display: flex; flex-direction: column; gap: 15px; }
-    .message-item { display: flex; gap: 12px; }
-    #input-area { padding: 0 20px 20px; }
-    .input-wrapper { background: var(--input-bg); border-radius: 8px; padding: 12px; display: flex; border: 1px solid var(--border); }
-    #chat-input { background: transparent; border: none; color: white; flex-grow: 1; outline: none; }
+    /* --- CHAT VIEW (Unchanged) --- */
+    #view-chat { flex-grow: 1; display: none; flex-direction: column; }
+    #messages { list-style: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; }
+    .message-item { display: flex; gap: 12px; margin-bottom: 15px; }
   </style>
 </head>
 <body>
+
+  <div id="confirm-modal" class="modal-overlay">
+    <div class="modal">
+      <h2 id="modal-title">Are you sure?</h2>
+      <p id="modal-desc">This action cannot be undone.</p>
+      <div class="modal-btns">
+        <button class="m-btn m-cancel" onclick="closeModal()">Cancel</button>
+        <button id="modal-confirm-btn" class="m-btn m-danger">Delete</button>
+      </div>
+    </div>
+  </div>
 
   <div id="auth-overlay">
     <div id="login-form" class="auth-box">
       <h1>Path</h1>
       <div class="subtitle">To new beginnings.</div>
-      <div class="input-group">
-        <label class="input-label">Username</label>
-        <input type="text" id="login-user" class="auth-input">
-      </div>
-      <div class="input-group">
-        <label class="input-label">Password</label>
-        <input type="password" id="login-pass" class="auth-input">
-        <span class="toggle-password" onclick="togglePass('login-pass')">
-             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-        </span>
-      </div>
-      <div id="login-error" class="error-msg"></div>
+      <input type="text" id="login-user" placeholder="Username" class="auth-input">
+      <input type="password" id="login-pass" placeholder="Password" class="auth-input">
+      <div id="login-error" style="color:var(--error); margin-bottom:10px; display:none;"></div>
       <button onclick="handleLogin()" class="auth-btn">Log In</button>
-      <div class="switch-link" onclick="switchView('register')"><span>Need an account?</span> <strong>Register</strong></div>
+      <div style="margin-top:15px; cursor:pointer; color:var(--text-muted);" onclick="switchView('register')">Register</div>
     </div>
-
-    <div id="register-form" class="auth-box" style="display: none;">
-      <h1>Create Account</h1>
-      <div class="subtitle">Join the Path Project.</div>
-      <div class="input-group">
-        <label class="input-label">Username</label>
-        <input type="text" id="reg-user" class="auth-input">
-      </div>
-      <div class="input-group">
-        <label class="input-label">Password</label>
-        <input type="password" id="reg-pass" class="auth-input">
-      </div>
-      <div class="input-group">
-        <label class="input-label">Confirm Password</label>
-        <input type="password" id="reg-confirm" class="auth-input">
-      </div>
-      <div id="reg-error" class="error-msg"></div>
-      <button onclick="handleRegister()" class="auth-btn">Continue</button>
-      <div class="switch-link" onclick="switchView('login')"><span>Already have an account?</span> <strong>Log In</strong></div>
+    <div id="register-form" class="auth-box" style="display:none;">
+      <h1>Register</h1>
+      <input type="text" id="reg-user" placeholder="Username" class="auth-input">
+      <input type="password" id="reg-pass" placeholder="Password" class="auth-input">
+      <button onclick="handleRegister()" class="auth-btn">Create Account</button>
+      <div style="margin-top:15px; cursor:pointer; color:var(--text-muted);" onclick="switchView('login')">Back to Login</div>
     </div>
   </div>
 
   <div id="main-app">
     <div id="sidebar">
-        <div class="nav-item active" onclick="showFriends()" title="Friends">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        </div>
+        <div class="nav-item active" onclick="showFriends()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></div>
         <div class="separator"></div>
-        <div class="nav-item" onclick="showChat()" title="General Chat">
-            <span style="font-weight: bold; font-size: 18px;">P</span>
-        </div>
-        <div class="nav-item logout" onclick="logout()" title="Logout">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        </div>
+        <div class="nav-item" onclick="showChat()"><span style="font-weight:bold;">P</span></div>
+        <div class="nav-item logout" onclick="logout()" style="margin-top:auto;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline></svg></div>
     </div>
 
     <div id="view-friends">
         <div class="top-bar">
-            <span style="font-weight: bold; margin-right: 20px; font-size: 15px;">Friends</span>
+            <span style="font-weight: bold; margin-right: 20px;">Friends</span>
             <div class="friend-tab active" onclick="setTab('all')">All</div>
             <div class="friend-tab" onclick="setTab('pending')">Pending</div>
             <div class="friend-tab" onclick="setTab('blocked')">Blocked</div>
@@ -193,14 +154,11 @@
     </div>
 
     <div id="view-chat">
-        <div class="chat-header">
-            <span style="font-weight: bold; color: var(--text-muted); margin-right: 5px;">#</span>
-            <span style="font-weight: bold; color: white;">general-chat</span>
-        </div>
+        <div class="top-bar" style="background:transparent; border-bottom:1px solid var(--border);"><span style="font-weight:bold;"># general-chat</span></div>
         <ul id="messages"></ul>
-        <div id="input-area">
-            <form id="chat-form" class="input-wrapper">
-                <input id="chat-input" placeholder="Message #general-chat" autocomplete="off" />
+        <div style="padding:20px;">
+            <form id="chat-form" style="background:var(--input-bg); padding:12px; border-radius:8px; border:1px solid var(--border); display:flex;">
+                <input id="chat-input" placeholder="Message #general-chat" style="background:transparent; border:none; color:white; flex-grow:1; outline:none;">
             </form>
         </div>
     </div>
@@ -212,129 +170,142 @@
     let currentTab = 'all';
     let myData = { friends: [], requests: [], blocked: [] };
 
+    // --- DROPDOWN & MODAL LOGIC ---
+    function toggleDropdown(id) {
+        document.querySelectorAll('.dropdown-menu').forEach(m => {
+            if(m.id !== 'drop-' + id) m.classList.remove('show');
+        });
+        document.getElementById('drop-' + id).classList.toggle('show');
+    }
+
+    window.onclick = (e) => {
+        if (!e.target.closest('.dropdown')) {
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+        }
+    };
+
+    function confirmAction(title, desc, actionFn) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-desc').innerText = desc;
+        const btn = document.getElementById('modal-confirm-btn');
+        btn.onclick = () => { actionFn(); closeModal(); };
+        document.getElementById('confirm-modal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('confirm-modal').style.display = 'none'; }
+
+    // --- APP LOGIC ---
     function showFriends() {
         document.getElementById('view-friends').style.display = 'flex';
         document.getElementById('view-chat').style.display = 'none';
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        document.querySelector('.nav-item[onclick="showFriends()"]').classList.add('active');
         fetchMyData();
     }
     function showChat() {
         document.getElementById('view-friends').style.display = 'none';
         document.getElementById('view-chat').style.display = 'flex';
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        document.querySelector('.nav-item[onclick="showChat()"]').classList.add('active');
     }
     function setTab(tab) {
         currentTab = tab;
         document.querySelectorAll('.friend-tab').forEach(t => t.classList.remove('active'));
-        const tabs = document.querySelectorAll('.friend-tab');
-        if(tab === 'all') tabs[0].classList.add('active');
-        if(tab === 'pending') tabs[1].classList.add('active');
-        if(tab === 'blocked') tabs[2].classList.add('active');
         renderDashboard();
     }
 
     async function fetchMyData() {
         const token = localStorage.getItem('path_token');
         if(!token) return;
-        try {
-            const res = await fetch(`${SERVER_URL}/my-data`, { headers: { 'x-auth-token': token } });
-            if(res.ok) { myData = await res.json(); renderDashboard(); }
-        } catch(e) { console.error(e); }
+        const res = await fetch(`${SERVER_URL}/my-data`, { headers: { 'x-auth-token': token } });
+        if(res.ok) { myData = await res.json(); renderDashboard(); }
     }
 
     function renderDashboard() {
         const container = document.getElementById('friend-content');
         container.innerHTML = '';
-        if (currentTab === 'add') {
-            container.innerHTML = `<div class="add-friend-wrapper"><h2>ADD FRIEND</h2><input id="add-friend-input" class="add-input-large" placeholder="Username" /><button class="auth-btn" style="width:200px;" onclick="sendFriendRequest()">Send Request</button></div>`;
+        if(currentTab === 'add') {
+            container.innerHTML = `<div style="text-align:center; margin-top:50px;"><h2>Add Friend</h2><input id="af-input" class="auth-input" style="width:300px;" placeholder="Username"><br><button class="auth-btn" style="width:150px;" onclick="sendFriendRequest()">Send Request</button></div>`;
             return;
         }
 
         let list = (currentTab === 'all') ? myData.friends : (currentTab === 'pending') ? myData.requests : myData.blocked;
-        if (!list || list.length === 0) {
-            container.innerHTML = `<div style="text-align:center; margin-top:50px; color:var(--text-muted);">Nothing here yet.</div>`;
-            return;
-        }
+        if(!list || list.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:40px;">No one here yet...</div>`; return; }
 
         list.forEach(item => {
-            const el = document.createElement('div');
-            el.className = 'friend-item';
             const username = item.username || "Unknown";
             const id = (currentTab === 'pending') ? item.from : item._id;
+            const el = document.createElement('div');
+            el.className = 'friend-item';
 
-            let buttons = '';
-            if (currentTab === 'all') {
-                buttons = `<div class="f-actions">
-                    <div class="action-btn btn-msg" onclick="showChat()">💬</div>
-                    <div class="action-btn btn-del" onclick="removeFriend('${id}')">🗑️</div>
-                    <div class="action-btn btn-block" onclick="blockUser('${id}')">⛔</div>
+            let actionHtml = '';
+            if(currentTab === 'all') {
+                actionHtml = `
+                <div class="f-actions">
+                    <div class="action-icon" onclick="showChat()" title="Message"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
+                    <div class="dropdown">
+                        <div class="action-icon" onclick="toggleDropdown('${id}')" title="More"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></div>
+                        <div id="drop-${id}" class="dropdown-menu">
+                            <div class="dropdown-item danger" onclick="confirmAction('Remove Friend', 'Are you sure you want to unfriend ${username}?', () => removeFriend('${id}'))">Remove Friend</div>
+                            <div class="dropdown-item danger" onclick="confirmAction('Block User', 'Are you sure you want to block ${username}?', () => blockUser('${id}'))">Block User</div>
+                        </div>
+                    </div>
                 </div>`;
-            } else if (currentTab === 'pending') {
-                buttons = `<div class="f-actions">
-                    <div class="action-btn btn-accept" onclick="acceptFriend('${id}')">✔</div>
-                    <div class="action-btn btn-deny" onclick="denyFriend('${id}')">✖</div>
-                </div>`;
-            } else if (currentTab === 'blocked') {
-                buttons = `<div style="color:var(--error); font-weight:bold;">BLOCKED</div>`;
+            } else if(currentTab === 'pending') {
+                actionHtml = `<div class="f-actions"><div class="action-icon" onclick="acceptFriend('${id}')" style="color:var(--success)">✔</div><div class="action-icon" onclick="denyFriend('${id}')" style="color:var(--error)">✖</div></div>`;
             }
 
-            el.innerHTML = `<div class="f-avatar">${username.charAt(0).toUpperCase()}</div><div class="f-name">${username}</div>${buttons}`;
+            el.innerHTML = `<div class="f-avatar">${username[0].toUpperCase()}</div><div class="f-name">${username}</div>${actionHtml}`;
             container.appendChild(el);
         });
     }
 
+    // --- API CALLS ---
     async function sendFriendRequest() {
-        const target = document.getElementById('add-friend-input').value;
-        const res = await fetch(`${SERVER_URL}/add-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ targetUsername: target }) });
-        const data = await res.json(); alert(data.msg); fetchMyData();
+        const target = document.getElementById('af-input').value;
+        const res = await fetch(`${SERVER_URL}/add-friend`, { method:'POST', headers:{'Content-Type':'application/json','x-auth-token':localStorage.getItem('path_token')}, body:JSON.stringify({targetUsername:target}) });
+        const d = await res.json(); alert(d.msg); fetchMyData();
     }
     async function acceptFriend(id) {
-        const res = await fetch(`${SERVER_URL}/accept-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ requesterId: id }) });
-        const data = await res.json(); alert(data.msg); fetchMyData();
+        await fetch(`${SERVER_URL}/accept-friend`, { method:'POST', headers:{'Content-Type':'application/json','x-auth-token':localStorage.getItem('path_token')}, body:JSON.stringify({requesterId:id}) });
+        fetchMyData();
     }
     async function denyFriend(id) {
-        const res = await fetch(`${SERVER_URL}/deny-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ requesterId: id }) });
-        const data = await res.json(); alert(data.msg); fetchMyData();
+        await fetch(`${SERVER_URL}/deny-friend`, { method:'POST', headers:{'Content-Type':'application/json','x-auth-token':localStorage.getItem('path_token')}, body:JSON.stringify({requesterId:id}) });
+        fetchMyData();
     }
     async function removeFriend(id) {
-        const res = await fetch(`${SERVER_URL}/remove-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ friendId: id }) });
-        const data = await res.json(); alert(data.msg); fetchMyData();
+        await fetch(`${SERVER_URL}/remove-friend`, { method:'POST', headers:{'Content-Type':'application/json','x-auth-token':localStorage.getItem('path_token')}, body:JSON.stringify({friendId:id}) });
+        fetchMyData();
     }
     async function blockUser(id) {
-        const res = await fetch(`${SERVER_URL}/block-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ targetId: id }) });
-        const data = await res.json(); alert(data.msg); fetchMyData();
+        await fetch(`${SERVER_URL}/block-user`, { method:'POST', headers:{'Content-Type':'application/json','x-auth-token':localStorage.getItem('path_token')}, body:JSON.stringify({targetId:id}) });
+        fetchMyData();
     }
 
-    function togglePass(id) { document.getElementById(id).type = (document.getElementById(id).type === "password") ? "text" : "password"; }
-    function switchView(view) {
-        document.getElementById('login-form').style.display = (view === 'login') ? 'block' : 'none';
-        document.getElementById('register-form').style.display = (view === 'register') ? 'block' : 'none';
-    }
+    // --- LOGIN LOGIC (Shortened) ---
+    function switchView(v) { document.getElementById('login-form').style.display = (v==='login'?'block':'none'); document.getElementById('register-form').style.display = (v==='register'?'block':'none'); }
     async function handleLogin() {
-        const user = document.getElementById('login-user').value; const pass = document.getElementById('login-pass').value;
-        const res = await fetch(`${SERVER_URL}/login`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ username: user, password: pass }) });
-        const data = await res.json();
-        if(res.ok) { localStorage.setItem('path_token', data.token); localStorage.setItem('path_username', user); startApp(user); }
-        else { document.getElementById('login-error').innerText = data.msg; document.getElementById('login-error').style.display='block'; }
+        const u = document.getElementById('login-user').value; const p = document.getElementById('login-pass').value;
+        const res = await fetch(`${SERVER_URL}/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) });
+        const d = await res.json();
+        if(res.ok) { localStorage.setItem('path_token', d.token); localStorage.setItem('path_username', u); startApp(u); } else { document.getElementById('login-error').innerText = d.msg; document.getElementById('login-error').style.display='block'; }
     }
     async function handleRegister() {
-        const user = document.getElementById('reg-user').value; const pass = document.getElementById('reg-pass').value;
-        const res = await fetch(`${SERVER_URL}/register`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ username: user, password: pass }) });
-        if(res.ok) { alert("Done!"); switchView('login'); } else { alert("Error"); }
+        const u = document.getElementById('reg-user').value; const p = document.getElementById('reg-pass').value;
+        await fetch(`${SERVER_URL}/register`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) }); switchView('login');
     }
     function logout() { localStorage.clear(); location.reload(); }
-    function startApp(username) {
+    function startApp(u) {
         document.getElementById('auth-overlay').style.display = 'none'; document.getElementById('main-app').style.display = 'flex';
         fetchMyData();
         const socket = io(SERVER_URL);
-        const form = document.getElementById('chat-form'); const input = document.getElementById('chat-input'); const messages = document.getElementById('messages');
-        form.onsubmit = (e) => { e.preventDefault(); if(input.value) { socket.emit('chat message', { name: username, text: input.value }); input.value = ''; } };
+        const form = document.getElementById('chat-form');
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const text = document.getElementById('chat-input').value;
+            if(text) { socket.emit('chat message', { name: u, text }); document.getElementById('chat-input').value = ''; }
+        };
         socket.on('chat message', (msg) => {
             const li = document.createElement('li'); li.className = 'message-item';
-            li.innerHTML = `<div class="f-avatar">${msg.name.charAt(0).toUpperCase()}</div><div style="display:flex; flex-direction:column;"><span style="color:var(--neon-glow); font-weight:bold;">${msg.name}</span><span style="color:white;">${msg.text}</span></div>`;
-            messages.appendChild(li); messages.scrollTop = messages.scrollHeight;
+            li.innerHTML = `<div class="f-avatar">${msg.name[0].toUpperCase()}</div><div><span style="color:var(--neon-glow)">${msg.name}</span><br><span>${msg.text}</span></div>`;
+            document.getElementById('messages').appendChild(li);
         });
     }
     window.onload = () => { if(localStorage.getItem('path_username')) startApp(localStorage.getItem('path_username')); }
