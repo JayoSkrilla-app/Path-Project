@@ -39,7 +39,7 @@ app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
-    if (!user || !(await bcrypt.compare(password, user.password))) return res.status(400).json({ msg: "Invalid credentials" });
+    if (!user || !(await bcrypt.compare(password, user.password))) return res.status(400).json({ msg: "Invalid" });
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, username: user.username });
   } catch (err) { res.status(500).json({ msg: "Server error" }); }
@@ -55,34 +55,39 @@ app.post('/add-friend', auth, async (req, res) => {
     try {
         const target = await User.findOne({ username: req.body.targetUsername });
         if(!target) return res.status(404).json({ msg: "User not found." });
-        if(target._id.toString() === req.user.id) return res.status(400).json({ msg: "You can't add yourself." });
-
         const me = await User.findById(req.user.id);
-        const alreadySent = target.friendRequests.some(r => r.from.toString() === me._id.toString());
-        if(alreadySent) return res.status(400).json({ msg: "Request already sent." });
+        if(target._id.equals(me._id)) return res.status(400).json({ msg: "Can't add self." });
+        
+        const existing = target.friendRequests.find(r => r.from.toString() === me._id.toString());
+        if(existing) return res.status(400).json({ msg: "Already requested." });
 
         target.friendRequests.push({ from: me._id, username: me.username });
-        await target.save(); 
-        res.json({ msg: "Friend request sent!" });
-    } catch(e) { res.status(500).json({ msg: "Server error." }); }
+        await target.save(); res.json({ msg: "Request sent!" });
+    } catch(e) { res.status(500).json({ msg: "Error" }); }
 });
 
 app.post('/accept-friend', auth, async (req, res) => {
-    const me = await User.findById(req.user.id);
-    const them = await User.findById(req.body.requesterId);
-    if(!them) return res.status(404).json({ msg: "User not found" });
+    try {
+        const me = await User.findById(req.user.id);
+        const them = await User.findById(req.body.requesterId);
+        if(!them) return res.status(404).json({ msg: "User not found" });
 
-    me.friends.push(them._id); 
-    them.friends.push(me._id);
-    me.friendRequests = me.friendRequests.filter(x => x.from.toString() !== req.body.requesterId);
-    await me.save(); await them.save();
-    res.json({ msg: "Added" });
+        if(!me.friends.includes(them._id)) me.friends.push(them._id);
+        if(!them.friends.includes(me._id)) them.friends.push(me._id);
+        
+        me.friendRequests = me.friendRequests.filter(x => x.from.toString() !== req.body.requesterId);
+        await me.save(); await them.save();
+        res.json({ msg: "Accepted" });
+    } catch(e) { res.status(500).json({ msg: "Error" }); }
 });
 
 app.post('/deny-friend', auth, async (req, res) => {
-    const me = await User.findById(req.user.id);
-    me.friendRequests = me.friendRequests.filter(x => x.from.toString() !== req.body.requesterId);
-    await me.save(); res.json({ msg: "Denied" });
+    try {
+        const me = await User.findById(req.user.id);
+        me.friendRequests = me.friendRequests.filter(x => x.from.toString() !== req.body.requesterId);
+        await me.save();
+        res.json({ msg: "Denied" });
+    } catch(e) { res.status(500).json({ msg: "Error" }); }
 });
 
 app.post('/remove-friend', auth, async (req, res) => {
@@ -95,7 +100,7 @@ app.post('/remove-friend', auth, async (req, res) => {
 
 app.post('/block-user', auth, async (req, res) => {
     const me = await User.findById(req.user.id);
-    if(!me.blocked.includes(req.body.targetId)) me.blocked.push(req.body.targetId);
+    me.blocked.push(req.body.targetId);
     me.friends.pull(req.body.targetId);
     await me.save(); res.json({ msg: "Blocked" });
 });

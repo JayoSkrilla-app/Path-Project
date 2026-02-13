@@ -49,7 +49,7 @@
     .nav-item.logout:hover { background: var(--error); color: white; }
     .separator { width: 32px; height: 1px; background: var(--border); margin: 5px 0 15px 0; }
 
-    /* --- MAIN APP LAYOUT --- */
+    /* --- DASHBOARD LAYOUT --- */
     #main-app { display: none; width: 100%; height: 100%; }
     #view-main { flex-grow: 1; display: flex; flex-direction: column; }
     .top-bar { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; background: var(--bg-panel); }
@@ -139,7 +139,7 @@
       <div class="input-wrapper">
         <input type="password" id="r-confirm" placeholder="Confirm Password" class="auth-input">
         <span class="toggle-pass" onclick="togglePass(this, 'r-confirm')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
         </span>
       </div>
       <div id="reg-error-box" class="req-error"></div>
@@ -293,7 +293,9 @@
         if(!list || list.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding-top:40px;">Nothing to see here...</div>`; return; }
 
         list.forEach(item => {
-            const u = item.username || "User", id = item._id || item.from;
+            const u = item.username || "User";
+            // FIXED: Specifically use 'from' for requests tab to avoid 'User not found' error
+            const id = (currentTab === 'pending') ? item.from : (item._id || item.from);
             const isOnline = globalOnlineUsers.includes(id);
             const el = document.createElement('div');
             el.className = 'friend-item';
@@ -305,8 +307,8 @@
                     <div class="dropdown">
                         <div class="action-icon" onclick="toggleDropdown('${id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
                         <div id="drop-${id}" class="dropdown-menu">
-                            <div class="dropdown-item" onclick="confirmAction('Remove', 'Unfriend ${u}?', () => removeFriend('${id}'))">Remove Friend</div>
-                            <div class="dropdown-item danger" onclick="confirmAction('Block', 'Block ${u}?', () => blockUser('${id}'))">Block User</div>
+                            <div class="dropdown-item" onclick="confirmAction('Remove Friend', 'Unfriend ${u}?', () => removeFriend('${id}'))">Remove Friend</div>
+                            <div class="dropdown-item danger" onclick="confirmAction('Block User', 'Block ${u}?', () => blockUser('${id}'))">Block User</div>
                         </div>
                     </div>
                 </div>`;
@@ -324,19 +326,31 @@
         });
     }
 
-    // --- REPAIRED AJAX CALLS ---
-    async function apiCall(path, body) {
-        const res = await fetch(`${SERVER_URL}/${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify(body) });
-        const d = await res.json();
-        if(res.ok) { fetchMyData(); if(path === 'add-friend') alert(d.msg); } else { alert(d.msg); }
+    async function sendRequest() {
+        const u = document.getElementById('af-u').value;
+        const res = await fetch(`${SERVER_URL}/add-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ targetUsername: u }) });
+        const d = await res.json(); alert(d.msg); fetchMyData();
     }
-
-    function sendRequest() { const val = document.getElementById('af-u').value; if(val) apiCall('add-friend', { targetUsername: val }); }
-    function acceptFriend(id) { apiCall('accept-friend', { requesterId: id }); }
-    function denyFriend(id) { apiCall('deny-friend', { requesterId: id }); }
-    function removeFriend(id) { apiCall('remove-friend', { friendId: id }); }
-    function blockUser(id) { apiCall('block-user', { targetId: id }); }
-    function unblockUser(id) { apiCall('unblock-user', { targetId: id }); }
+    async function acceptFriend(id) {
+        await fetch(`${SERVER_URL}/accept-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ requesterId: id }) });
+        fetchMyData();
+    }
+    async function denyFriend(id) {
+        await fetch(`${SERVER_URL}/deny-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ requesterId: id }) });
+        fetchMyData();
+    }
+    async function removeFriend(id) {
+        await fetch(`${SERVER_URL}/remove-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ friendId: id }) });
+        fetchMyData();
+    }
+    async function blockUser(id) {
+        await fetch(`${SERVER_URL}/block-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ targetId: id }) });
+        fetchMyData();
+    }
+    async function unblockUser(id) {
+        await fetch(`${SERVER_URL}/unblock-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ targetId: id }) });
+        fetchMyData();
+    }
 
     window.onload = () => { if(localStorage.getItem('path_token')) startApp(); }
   </script>
