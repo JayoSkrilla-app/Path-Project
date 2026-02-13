@@ -38,28 +38,19 @@
     .input-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
     
     .auth-input { 
-        width: 100%; 
-        padding: 12px; 
-        padding-right: 45px; 
+        width: 100%; padding: 12px; padding-right: 45px; 
         background-color: var(--input-bg) !important; 
         border: 1px solid var(--border); 
         color: white !important; 
-        border-radius: 6px; 
-        box-sizing: border-box; 
-        outline: none; 
-        transition: 0.2s;
-        -webkit-text-fill-color: white !important;
+        border-radius: 6px; box-sizing: border-box; outline: none; 
+        transition: 0.2s; -webkit-text-fill-color: white !important;
     }
     .auth-input:focus { border-color: var(--path-blue); }
 
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover, 
-    input:-webkit-autofill:focus, 
-    input:-webkit-autofill:active {
+    input:-webkit-autofill {
         -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
         -webkit-text-fill-color: white !important;
         transition: background-color 5000s ease-in-out 0s;
-        caret-color: white !important;
         text-decoration: none !important;
     }
 
@@ -90,23 +81,11 @@
     .add-friend-btn { background-color: var(--success); color: white; padding: 6px 14px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; margin-left: auto; }
 
     .dashboard-content { padding: 20px; flex-grow: 1; overflow-y: auto; }
-    
     .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; position: relative; background: rgba(255,255,255,0.02); }
-    .f-avatar-wrapper { position: relative; margin-right: 15px; }
-    .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; }
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background-color: #3ba55c; position: absolute; bottom: 0; right: 0; border: 2px solid var(--bg-dark); }
+    .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right: 15px;}
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background-color: #3ba55c; position: absolute; top: 25px; left: 40px; border: 2px solid var(--bg-dark); }
     .f-name { font-weight: 600; flex-grow: 1; }
-    .f-actions { display: flex; gap: 10px; align-items: center; }
-    .action-icon { cursor: pointer; color: var(--text-muted); transition: 0.2s; display: flex; align-items: center; padding: 5px; border-radius: 4px; }
-
-    .dropdown { position: relative; display: inline-block; }
-    .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); z-index: 50; width: 150px; padding: 5px 0; margin-top: 5px; }
-    .dropdown-menu.show { display: block; }
-    .dropdown-item { padding: 10px 15px; font-size: 13px; cursor: pointer; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
-    .dropdown-item.danger:hover { background: var(--error); }
-
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 2000; align-items: center; justify-content: center; }
-    .modal { background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border); width: 400px; text-align: center; }
+    .f-actions { display: flex; gap: 10px; }
 
     /* --- CHAT STYLES --- */
     #view-chat { flex-grow: 1; display: none; flex-direction: column; background: var(--bg-dark); }
@@ -117,24 +96,13 @@
 </head>
 <body>
 
-  <div id="confirm-modal" class="modal-overlay">
-    <div class="modal">
-      <h2 id="modal-title">Are you sure?</h2>
-      <p id="modal-desc"></p>
-      <div style="display: flex; justify-content: center; gap: 15px;">
-        <button onclick="closeModal()" style="padding:10px 20px; border-radius:6px; cursor:pointer; background:transparent; color:white; border:1px solid var(--border);">Cancel</button>
-        <button id="modal-confirm-btn" style="padding:10px 20px; border-radius:6px; cursor:pointer; background:var(--error); color:white; border:none; font-weight:bold;">Confirm</button>
-      </div>
-    </div>
-  </div>
-
   <div id="auth-overlay">
     <div id="login-form" class="auth-box">
       <h1>Path</h1>
       <div class="subtitle">To new beginnings.</div>
-      <div class="input-wrapper"><input type="text" id="login-user" placeholder="Username" class="auth-input" autocomplete="username"></div>
+      <div class="input-wrapper"><input type="text" id="login-user" placeholder="Username" class="auth-input"></div>
       <div class="input-wrapper">
-        <input type="password" id="login-pass" placeholder="Password" class="auth-input" autocomplete="current-password">
+        <input type="password" id="login-pass" placeholder="Password" class="auth-input">
         <span class="toggle-pass" onclick="togglePass(this, 'login-pass')">
            <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
         </span>
@@ -147,11 +115,11 @@
     <div id="register-form" class="auth-box" style="display:none;">
       <h1>Register</h1>
       <div class="subtitle">Join the Path Project.</div>
-      <div class="input-wrapper"><input type="text" id="reg-user" placeholder="Username" class="auth-input" autocomplete="username"></div>
-      <div class="input-wrapper"><input type="email" id="reg-email" placeholder="Email Address" class="auth-input" autocomplete="email"></div>
-      <div class="input-wrapper"><input type="password" id="reg-pass" placeholder="Password" class="auth-input" autocomplete="new-password"><span class="toggle-pass" onclick="togglePass(this, 'reg-pass')"><svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg></span></div>
-      <div class="input-wrapper"><input type="password" id="reg-confirm" placeholder="Confirm Password" class="auth-input" autocomplete="new-password"><span class="toggle-pass" onclick="togglePass(this, 'reg-confirm')"><svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg></span></div>
-      <div style="font-size: 11px; color: var(--text-muted); text-align: left; margin-bottom: 15px;">Must be at least 8 characters, include 1 symbol (!@#$), and 1 capital letter.</div>
+      <div class="input-wrapper"><input type="text" id="reg-user" placeholder="Username" class="auth-input"></div>
+      <div class="input-wrapper"><input type="email" id="reg-email" placeholder="Email Address" class="auth-input"></div>
+      <div class="input-wrapper"><input type="password" id="reg-pass" placeholder="Password" class="auth-input"></div>
+      <div class="input-wrapper"><input type="password" id="reg-confirm" placeholder="Confirm Password" class="auth-input"></div>
+      <div style="font-size: 11px; color: var(--text-muted); text-align: left; margin-bottom: 15px;">Must be at least 8 characters, include 1 symbol, and 1 capital letter.</div>
       <button id="reg-btn" onclick="handleRegister()" class="auth-btn">Create Account</button>
       <div class="switch-link" onclick="switchView('login')">Already have an account? <span>Log In</span></div>
     </div>
@@ -161,7 +129,6 @@
     <div id="sidebar">
         <div class="nav-item active" id="nav-f" onclick="showFriends()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></div>
         <div class="separator"></div>
-        <div id="active-dm-indicator" class="nav-item" style="display:none; color:var(--path-blue); font-weight:bold;">DM</div>
         <div class="nav-item logout" onclick="logout()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div>
     </div>
 
@@ -171,7 +138,6 @@
             <div class="friend-tab active" onclick="setTab('online')">Online</div>
             <div class="friend-tab" onclick="setTab('all')">All</div>
             <div class="friend-tab" onclick="setTab('pending')">Pending</div>
-            <div class="friend-tab" onclick="setTab('blocked')">Blocked</div>
             <div class="add-friend-btn" onclick="setTab('add')">Add Friend</div>
         </div>
         <div id="friend-content" class="dashboard-content"></div>
@@ -195,73 +161,51 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const SERVER_URL = window.location.origin.includes('http') ? window.location.origin : 'https://path-project.onrender.com';
+    const SERVER_URL = window.location.origin;
     let currentTab = 'online';
-    let myData = { friends: [], requests: [], blocked: [] };
+    let myData = { friends: [], requests: [] };
     let globalOnlineUsers = []; 
     let activeRoomId = null;
     let myId = null;
-    let myUsername = localStorage.getItem('path_username');
+    let socket = null;
 
     function parseJwt(token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { return null; } }
 
     function togglePass(el, id) {
         const input = document.getElementById(id);
-        const isPass = input.type === "password";
-        input.type = isPass ? "text" : "password";
-        const eyeOpen = '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-        const eyeSlash = '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-        el.innerHTML = isPass ? eyeOpen : eyeSlash;
+        input.type = input.type === "password" ? "text" : "password";
     }
 
-    function toggleDropdown(id) {
-        document.querySelectorAll('.dropdown-menu').forEach(m => { if(m.id !== 'drop-'+id) m.classList.remove('show'); });
-        const menu = document.getElementById('drop-' + id);
-        if(menu) menu.classList.toggle('show');
-    }
-
-    function closeModal() { document.getElementById('confirm-modal').style.display = 'none'; }
     function switchView(v) { 
         document.getElementById('login-form').style.display = (v==='login'?'block':'none'); 
         document.getElementById('register-form').style.display = (v==='register'?'block':'none'); 
     }
+
     function logout() { localStorage.clear(); location.reload(); }
 
     function showFriends() { 
         document.getElementById('view-friends').style.display = 'flex'; 
         document.getElementById('view-chat').style.display = 'none'; 
-        document.getElementById('nav-f').classList.add('active');
         fetchMyData(); 
     }
 
-    function showChat(friendId, friendName) { 
+    function openChat(friendId, friendName) { 
         document.getElementById('view-friends').style.display = 'none'; 
         document.getElementById('view-chat').style.display = 'flex'; 
-        document.getElementById('nav-f').classList.remove('active');
         document.getElementById('chat-with-user').innerText = friendName;
-        document.getElementById('messages').innerHTML = ''; // Clear chat history for privacy
+        document.getElementById('messages').innerHTML = '';
         
-        // Generate a unique Room ID (sort to ensure both users land in the same room)
         activeRoomId = [myId, friendId].sort().join('_');
-        
-        const socket = io(SERVER_URL);
         socket.emit('join room', activeRoomId);
 
         document.getElementById('chat-form').onsubmit = (e) => {
             e.preventDefault();
             const text = document.getElementById('chat-input').value;
-            if(text && activeRoomId) { 
-                socket.emit('private message', { roomId: activeRoomId, sender: myUsername, text }); 
+            if(text) { 
+                socket.emit('private message', { roomId: activeRoomId, sender: localStorage.getItem('path_username'), text }); 
                 document.getElementById('chat-input').value = ''; 
             }
         };
-
-        socket.on('chat message', (msg) => {
-            const li = document.createElement('li'); li.className = 'message-item';
-            li.innerHTML = `<div class="f-avatar">${msg.name[0].toUpperCase()}</div><div><span style="color:var(--neon-glow);font-weight:bold;">${msg.name}</span><br><span>${msg.text}</span></div>`;
-            document.getElementById('messages').appendChild(li);
-            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
-        });
     }
     
     function setTab(tab) {
@@ -273,23 +217,71 @@
         renderDashboard();
     }
 
+    async function handleRegister() {
+        const u = document.getElementById('reg-user').value;
+        const e = document.getElementById('reg-email').value;
+        const p = document.getElementById('reg-pass').value;
+        const cp = document.getElementById('reg-confirm').value;
+
+        if (!u || !e || !p) return alert("Please fill in all fields.");
+        if (p !== cp) return alert("Passwords do not match!");
+        if (p.length < 8 || !/[A-Z]/.test(p) || !/[^a-zA-Z0-9]/.test(p)) return alert("Password must be 8+ characters, symbol, capital letter.");
+
+        try {
+            const res = await fetch(`${SERVER_URL}/register`, { 
+                method: 'POST', headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ username: u, email: e, password: p }) 
+            });
+            const data = await res.json();
+            if(res.ok) {
+                // Important: Login immediately after register
+                const loginRes = await fetch(`${SERVER_URL}/login`, { 
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ username: u, password: p }) 
+                });
+                const loginData = await loginRes.json();
+                localStorage.setItem('path_token', loginData.token);
+                localStorage.setItem('path_username', u);
+                startApp();
+            } else { alert(data.msg); }
+        } catch(err) { alert("Server error."); }
+    }
+
     async function handleLogin() {
         const u = document.getElementById('login-user').value;
         const p = document.getElementById('login-pass').value;
         const res = await fetch(`${SERVER_URL}/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) });
         const d = await res.json();
-        if(res.ok) { localStorage.setItem('path_token', d.token); localStorage.setItem('path_username', u); startApp(u); }
-        else { document.getElementById('login-error').innerText = d.msg; document.getElementById('login-error').style.display='block'; }
+        if(res.ok) { 
+            localStorage.setItem('path_token', d.token); 
+            localStorage.setItem('path_username', u); 
+            startApp(); 
+        } else { alert(d.msg); }
     }
 
-    function startApp(u) {
-        document.getElementById('auth-overlay').style.display = 'none'; document.getElementById('main-app').style.display = 'flex';
+    function startApp() {
         const token = localStorage.getItem('path_token');
+        if(!token) return;
         myId = parseJwt(token).id;
-        fetchMyData();
-        const socket = io(SERVER_URL);
+        document.getElementById('auth-overlay').style.display = 'none'; 
+        document.getElementById('main-app').style.display = 'flex';
+        
+        socket = io(SERVER_URL);
         socket.emit('identify', myId);
-        socket.on('user status change', (onlineIds) => { globalOnlineUsers = onlineIds; renderDashboard(); });
+        
+        socket.on('user status change', (onlineIds) => { 
+            globalOnlineUsers = onlineIds; 
+            renderDashboard(); 
+        });
+
+        socket.on('chat message', (msg) => {
+            const li = document.createElement('li'); li.className = 'message-item';
+            li.innerHTML = `<div class="f-avatar">${msg.name[0].toUpperCase()}</div><div><b style="color:var(--neon-glow)">${msg.name}</b><br>${msg.text}</div>`;
+            document.getElementById('messages').appendChild(li);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        });
+
+        fetchMyData();
     }
 
     async function fetchMyData() {
@@ -305,39 +297,21 @@
             return;
         }
 
-        let list = [];
-        if (currentTab === 'online') list = myData.friends.filter(f => globalOnlineUsers.includes(f._id));
-        else if (currentTab === 'all') list = myData.friends;
-        else if (currentTab === 'pending') list = myData.requests;
-        else if (currentTab === 'blocked') list = myData.blocked;
-
-        if(!list || list.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:40px;">No one here yet...</div>`; return; }
+        let list = (currentTab === 'online') ? myData.friends.filter(f => globalOnlineUsers.includes(f._id)) : (currentTab === 'all' ? myData.friends : myData.requests);
 
         list.forEach(item => {
-            const username = item.username || "Unknown";
-            const id = (currentTab === 'pending') ? item.from : item._id;
+            const u = item.username || "User";
+            const id = item._id || item.from;
             const isOnline = globalOnlineUsers.includes(id);
             const el = document.createElement('div');
             el.className = 'friend-item';
-
-            let actionHtml = '';
-            if(currentTab === 'all' || currentTab === 'online') {
-                actionHtml = `
+            el.innerHTML = `
+                <div class="f-avatar">${u[0].toUpperCase()}</div>
+                ${isOnline ? '<div class="status-dot"></div>' : ''}
+                <div class="f-name">${u}</div>
                 <div class="f-actions">
-                    <div class="action-icon" onclick="showChat('${id}', '${username}')" title="Message"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
-                    <div class="dropdown">
-                        <div class="action-icon" onclick="toggleDropdown('${id}')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></div>
-                        <div id="drop-${id}" class="dropdown-menu">
-                            <div class="dropdown-item danger">Remove Friend</div>
-                            <div class="dropdown-item danger">Block User</div>
-                        </div>
-                    </div>
+                    ${currentTab !== 'pending' ? `<button onclick="openChat('${id}', '${u}')" style="background:var(--path-blue); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Chat</button>` : `<button onclick="acceptFriend('${id}')">Accept</button>`}
                 </div>`;
-            } else if(currentTab === 'pending') {
-                actionHtml = `<div class="f-actions"><div class="action-icon" onclick="acceptFriend('${id}')" style="color:var(--success)">✔</div></div>`;
-            }
-
-            el.innerHTML = `<div class="f-avatar-wrapper"><div class="f-avatar">${username[0].toUpperCase()}</div>${isOnline ? '<div class="status-dot"></div>' : ''}</div><div class="f-name">${username}</div>${actionHtml}`;
             container.appendChild(el);
         });
     }
@@ -347,8 +321,9 @@
         const res = await fetch(`${SERVER_URL}/add-friend`, { method:'POST', headers:{'Content-Type':'application/json','x-auth-token':localStorage.getItem('path_token')}, body:JSON.stringify({targetUsername:target}) });
         const d = await res.json(); alert(d.msg); fetchMyData();
     }
+    async function acceptFriend(id) { await fetch(`${SERVER_URL}/accept-friend`, { method:'POST', headers:{'Content-Type':'application/json','x-auth-token':localStorage.getItem('path_token')}, body:JSON.stringify({requesterId:id}) }); fetchMyData(); }
 
-    window.onload = () => { if(localStorage.getItem('path_token')) startApp(localStorage.getItem('path_username')); }
+    window.onload = () => { if(localStorage.getItem('path_token')) startApp(); }
   </script>
 </body>
 </html>
