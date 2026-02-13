@@ -14,7 +14,7 @@
 
     body { font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-    /* --- AUTH BOX (RESTORED CLEAN LOOK) --- */
+    /* --- AUTH BOX --- */
     #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; z-index: 1000; }
     .auth-box { background: var(--bg-panel); padding: 40px; border-radius: 12px; border: 1px solid var(--border); width: 380px; text-align: center; }
     .auth-box h1 { color: var(--path-blue); margin-bottom: 5px; font-size: 32px; text-shadow: 0 0 10px rgba(0, 123, 255, 0.3); }
@@ -29,12 +29,11 @@
     .auth-input:focus { border-color: var(--path-blue); }
     input:-webkit-autofill { -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important; transition: background-color 5000s; }
 
-    /* Password SVG Toggle */
-    .toggle-pass { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
+    /* FIXED: Stabilized Eye Toggle to prevent glitching */
+    .toggle-pass { position: absolute; right: 12px; top: 0; bottom: 0; width: 24px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: color 0.2s; z-index: 2; }
     .toggle-pass:hover { color: var(--path-blue); }
-    .toggle-pass svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .toggle-pass svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; pointer-events: none; }
 
-    /* Red Text Error Feedback */
     .req-error { color: var(--error); font-size: 12px; text-align: left; margin-bottom: 15px; background: rgba(255, 75, 75, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 75, 75, 0.2); display: none; }
 
     .auth-btn { width: 100%; padding: 12px; background: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
@@ -60,8 +59,11 @@
     /* --- FRIEND ITEMS --- */
     #dashboard-view { flex-grow: 1; overflow-y: auto; padding: 20px; }
     .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; position: relative; background: rgba(255,255,255,0.02); }
-    .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right: 15px;}
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; top: 28px; left: 40px; border: 2px solid var(--bg-dark); }
+    .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right: 15px; position: relative; }
+    
+    /* FIXED: Adjusted status dot to be lower and centered on corner */
+    .status-dot { width: 12px; height: 12px; border-radius: 50%; background: #3ba55c; position: absolute; bottom: -2px; right: -2px; border: 3px solid var(--bg-dark); }
+    
     .f-name { font-weight: 600; flex-grow: 1; font-size: 15px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     /* --- BUTTON STYLING (UNIFORM SIZE) --- */
@@ -91,7 +93,6 @@
     .chat-box { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; }
     .chat-box input { background: transparent; border: none; color: white; flex-grow: 1; outline: none; }
 
-    /* Modal Overlay */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 2000; align-items: center; justify-content: center; }
     .modal { background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border); width: 350px; text-align: center; }
   </style>
@@ -188,7 +189,11 @@
     
     function togglePass(el, id) {
         const input = document.getElementById(id);
-        input.type = input.type === "password" ? "text" : "password";
+        const isPass = input.type === "password";
+        input.type = isPass ? "text" : "password";
+        const eyeOpen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        const eyeSlash = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+        el.innerHTML = isPass ? eyeOpen : eyeSlash;
     }
 
     function switchView(v) { document.getElementById('login-form').style.display = (v==='login'?'block':'none'); document.getElementById('register-form').style.display = (v==='register'?'block':'none'); }
@@ -294,7 +299,6 @@
 
         list.forEach(item => {
             const u = item.username || "User";
-            // FIXED: Specifically use 'from' for requests tab to avoid 'User not found' error
             const id = (currentTab === 'pending') ? item.from : (item._id || item.from);
             const isOnline = globalOnlineUsers.includes(id);
             const el = document.createElement('div');
@@ -321,7 +325,7 @@
                 actions = `<button class="btn-action btn-accept" onclick="unblockUser('${id}')" style="background:var(--path-blue); width:100px;">Unblock</button>`;
             }
 
-            el.innerHTML = `<div class="f-avatar">${u[0].toUpperCase()}</div>${isOnline ? '<div class="status-dot"></div>' : ''}<div class="f-name">${u}</div>${actions}`;
+            el.innerHTML = `<div class="f-avatar">${u[0].toUpperCase()}${isOnline ? '<div class="status-dot"></div>' : ''}</div><div class="f-name">${u}</div>${actions}`;
             container.appendChild(el);
         });
     }
