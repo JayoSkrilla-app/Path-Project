@@ -29,7 +29,6 @@
     .auth-input:focus { border-color: var(--path-blue); }
     input:-webkit-autofill { -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important; transition: background-color 5000s; }
 
-    /* FIXED: Added user-select:none to stop glitching/highlighting */
     .toggle-pass { 
         position: absolute; right: 12px; top: 0; bottom: 0; width: 24px; 
         cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; 
@@ -65,12 +64,12 @@
     .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; position: relative; background: rgba(255,255,255,0.02); }
     .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right: 15px; position: relative; }
     
-    /* STATUS DOT: Kept at 10px as requested */
+    /* STATUS DOT: 10px */
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-dark); }
     
     .f-name { font-weight: 600; flex-grow: 1; font-size: 15px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* --- BUTTON STYLING (UNIFORM SIZE) --- */
+    /* --- BUTTON STYLING --- */
     .f-actions { display: flex; align-items: center; gap: 8px; }
     .btn-action { width: 90px; padding: 8px 0; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-align: center; transition: 0.2s; }
     .btn-accept { background: var(--success); color: white; }
@@ -191,14 +190,15 @@
 
     function parseJwt(t) { try { return JSON.parse(atob(t.split('.')[1])); } catch (e) { return null; } }
     
-    // FIXED: Clean Eye-Slash SVG (No Pupil, No Speck)
+    // UPDATED: Corrected logic (Pass=Open, Text=Slash) + Clean "No Pupil" Slash Icon
     function togglePass(el, id) {
         const input = document.getElementById(id);
         const isPass = input.type === "password";
         input.type = isPass ? "text" : "password";
         const eyeOpen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        // CLEAN SLASH: No pupil speck, clean diagonal line
         const eyeSlash = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-        el.innerHTML = isPass ? eyeOpen : eyeSlash;
+        el.innerHTML = isPass ? eyeSlash : eyeOpen;
     }
 
     function switchView(v) { document.getElementById('login-form').style.display = (v==='login'?'block':'none'); document.getElementById('register-form').style.display = (v==='register'?'block':'none'); }
