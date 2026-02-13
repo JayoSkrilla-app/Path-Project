@@ -3,7 +3,7 @@
 <head>
   <title>Path Project</title>
   <style>
-    /* --- PATH PROJECT THEME --- */
+    /* --- RESTORED ORIGINAL THEME --- */
     :root {
       --bg-dark: #0d1117; --bg-panel: #161b22; --bg-sidebar: #05070a;    
       --path-blue: #007bff; --neon-glow: #00d4ff; --text-main: #e6edf3;     
@@ -11,34 +11,42 @@
       --error: #ff4b4b; --success: #238636; --modal-overlay: rgba(0, 0, 0, 0.85);
     }
 
-    body { font-family: 'Segoe UI', 'Roboto', sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+    body { font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-    /* --- AUTH & NUCLEAR AUTOFILL FIX --- */
+    /* --- AUTH BOX (ORIGINAL LOOK) --- */
     #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; z-index: 1000; }
     .auth-box { background: var(--bg-panel); padding: 40px; border-radius: 12px; border: 1px solid var(--border); width: 380px; text-align: center; }
+    .auth-box h1 { color: var(--path-blue); margin-bottom: 5px; font-size: 32px; text-shadow: 0 0 10px rgba(0, 123, 255, 0.3); }
+    .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
+
     .input-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
     .auth-input { 
         width: 100%; padding: 12px; padding-right: 45px; background-color: var(--input-bg) !important; 
         border: 1px solid var(--border); color: white !important; border-radius: 6px; box-sizing: border-box; 
         outline: none; transition: 0.2s; -webkit-text-fill-color: white !important;
     }
-    input:-webkit-autofill { 
-        -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important; 
-        transition: background-color 5000s ease-in-out 0s; text-decoration: none !important;
-    }
-    .toggle-pass { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); }
+    .auth-input:focus { border-color: var(--path-blue); }
+
+    /* Chrome Autofill Fix */
+    input:-webkit-autofill { -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important; transition: background-color 5000s; }
+
+    /* Password Toggle (SVG ONLY) */
+    .toggle-pass { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
+    .toggle-pass:hover { color: var(--path-blue); }
+    .toggle-pass svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* Password Error Box (Red Text) */
+    .req-error { color: var(--error); font-size: 12px; text-align: left; margin-bottom: 15px; background: rgba(255, 75, 75, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 75, 75, 0.2); display: none; }
+
     .auth-btn { width: 100%; padding: 12px; background: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .switch-link { margin-top: 25px; cursor: pointer; color: var(--text-muted); font-size: 14px; display: inline-block; }
     .switch-link span { color: var(--path-blue); font-weight: bold; text-decoration: underline; }
 
-    /* Password Error Box */
-    .req-error { color: var(--error); font-size: 12px; text-align: left; margin-bottom: 15px; background: rgba(255, 75, 75, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 75, 75, 0.2); display: none; }
-
-    /* --- SIDEBAR --- */
+    /* --- SIDEBAR (ORIGINAL DISCORD STYLE) --- */
     #main-app { display: none; width: 100%; height: 100%; }
     #sidebar { width: 72px; background: var(--bg-sidebar); display: flex; flex-direction: column; align-items: center; padding-top: 15px; border-right: 1px solid var(--border); }
-    .nav-item { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; cursor: pointer; background: var(--bg-panel); border: 1px solid var(--border); transition: 0.2s; color: var(--text-muted); }
-    .nav-item:hover, .nav-item.active { border-radius: 15px; background: var(--path-blue); color: white; }
+    .nav-item { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; cursor: pointer; background: var(--bg-panel); border: 1px solid var(--border); transition: 0.2s; color: var(--text-muted); }
+    .nav-item:hover, .nav-item.active { border-radius: 16px; background: var(--path-blue); color: white; }
     .nav-item.logout { margin-top: auto; margin-bottom: 20px; border-color: var(--error); color: var(--error); }
     .nav-item.logout:hover { background: var(--error); color: white; }
     .separator { width: 32px; height: 1px; background: var(--border); margin: 5px 0 15px 0; }
@@ -50,34 +58,34 @@
     .friend-tab.active { background: rgba(255,255,255,0.1); color: white; font-weight: 600;}
     .add-btn { background: var(--success); color: white; padding: 6px 14px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; margin-left: auto; }
 
-    /* --- FRIEND ITEMS --- */
+    /* --- FRIEND ITEMS & MENU --- */
     #dashboard-view { flex-grow: 1; overflow-y: auto; padding: 20px; }
     .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; position: relative; background: rgba(255,255,255,0.02); }
     .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right: 15px;}
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; top: 30px; left: 40px; border: 2px solid var(--bg-dark); }
-    .f-name { font-weight: 600; flex-grow: 1; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; top: 28px; left: 40px; border: 2px solid var(--bg-dark); }
+    .f-name { font-weight: 600; flex-grow: 1; font-size: 15px; }
 
-    /* --- DROPDOWNS & ACTIONS --- */
     .f-actions { display: flex; gap: 10px; align-items: center; }
-    .action-icon { cursor: pointer; color: var(--text-muted); padding: 5px; border-radius: 4px; transition: 0.2s; display: flex; align-items: center; }
+    .action-icon { cursor: pointer; color: var(--text-muted); padding: 5px; border-radius: 4px; display: flex; align-items: center; }
     .action-icon:hover { color: white; background: var(--border); }
+    
     .dropdown { position: relative; display: inline-block; }
-    .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; z-index: 50; width: 150px; padding: 5px 0; margin-top: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; z-index: 100; width: 150px; padding: 5px 0; margin-top: 5px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); }
     .dropdown-menu.show { display: block; }
     .dropdown-item { padding: 10px 15px; font-size: 13px; cursor: pointer; color: var(--text-main); }
     .dropdown-item:hover { background: var(--path-blue); }
     .dropdown-item.danger:hover { background: var(--error); }
 
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 2000; align-items: center; justify-content: center; }
-    .modal { background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border); width: 350px; text-align: center; }
-
-    /* --- CHAT --- */
+    /* --- CHAT VIEW --- */
     #chat-view { flex-grow: 1; display: none; flex-direction: column; background: var(--bg-dark); }
     #messages { list-style: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; }
     .msg-item { display: flex; gap: 12px; margin-bottom: 15px; }
     #chat-form-container { padding: 20px; border-top: 1px solid var(--border); }
     .chat-box { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; }
     .chat-box input { background: transparent; border: none; color: white; flex-grow: 1; outline: none; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 2000; align-items: center; justify-content: center; }
+    .modal { background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border); width: 350px; text-align: center; }
   </style>
 </head>
 <body>
@@ -100,7 +108,9 @@
       <div class="input-wrapper"><input type="text" id="l-user" placeholder="Username" class="auth-input"></div>
       <div class="input-wrapper">
         <input type="password" id="l-pass" placeholder="Password" class="auth-input">
-        <span class="toggle-pass" onclick="togglePass('l-pass')">👁️</span>
+        <span class="toggle-pass" onclick="togglePass(this, 'l-pass')">
+            <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+        </span>
       </div>
       <div id="l-error" style="color:var(--error); display:none; font-size:12px; margin-bottom:10px;"></div>
       <button onclick="handleLogin()" class="auth-btn">Log In</button>
@@ -109,10 +119,21 @@
 
     <div id="register-form" class="auth-box" style="display:none;">
       <h1>Register</h1>
+      <div class="subtitle">Join the Path Project.</div>
       <div class="input-wrapper"><input type="text" id="r-user" placeholder="Username" class="auth-input"></div>
       <div class="input-wrapper"><input type="email" id="r-email" placeholder="Email Address" class="auth-input"></div>
-      <div class="input-wrapper"><input type="password" id="r-pass" placeholder="Password" class="auth-input"></div>
-      <div class="input-wrapper"><input type="password" id="r-confirm" placeholder="Confirm Password" class="auth-input"></div>
+      <div class="input-wrapper">
+        <input type="password" id="r-pass" placeholder="Password" class="auth-input">
+        <span class="toggle-pass" onclick="togglePass(this, 'r-pass')">
+            <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+        </span>
+      </div>
+      <div class="input-wrapper">
+        <input type="password" id="r-confirm" placeholder="Confirm Password" class="auth-input">
+        <span class="toggle-pass" onclick="togglePass(this, 'r-confirm')">
+            <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+        </span>
+      </div>
       <div id="reg-error-box" class="req-error"></div>
       <button onclick="handleRegister()" class="auth-btn">Create Account</button>
       <div class="switch-link" onclick="switchView('login')">Already have an account? <span>Log In</span></div>
@@ -121,8 +142,8 @@
 
   <div id="main-app">
     <div id="sidebar">
-        <div class="nav-item active" onclick="showDashboard()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        <div class="nav-item active" id="nav-h" onclick="showDashboard()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         </div>
         <div class="separator"></div>
         <div class="nav-item logout" onclick="logout()">
@@ -140,7 +161,7 @@
             <div class="add-btn" onclick="setTab('add')">Add Friend</div>
         </div>
         <div class="top-bar" id="top-chat" style="display:none;">
-            <b id="chat-header">@ Friend</b>
+            <b id="chat-header" style="font-size:16px;">@ Friend</b>
         </div>
         <div id="dashboard-view"><div id="friend-list-content"></div></div>
         <div id="chat-view">
@@ -160,7 +181,16 @@
     let globalOnlineUsers = [];
 
     function parseJwt(t) { try { return JSON.parse(atob(t.split('.')[1])); } catch (e) { return null; } }
-    function togglePass(id) { const x = document.getElementById(id); x.type = x.type === "password" ? "text" : "password"; }
+    
+    function togglePass(el, id) {
+        const input = document.getElementById(id);
+        const isPass = input.type === "password";
+        input.type = isPass ? "text" : "password";
+        const eyeOpen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        const eyeSlash = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+        el.innerHTML = isPass ? eyeOpen : eyeSlash;
+    }
+
     function switchView(v) { document.getElementById('login-form').style.display = (v==='login'?'block':'none'); document.getElementById('register-form').style.display = (v==='register'?'block':'none'); }
     function logout() { localStorage.clear(); location.reload(); }
     function closeModal() { document.getElementById('confirm-modal').style.display = 'none'; }
@@ -202,7 +232,7 @@
         socket.on('user status change', (ids) => { globalOnlineUsers = ids; renderDashboard(); });
         socket.on('chat message', (msg) => {
             const li = document.createElement('li'); li.className = 'msg-item';
-            li.innerHTML = `<div class="f-avatar">${msg.name[0].toUpperCase()}</div><div><b style="color:var(--neon-glow)">${msg.name}</b><br>${msg.text}</div>`;
+            li.innerHTML = `<div class="f-avatar">${msg.name[0].toUpperCase()}</div><div><b style="color:var(--neon-glow)">${msg.name}</b><br><span>${msg.text}</span></div>`;
             document.getElementById('messages').appendChild(li);
             document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
         });
@@ -260,13 +290,14 @@
         else if(currentTab === 'pending') list = myData.requests;
         else if(currentTab === 'blocked') list = myData.blocked;
 
-        if(!list || list.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding-top:40px;">No users found.</div>`; return; }
+        if(!list || list.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding-top:40px;">No users here yet...</div>`; return; }
 
         list.forEach(item => {
             const u = item.username || "User", id = item._id || item.from;
             const isOnline = globalOnlineUsers.includes(id);
             const el = document.createElement('div');
             el.className = 'friend-item';
+            
             let actions = '';
             if(currentTab === 'all' || currentTab === 'online') {
                 actions = `<div class="f-actions">
@@ -280,10 +311,11 @@
                     </div>
                 </div>`;
             } else if(currentTab === 'pending') {
-                actions = `<button onclick="acceptFriend('${id}')" style="background:var(--success); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Accept</button>`;
+                actions = `<button onclick="acceptFriend('${id}')" style="background:var(--success); color:white; border:none; padding:5px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">Accept</button>`;
             } else if(currentTab === 'blocked') {
-                actions = `<button onclick="unblockUser('${id}')" style="background:var(--path-blue); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Unblock</button>`;
+                actions = `<button onclick="unblockUser('${id}')" style="background:var(--path-blue); color:white; border:none; padding:5px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">Unblock</button>`;
             }
+
             el.innerHTML = `<div class="f-avatar">${u[0].toUpperCase()}</div>${isOnline ? '<div class="status-dot"></div>' : ''}<div class="f-name">${u}</div>${actions}`;
             container.appendChild(el);
         });
