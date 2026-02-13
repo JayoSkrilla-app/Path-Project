@@ -9,7 +9,7 @@
       --path-blue: #007bff; --neon-glow: #00d4ff; --text-main: #e6edf3;     
       --text-muted: #8b949e; --input-bg: #0d1117; --border: #30363d;        
       --error: #ff4b4b; --success: #238636; --modal-overlay: rgba(0, 0, 0, 0.85);
-      --btn-grey: #30363d;
+      --btn-grey: #21262d;
     }
 
     body { font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -31,12 +31,10 @@
     /* Chrome Autofill Fix */
     input:-webkit-autofill { -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important; transition: background-color 5000s; }
 
-    /* SVGs for Toggle & Icons */
+    /* SVG Toggle */
     .toggle-pass { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
-    .toggle-pass:hover { color: var(--path-blue); }
     .toggle-pass svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
 
-    /* Red Text Error Feedback */
     .req-error { color: var(--error); font-size: 12px; text-align: left; margin-bottom: 15px; background: rgba(255, 75, 75, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 75, 75, 0.2); display: none; }
 
     .auth-btn { width: 100%; padding: 12px; background: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
@@ -66,14 +64,16 @@
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; top: 28px; left: 40px; border: 2px solid var(--bg-dark); }
     .f-name { font-weight: 600; flex-grow: 1; font-size: 15px; }
 
-    /* --- PENDING BUTTONS --- */
-    .btn-accept { background: var(--success); color: white; border: none; padding: 7px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 8px; transition: 0.2s; }
+    /* --- FIXED SIZE BUTTONS --- */
+    .btn-action { width: 85px; padding: 8px 0; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; text-align: center; }
+    .btn-accept { background: var(--success); color: white; margin-right: 8px; }
     .btn-accept:hover { background: #2ea043; }
-    .btn-deny { background: var(--btn-grey); color: white; border: none; padding: 7px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+    .btn-deny { background: var(--btn-grey); color: white; }
     .btn-deny:hover { background: var(--error); }
+    .btn-unblock { background: var(--path-blue); color: white; width: 100px; }
 
     /* --- ACTIONS --- */
-    .f-actions { display: flex; gap: 10px; align-items: center; }
+    .f-actions { display: flex; align-items: center; }
     .action-icon { cursor: pointer; color: var(--text-muted); padding: 5px; border-radius: 4px; display: flex; align-items: center; }
     .action-icon:hover { color: white; background: var(--border); }
     
@@ -82,7 +82,6 @@
     .dropdown-menu.show { display: block; }
     .dropdown-item { padding: 10px 15px; font-size: 13px; cursor: pointer; color: var(--text-main); }
     .dropdown-item:hover { background: var(--path-blue); }
-    .dropdown-item.danger:hover { background: var(--error); }
 
     /* --- CHAT --- */
     #chat-view { flex-grow: 1; display: none; flex-direction: column; background: var(--bg-dark); }
@@ -150,7 +149,7 @@
 
   <div id="main-app">
     <div id="sidebar">
-        <div class="nav-item active" onclick="showDashboard()">
+        <div class="nav-item active" id="nav-h" onclick="showDashboard()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         </div>
         <div class="separator"></div>
@@ -321,12 +320,12 @@
             } else if(currentTab === 'pending') {
                 actions = `
                     <div class="f-actions">
-                        <button class="btn-accept" onclick="acceptFriend('${id}')">Accept</button>
-                        <button class="btn-deny" onclick="denyFriend('${id}')">Deny</button>
+                        <button class="btn-action btn-accept" onclick="acceptFriend('${id}')">Accept</button>
+                        <button class="btn-action btn-deny" onclick="denyFriend('${id}')">Deny</button>
                     </div>
                 `;
             } else if(currentTab === 'blocked') {
-                actions = `<button class="btn-accept" onclick="unblockUser('${id}')" style="background:var(--path-blue);">Unblock</button>`;
+                actions = `<button class="btn-action btn-unblock" onclick="unblockUser('${id}')">Unblock</button>`;
             }
 
             el.innerHTML = `<div class="f-avatar">${u[0].toUpperCase()}</div>${isOnline ? '<div class="status-dot"></div>' : ''}<div class="f-name">${u}</div>${actions}`;
