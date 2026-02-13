@@ -29,6 +29,7 @@
     .auth-input:focus { border-color: var(--path-blue); }
     input:-webkit-autofill { -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important; transition: background-color 5000s; }
 
+    /* SVG Toggle */
     .toggle-pass { position: absolute; right: 12px; top: 0; bottom: 0; width: 24px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: color 0.2s; z-index: 2; }
     .toggle-pass:hover { color: var(--path-blue); }
     .toggle-pass svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; pointer-events: none; }
@@ -60,8 +61,8 @@
     .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; position: relative; background: rgba(255,255,255,0.02); }
     .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right: 15px; position: relative; }
     
-    /* FIXED: Shrunk status dot from 12px to 10px and reduced border */
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; bottom: -1px; right: -1px; border: 2px solid var(--bg-dark); }
+    /* UPDATED: Status dot set to 10px */
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-dark); }
     
     .f-name { font-weight: 600; flex-grow: 1; font-size: 15px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -92,6 +93,7 @@
     .chat-box { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; }
     .chat-box input { background: transparent; border: none; color: white; flex-grow: 1; outline: none; }
 
+    /* Modal Overlay */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 2000; align-items: center; justify-content: center; }
     .modal { background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border); width: 350px; text-align: center; }
   </style>
@@ -186,12 +188,12 @@
 
     function parseJwt(t) { try { return JSON.parse(atob(t.split('.')[1])); } catch (e) { return null; } }
     
+    // UPDATED: Fixed Eye-Slash SVG Path to avoid mishap
     function togglePass(el, id) {
         const input = document.getElementById(id);
         const isPass = input.type === "password";
         input.type = isPass ? "text" : "password";
         const eyeOpen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-        // FIXED: Cleaned up eyeSlash path to prevent alignment mishap
         const eyeSlash = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
         el.innerHTML = isPass ? eyeOpen : eyeSlash;
     }
@@ -286,7 +288,7 @@
         const container = document.getElementById('friend-list-content');
         container.innerHTML = '';
         if(currentTab === 'add') {
-            container.innerHTML = `<div style="text-align:center; padding:40px;"><h3>Add Friend</h3><input id="af-u" class="auth-input" style="width:250px" placeholder="Username"><br><button onclick="sendRequest()" class="auth-btn" style="width:150px">Send Request</button></div>`;
+            container.innerHTML = `<div style="text-align:center; padding:40px;"><h3>Add Friend</h3><input id="af-u" class="auth-input" style="width:250px" placeholder="Username"><br><button onclick="sendRequest()" class="auth-btn" style="width:150px; margin-top:15px;">Send Request</button></div>`;
             return;
         }
         let list = [];
