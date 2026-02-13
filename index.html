@@ -9,6 +9,7 @@
       --path-blue: #007bff; --neon-glow: #00d4ff; --text-main: #e6edf3;     
       --text-muted: #8b949e; --input-bg: #0d1117; --border: #30363d;        
       --error: #ff4b4b; --success: #238636; --modal-overlay: rgba(0, 0, 0, 0.85);
+      --btn-grey: #30363d;
     }
 
     body { font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -65,6 +66,13 @@
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; top: 28px; left: 40px; border: 2px solid var(--bg-dark); }
     .f-name { font-weight: 600; flex-grow: 1; font-size: 15px; }
 
+    /* --- PENDING BUTTONS --- */
+    .btn-accept { background: var(--success); color: white; border: none; padding: 7px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 8px; transition: 0.2s; }
+    .btn-accept:hover { background: #2ea043; }
+    .btn-deny { background: var(--btn-grey); color: white; border: none; padding: 7px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+    .btn-deny:hover { background: var(--error); }
+
+    /* --- ACTIONS --- */
     .f-actions { display: flex; gap: 10px; align-items: center; }
     .action-icon { cursor: pointer; color: var(--text-muted); padding: 5px; border-radius: 4px; display: flex; align-items: center; }
     .action-icon:hover { color: white; background: var(--border); }
@@ -142,8 +150,8 @@
 
   <div id="main-app">
     <div id="sidebar">
-        <div class="nav-item active" id="nav-h" onclick="showDashboard()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <div class="nav-item active" onclick="showDashboard()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         </div>
         <div class="separator"></div>
         <div class="nav-item logout" onclick="logout()">
@@ -290,7 +298,7 @@
         else if(currentTab === 'pending') list = myData.requests;
         else if(currentTab === 'blocked') list = myData.blocked;
 
-        if(!list || list.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding-top:40px;">No users found.</div>`; return; }
+        if(!list || list.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding-top:40px;">Nothing to see here...</div>`; return; }
 
         list.forEach(item => {
             const u = item.username || "User", id = item._id || item.from;
@@ -312,11 +320,13 @@
                 </div>`;
             } else if(currentTab === 'pending') {
                 actions = `
-                    <button onclick="acceptFriend('${id}')" style="background:var(--success); color:white; border:none; padding:5px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px;">Accept</button>
-                    <button onclick="denyFriend('${id}')" style="background:transparent; color:var(--error); border:1px solid var(--error); padding:5px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">Deny</button>
+                    <div class="f-actions">
+                        <button class="btn-accept" onclick="acceptFriend('${id}')">Accept</button>
+                        <button class="btn-deny" onclick="denyFriend('${id}')">Deny</button>
+                    </div>
                 `;
             } else if(currentTab === 'blocked') {
-                actions = `<button onclick="unblockUser('${id}')" style="background:var(--path-blue); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">Unblock</button>`;
+                actions = `<button class="btn-accept" onclick="unblockUser('${id}')" style="background:var(--path-blue);">Unblock</button>`;
             }
 
             el.innerHTML = `<div class="f-avatar">${u[0].toUpperCase()}</div>${isOnline ? '<div class="status-dot"></div>' : ''}<div class="f-name">${u}</div>${actions}`;
