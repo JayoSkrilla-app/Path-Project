@@ -21,54 +21,38 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
 
-// REGISTER (Modified: Requires email, but skips verification)
 app.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    
-    // 1. Still require a real email
     if (!email || !email.includes('@')) return res.status(400).json({ msg: "Invalid email" });
-
-    // 2. Check for duplicates
     if (await User.findOne({ username })) return res.status(400).json({ msg: "Username taken" });
     if (await User.findOne({ email })) return res.status(400).json({ msg: "Email in use" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // 3. Create user with isVerified: TRUE automatically
     const newUser = new User({ 
         username, email, password: hashedPassword, 
-        isVerified: true, // <--- INSTANT APPROVAL
+        isVerified: true, 
         verificationToken: undefined 
     });
     await newUser.save();
-
     res.json({ msg: "Account created successfully! Please log in." });
-
   } catch (err) { 
-    console.error("Reg Error:", err);
     res.status(500).json({ msg: "Server error." }); 
   }
 });
 
-// LOGIN (Modified: Removed verification check)
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
-    
     if (!user || !(await bcrypt.compare(password, user.password))) {
         return res.status(400).json({ msg: "Invalid username or password." });
     }
-    
-    // Note: We removed the "if (!user.isVerified)" check here.
-    
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, username: user.username });
   } catch (err) { res.status(500).json({ msg: "Server error." }); }
 });
 
-// --- DATA & SOCIAL ROUTES ---
 const auth = (req, res, next) => {
     const token = req.header('x-auth-token');
     if (!token) return res.status(401).json({ msg: 'No token' });
@@ -103,12 +87,43 @@ app.post('/accept-friend', auth, async (req, res) => {
     } catch(e) { res.status(500).json({msg:"Error"}); }
 });
 
-// --- SOCKET ---
+// --- UPDATED SOCKET DM LOGIC ---
+
 const onlineUsers = new Map(); 
+
 io.on('connection', (socket) => {
-  socket.on('identify', (id) => { if(id){ socket.userId = id; onlineUsers.set(id, socket.id); io.emit('user status change', Array.from(onlineUsers.keys())); }});
-  socket.on('chat message', (msg) => io.emit('chat message', msg));
-  socket.on('disconnect', () => { setTimeout(() => { if (socket.userId && onlineUsers.get(socket.userId) === socket.id) { onlineUsers.delete(socket.userId); io.emit('user status change', Array.from(onlineUsers.keys())); } }, 5000); });
+  socket.on('identify', (id) => { 
+    if(id){ 
+      socket.userId = id; 
+      onlineUsers.set(id, socket.id); 
+      io.emit('user status change', Array.from(onlineUsers.keys())); 
+    }
+  });
+
+  // User joins a specific private room
+  socket.on('join room', (roomId) => {
+    // Leave all rooms except personal one before joining new DM
+    socket.rooms.forEach(room => {
+        if(room !== socket.id) socket.leave(room);
+    });
+    socket.join(roomId);
+    console.log(`User joined DM room: ${roomId}`);
+  });
+
+  // Handle Private Messages
+  socket.on('private message', ({ roomId, sender, text }) => {
+    // Emit only to the specific room (sender + receiver)
+    io.to(roomId).emit('chat message', { name: sender, text });
+  });
+
+  socket.on('disconnect', () => { 
+    setTimeout(() => { 
+      if (socket.userId && onlineUsers.get(socket.userId) === socket.id) { 
+        onlineUsers.delete(socket.userId); 
+        io.emit('user status change', Array.from(onlineUsers.keys())); 
+      } 
+    }, 5000); 
+  });
 });
 
 const PORT = process.env.PORT || 3000;
