@@ -3,7 +3,7 @@
 <head>
   <title>Path Project</title>
   <style>
-    /* --- RESTORED ORIGINAL THEME --- */
+    /* --- PATH PROJECT THEME --- */
     :root {
       --bg-dark: #0d1117; --bg-panel: #161b22; --bg-sidebar: #05070a;    
       --path-blue: #007bff; --neon-glow: #00d4ff; --text-main: #e6edf3;     
@@ -29,13 +29,13 @@
     .auth-input:focus { border-color: var(--path-blue); }
     input:-webkit-autofill { -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important; transition: background-color 5000s; }
 
-    /* Red Text Password Logic */
-    .req-error { color: var(--error); font-size: 12px; text-align: left; margin-bottom: 15px; background: rgba(255, 75, 75, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 75, 75, 0.2); display: none; }
-
-    /* Password SVG Toggle (NO EMOJIS) */
-    .toggle-pass { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; }
+    /* Password SVG Toggle */
+    .toggle-pass { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
     .toggle-pass:hover { color: var(--path-blue); }
     .toggle-pass svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* Red Text Error Feedback */
+    .req-error { color: var(--error); font-size: 12px; text-align: left; margin-bottom: 15px; background: rgba(255, 75, 75, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 75, 75, 0.2); display: none; }
 
     .auth-btn { width: 100%; padding: 12px; background: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .switch-link { margin-top: 25px; cursor: pointer; color: var(--text-muted); font-size: 14px; display: inline-block; }
@@ -49,7 +49,7 @@
     .nav-item.logout:hover { background: var(--error); color: white; }
     .separator { width: 32px; height: 1px; background: var(--border); margin: 5px 0 15px 0; }
 
-    /* --- DASHBOARD LAYOUT --- */
+    /* --- MAIN APP LAYOUT --- */
     #main-app { display: none; width: 100%; height: 100%; }
     #view-main { flex-grow: 1; display: flex; flex-direction: column; }
     .top-bar { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; background: var(--bg-panel); }
@@ -62,9 +62,9 @@
     .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; position: relative; background: rgba(255,255,255,0.02); }
     .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right: 15px;}
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; top: 28px; left: 40px; border: 2px solid var(--bg-dark); }
-    .f-name { font-weight: 600; flex-grow: 1; font-size: 15px; color: var(--text-main); }
+    .f-name { font-weight: 600; flex-grow: 1; font-size: 15px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* --- BUTTON STYLING (SAME SIZE) --- */
+    /* --- BUTTON STYLING (UNIFORM SIZE) --- */
     .f-actions { display: flex; align-items: center; gap: 8px; }
     .btn-action { width: 90px; padding: 8px 0; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-align: center; transition: 0.2s; }
     .btn-accept { background: var(--success); color: white; }
@@ -81,8 +81,9 @@
     .dropdown-menu.show { display: block; }
     .dropdown-item { padding: 10px 15px; font-size: 13px; cursor: pointer; color: var(--text-main); }
     .dropdown-item:hover { background: var(--path-blue); }
+    .dropdown-item.danger:hover { background: var(--error); }
 
-    /* --- CHAT --- */
+    /* --- CHAT VIEW --- */
     #chat-view { flex-grow: 1; display: none; flex-direction: column; background: var(--bg-dark); }
     #messages { list-style: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; }
     .msg-item { display: flex; gap: 12px; margin-bottom: 15px; }
@@ -90,7 +91,7 @@
     .chat-box { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; }
     .chat-box input { background: transparent; border: none; color: white; flex-grow: 1; outline: none; }
 
-    /* Confirmation Modal */
+    /* Modal Overlay */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 2000; align-items: center; justify-content: center; }
     .modal { background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border); width: 350px; text-align: center; }
   </style>
@@ -116,7 +117,7 @@
       <div class="input-wrapper">
         <input type="password" id="l-pass" placeholder="Password" class="auth-input">
         <span class="toggle-pass" onclick="togglePass(this, 'l-pass')">
-            <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         </span>
       </div>
       <div id="l-error" style="color:var(--error); display:none; font-size:12px; margin-bottom:10px;"></div>
@@ -132,13 +133,13 @@
       <div class="input-wrapper">
         <input type="password" id="r-pass" placeholder="Password" class="auth-input">
         <span class="toggle-pass" onclick="togglePass(this, 'r-pass')">
-            <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         </span>
       </div>
       <div class="input-wrapper">
         <input type="password" id="r-confirm" placeholder="Confirm Password" class="auth-input">
         <span class="toggle-pass" onclick="togglePass(this, 'r-confirm')">
-            <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         </span>
       </div>
       <div id="reg-error-box" class="req-error"></div>
@@ -187,17 +188,16 @@
     
     function togglePass(el, id) {
         const input = document.getElementById(id);
-        const isPass = input.type === "password";
-        input.type = isPass ? "text" : "password";
-        const eyeOpen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-        const eyeSlash = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-        el.innerHTML = isPass ? eyeOpen : eyeSlash;
+        input.type = input.type === "password" ? "text" : "password";
     }
 
     function switchView(v) { document.getElementById('login-form').style.display = (v==='login'?'block':'none'); document.getElementById('register-form').style.display = (v==='register'?'block':'none'); }
     function logout() { localStorage.clear(); location.reload(); }
     function closeModal() { document.getElementById('confirm-modal').style.display = 'none'; }
-    function toggleDropdown(id) { document.querySelectorAll('.dropdown-menu').forEach(m => { if(m.id !== 'drop-'+id) m.classList.remove('show'); }); document.getElementById('drop-'+id).classList.toggle('show'); }
+    function toggleDropdown(id) { 
+        document.querySelectorAll('.dropdown-menu').forEach(m => { if(m.id !== 'drop-'+id) m.classList.remove('show'); });
+        document.getElementById('drop-'+id).classList.toggle('show'); 
+    }
     function confirmAction(title, desc, actionFn) { document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc; document.getElementById('modal-confirm-btn').onclick = () => { actionFn(); closeModal(); }; document.getElementById('confirm-modal').style.display = 'flex'; }
 
     async function handleLogin() {
@@ -281,14 +281,14 @@
         const container = document.getElementById('friend-list-content');
         container.innerHTML = '';
         if(currentTab === 'add') {
-            container.innerHTML = `<div style="text-align:center; padding:40px;"><h3>Add Friend</h3><input id="af-u" class="auth-input" style="width:250px" placeholder="Username"><br><button onclick="sendRequest()" class="auth-btn" style="width:150px">Send Request</button></div>`;
+            container.innerHTML = `<div style="text-align:center; padding:40px;"><h3>Add Friend</h3><input id="af-u" class="auth-input" style="width:250px" placeholder="Username"><br><button onclick="sendRequest()" class="auth-btn" style="width:150px; margin-top:15px;">Send Request</button></div>`;
             return;
         }
         let list = [];
-        if(currentTab === 'online') list = myData.friends.filter(f => globalOnlineUsers.includes(f._id));
-        else if(currentTab === 'all') list = myData.friends;
-        else if(currentTab === 'pending') list = myData.requests;
-        else if(currentTab === 'blocked') list = myData.blocked;
+        if(currentTab === 'online') list = (myData.friends || []).filter(f => globalOnlineUsers.includes(f._id));
+        else if(currentTab === 'all') list = myData.friends || [];
+        else if(currentTab === 'pending') list = myData.requests || [];
+        else if(currentTab === 'blocked') list = myData.blocked || [];
 
         if(!list || list.length === 0) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding-top:40px;">Nothing to see here...</div>`; return; }
 
@@ -305,8 +305,8 @@
                     <div class="dropdown">
                         <div class="action-icon" onclick="toggleDropdown('${id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
                         <div id="drop-${id}" class="dropdown-menu">
-                            <div class="dropdown-item" onclick="confirmAction('Remove Friend', 'Unfriend ${u}?', () => removeFriend('${id}'))">Remove Friend</div>
-                            <div class="dropdown-item danger" onclick="confirmAction('Block User', 'Block ${u}?', () => blockUser('${id}'))">Block User</div>
+                            <div class="dropdown-item" onclick="confirmAction('Remove', 'Unfriend ${u}?', () => removeFriend('${id}'))">Remove Friend</div>
+                            <div class="dropdown-item danger" onclick="confirmAction('Block', 'Block ${u}?', () => blockUser('${id}'))">Block User</div>
                         </div>
                     </div>
                 </div>`;
@@ -316,38 +316,27 @@
                         <button class="btn-action btn-deny" onclick="denyFriend('${id}')">Deny</button>
                     </div>`;
             } else if(currentTab === 'blocked') {
-                actions = `<button class="btn-action btn-unblock" onclick="unblockUser('${id}')">Unblock</button>`;
+                actions = `<button class="btn-action btn-accept" onclick="unblockUser('${id}')" style="background:var(--path-blue); width:100px;">Unblock</button>`;
             }
+
             el.innerHTML = `<div class="f-avatar">${u[0].toUpperCase()}</div>${isOnline ? '<div class="status-dot"></div>' : ''}<div class="f-name">${u}</div>${actions}`;
             container.appendChild(el);
         });
     }
 
-    async function sendRequest() {
-        const u = document.getElementById('af-u').value;
-        const res = await fetch(`${SERVER_URL}/add-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ targetUsername: u }) });
-        const d = await res.json(); alert(d.msg); fetchMyData();
+    // --- REPAIRED AJAX CALLS ---
+    async function apiCall(path, body) {
+        const res = await fetch(`${SERVER_URL}/${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify(body) });
+        const d = await res.json();
+        if(res.ok) { fetchMyData(); if(path === 'add-friend') alert(d.msg); } else { alert(d.msg); }
     }
-    async function acceptFriend(id) {
-        await fetch(`${SERVER_URL}/accept-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ requesterId: id }) });
-        fetchMyData();
-    }
-    async function denyFriend(id) {
-        await fetch(`${SERVER_URL}/deny-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ requesterId: id }) });
-        fetchMyData();
-    }
-    async function removeFriend(id) {
-        await fetch(`${SERVER_URL}/remove-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ friendId: id }) });
-        fetchMyData();
-    }
-    async function blockUser(id) {
-        await fetch(`${SERVER_URL}/block-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ targetId: id }) });
-        fetchMyData();
-    }
-    async function unblockUser(id) {
-        await fetch(`${SERVER_URL}/unblock-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ targetId: id }) });
-        fetchMyData();
-    }
+
+    function sendRequest() { const val = document.getElementById('af-u').value; if(val) apiCall('add-friend', { targetUsername: val }); }
+    function acceptFriend(id) { apiCall('accept-friend', { requesterId: id }); }
+    function denyFriend(id) { apiCall('deny-friend', { requesterId: id }); }
+    function removeFriend(id) { apiCall('remove-friend', { friendId: id }); }
+    function blockUser(id) { apiCall('block-user', { targetId: id }); }
+    function unblockUser(id) { apiCall('unblock-user', { targetId: id }); }
 
     window.onload = () => { if(localStorage.getItem('path_token')) startApp(); }
   </script>
