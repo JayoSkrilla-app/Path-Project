@@ -8,12 +8,19 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('./user'); 
-const Message = require('./message'); 
 
 app.use(cors()); 
 app.use(express.json()); 
 
 mongoose.connect(process.env.MONGO_URI).then(() => console.log('DB Connected!'));
+
+const MessageSchema = new mongoose.Schema({
+  roomId: { type: String, required: true },
+  sender: { type: String, required: true },
+  text: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now }
+});
+const Message = mongoose.model('Message', MessageSchema);
 
 const auth = (req, res, next) => {
     const token = req.header('x-auth-token');
@@ -133,9 +140,9 @@ io.on('connection', (socket) => {
   socket.on('private message', async ({ roomId, sender, text }) => {
     try {
         const newMsg = new Message({ roomId, sender, text });
-        await newMsg.save();
+        await newMsg.save(); 
         io.to(roomId).emit('chat message', { name: sender, text });
-    } catch(e) { console.error(e); }
+    } catch(e) { console.error("Save error", e); }
   });
 
   socket.on('disconnect', () => { onlineUsers.delete(socket.userId); io.emit('user status change', Array.from(onlineUsers.keys())); });
