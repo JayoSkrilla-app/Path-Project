@@ -8,6 +8,7 @@
       --bg-dark: #0d1117;       
       --bg-panel: #161b22;      
       --bg-sidebar: #05070a;    
+      --bg-user-bar: #090c10;   /* NEW: Slightly darker for bottom bar */
       --path-blue: #007bff; 
       --neon-glow: #00d4ff; 
       --text-main: #e6edf3;     
@@ -58,7 +59,7 @@
     .nav-item.logout:hover { background: var(--error); color: white; }
     .separator { width: 32px; height: 1px; background: var(--border); margin: 5px 0 15px 0; }
 
-    /* DM Sidebar (Updated Width) */
+    /* DM Sidebar (Updated) */
     #sub-sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
     .dm-header { padding: 15px; font-size: 12px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid transparent; cursor: default; }
     .dm-add { cursor: pointer; font-size: 18px; transition: 0.2s; line-height: 1; padding: 2px 5px; border-radius: 3px; } 
@@ -72,17 +73,23 @@
     .dm-avatar-s { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 12px; font-weight: bold; position: relative; border: 1px solid var(--border); transition: 0.2s; }
     .dm-status-s { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-panel); display: none; }
     .dm-item.online .dm-status-s { display: block; }
-
-    /* Close Icon Styles */
-    .dm-close-icon { 
-        margin-left: auto; 
-        opacity: 0; 
-        transition: 0.2s; 
-        color: var(--text-muted); 
-        padding: 4px; 
-    }
+    .dm-close-icon { margin-left: auto; opacity: 0; transition: 0.2s; color: var(--text-muted); padding: 4px; }
     .dm-item:hover .dm-close-icon { opacity: 1; }
     .dm-close-icon:hover { color: var(--error); background: transparent; }
+
+    /* NEW: User Profile Bar (Bottom of DM Sidebar) */
+    #user-bar { 
+        height: 52px; background: var(--bg-user-bar); border-top: 1px solid var(--border); 
+        display: flex; align-items: center; padding: 0 10px; cursor: pointer; transition: 0.2s;
+    }
+    #user-bar:hover { background: var(--hover-highlight); }
+    .ub-avatar { width: 32px; height: 32px; background: var(--path-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; position: relative; }
+    .ub-status { width: 10px; height: 10px; background: #3ba55c; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-user-bar); }
+    .ub-info { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+    .ub-name { font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
+    .ub-desc { font-size: 11px; color: var(--text-muted); }
+    .ub-settings { color: var(--text-muted); padding: 8px; border-radius: 4px; transition: 0.2s; }
+    .ub-settings:hover { background: var(--bg-panel); color: var(--text-main); }
 
     /* Main View */
     #view-main { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg-dark); }
@@ -136,34 +143,43 @@
     .dm-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
     .dm-modal-title { font-size: 20px; font-weight: bold; color: var(--text-main); }
     .dm-close { cursor: pointer; color: var(--text-muted); } .dm-close:hover { color: var(--text-main); }
-    
     .friend-picker-list { height: 250px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; margin-top: 10px; background: var(--bg-dark); }
     .picker-item { padding: 10px; display: flex; align-items: center; cursor: pointer; transition: 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .picker-item:hover { background: var(--hover-highlight); }
-    
-    /* SELECTED STATE */
     .picker-item.selected { background: rgba(0, 123, 255, 0.2); border-left: 3px solid var(--path-blue); }
-    
     .picker-item:last-child { border-bottom: none; }
     .picker-avatar { width: 32px; height: 32px; background: var(--path-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; font-size: 13px; }
-
-    /* Footer and Button */
     .dm-modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; }
     .dm-create-btn { padding: 10px 20px; background: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; opacity: 0.5; pointer-events: none; transition: 0.2s; }
     .dm-create-btn.ready { opacity: 1; pointer-events: all; }
     .dm-create-btn:hover { background: #0069d9; }
 
-    /* --- NEW: MODAL CONFIRM BUTTONS --- */
+    /* Modal Confirm Buttons */
     .modal-footer { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
     .modal-btn { padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; font-size: 14px; }
-    
-    /* Cancel Button (Light Hover) */
     .modal-btn.cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
     .modal-btn.cancel:hover { color: var(--text-main); background: var(--hover-highlight); }
-    
-    /* Confirm Button (Red Hover) */
     .modal-btn.confirm { background: var(--btn-grey); color: var(--error); border: 1px solid var(--border); }
     .modal-btn.confirm:hover { background: var(--error); color: white; border-color: var(--error); }
+
+    /* NEW: SETTINGS MODAL */
+    .settings-container { width: 600px; display: flex; text-align: left; overflow: hidden; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-panel); }
+    .settings-sidebar { width: 180px; background: var(--bg-sidebar); padding: 20px 10px; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+    .settings-content { flex-grow: 1; padding: 40px; background: var(--bg-dark); }
+    .set-item { padding: 8px 12px; border-radius: 4px; cursor: pointer; color: var(--text-muted); font-weight: 500; margin-bottom: 2px; }
+    .set-item:hover, .set-item.active { background: var(--hover-highlight); color: var(--text-main); }
+    .set-item.logout { color: var(--error); margin-top: auto; }
+    .set-item.logout:hover { background: rgba(255, 75, 75, 0.1); }
+    
+    .profile-card { background: var(--bg-panel); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; margin-top: 20px; }
+    .banner { height: 80px; background: var(--path-blue); }
+    .p-info { padding: 15px 20px; position: relative; }
+    .p-avatar { width: 70px; height: 70px; background: var(--bg-sidebar); border-radius: 50%; border: 6px solid var(--bg-panel); position: absolute; top: -40px; left: 15px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: var(--text-main); }
+    .p-details { margin-top: 35px; }
+    .p-username { font-size: 20px; font-weight: bold; color: var(--text-main); }
+    .p-badge { background: #5865f2; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; text-transform: uppercase; margin-left: 8px; vertical-align: middle; }
+    .edit-btn { float: right; background: var(--btn-grey); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; }
+    .edit-btn:hover { background: var(--border); }
   </style>
 </head>
 <body>
@@ -191,11 +207,51 @@
       <div class="input-wrapper" style="margin-bottom:5px;">
         <input type="text" id="dm-search" autocomplete="off" onkeyup="filterFriends()" placeholder="Type the username of a friend" class="auth-input" style="background:var(--bg-dark) !important;">
       </div>
-      <div id="friend-picker" class="friend-picker-list">
-        </div>
+      <div id="friend-picker" class="friend-picker-list"></div>
       <div class="dm-modal-footer">
         <button id="btn-create-dm" class="dm-create-btn" onclick="handleCreateDM()">Create DM</button>
       </div>
+    </div>
+  </div>
+
+  <div id="settings-modal" class="modal-overlay">
+    <div class="settings-container">
+        <div class="settings-sidebar">
+            <div style="padding: 0 12px 10px 12px; font-weight: bold; color: var(--text-muted); font-size: 12px; text-transform: uppercase;">User Settings</div>
+            <div class="set-item active">My Account</div>
+            <div class="set-item">Privacy</div>
+            <div class="set-item logout" onclick="logout()">Log Out</div>
+        </div>
+        <div class="settings-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h2 style="margin:0;">My Account</h2>
+                <div onclick="closeSettingsModal()" style="cursor:pointer; color:var(--text-muted); border: 1px solid var(--border); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </div>
+            </div>
+            
+            <div class="profile-card">
+                <div class="banner"></div>
+                <div class="p-info">
+                    <div class="p-avatar" id="set-avatar">U</div>
+                    <button class="edit-btn">Edit Profile</button>
+                    <div class="p-details">
+                        <div class="p-username" id="set-username">Username <span class="p-badge">APP</span></div>
+                        <div style="color:var(--text-muted); font-size:13px; margin-top:5px;">Path Project User</div>
+                    </div>
+                    <div style="margin-top: 20px; background: var(--bg-dark); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+                        <div style="display:flex; justify-content: space-between; margin-bottom: 10px;">
+                            <div style="color:var(--text-muted); font-size: 12px; font-weight: bold; text-transform: uppercase;">Username</div>
+                            <div style="color:var(--text-main);" id="set-username-2">User</div>
+                        </div>
+                        <div style="display:flex; justify-content: space-between;">
+                            <div style="color:var(--text-muted); font-size: 12px; font-weight: bold; text-transform: uppercase;">Email</div>
+                            <div style="color:var(--text-main);">**********@gmail.com</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
   </div>
 
@@ -206,9 +262,7 @@
       <div class="input-wrapper"><input type="text" id="l-user" placeholder="Username" class="auth-input"></div>
       <div class="input-wrapper">
         <input type="password" id="l-pass" placeholder="Password" class="auth-input">
-        <span class="toggle-pass" onclick="togglePass(this, 'l-pass')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-        </span>
+        <span class="toggle-pass" onclick="togglePass(this, 'l-pass')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
       </div>
       <div id="l-error" style="color:var(--error); display:none; font-size:12px; margin-bottom:10px;"></div>
       <button onclick="handleLogin()" class="auth-btn">Log In</button>
@@ -222,15 +276,11 @@
       <div class="input-wrapper"><input type="email" id="r-email" placeholder="Email Address" class="auth-input"></div>
       <div class="input-wrapper">
         <input type="password" id="r-pass" placeholder="Password" class="auth-input">
-        <span class="toggle-pass" onclick="togglePass(this, 'r-pass')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-        </span>
+        <span class="toggle-pass" onclick="togglePass(this, 'r-pass')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
       </div>
       <div class="input-wrapper">
         <input type="password" id="r-confirm" placeholder="Confirm Password" class="auth-input">
-        <span class="toggle-pass" onclick="togglePass(this, 'r-confirm')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-        </span>
+        <span class="toggle-pass" onclick="togglePass(this, 'r-confirm')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
       </div>
       <div id="reg-error-box" class="req-error"></div>
       <button onclick="handleRegister()" class="auth-btn">Create Account</button>
@@ -254,8 +304,18 @@
             <span>Direct Messages</span>
             <span class="dm-add" onclick="openDMModal()" title="Create DM">+</span>
         </div>
-        <ul id="dm-list">
-            </ul>
+        <ul id="dm-list"></ul>
+        
+        <div id="user-bar" onclick="openSettingsModal()">
+            <div class="ub-avatar" id="mini-avatar">U<div class="ub-status"></div></div>
+            <div class="ub-info">
+                <div class="ub-name" id="mini-username">Username</div>
+                <div class="ub-desc">Online</div>
+            </div>
+            <div class="ub-settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </div>
+        </div>
     </div>
 
     <div id="view-main">
@@ -287,32 +347,19 @@
     let selectedDMUserId = null; 
 
     function parseJwt(t) { try { return JSON.parse(atob(t.split('.')[1])); } catch (e) { return null; } }
-    function togglePass(el, id) {
-        const input = document.getElementById(id); const isPass = input.type === "password"; input.type = isPass ? "text" : "password";
-        const eyeOpen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-        const eyeSlash = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-        el.innerHTML = isPass ? eyeOpen : eyeSlash;
-    }
+    function togglePass(el, id) { const input = document.getElementById(id); const isPass = input.type === "password"; input.type = isPass ? "text" : "password"; el.innerHTML = isPass ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'; }
     function switchView(v) { document.getElementById('login-form').style.display = (v==='login'?'block':'none'); document.getElementById('register-form').style.display = (v==='register'?'block':'none'); }
     function logout() { localStorage.clear(); location.reload(); }
     function closeModal() { document.getElementById('confirm-modal').style.display = 'none'; }
     function toggleDropdown(id) { document.querySelectorAll('.dropdown-menu').forEach(m => { if(m.id !== 'drop-'+id) m.classList.remove('show'); }); document.getElementById('drop-'+id).classList.toggle('show'); }
     function confirmAction(title, desc, actionFn) { document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc; document.getElementById('modal-confirm-btn').onclick = () => { actionFn(); closeModal(); }; document.getElementById('confirm-modal').style.display = 'flex'; }
 
-    function formatDateHeader(dateObj) {
-        const today = new Date(); const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
-        if (dateObj.toDateString() === today.toDateString()) return "Today";
-        if (dateObj.toDateString() === yesterday.toDateString()) return "Yesterday";
-        return dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    }
+    function formatDateHeader(dateObj) { const today = new Date(); const yesterday = new Date(); yesterday.setDate(today.getDate() - 1); if (dateObj.toDateString() === today.toDateString()) return "Today"; if (dateObj.toDateString() === yesterday.toDateString()) return "Yesterday"; return dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }); }
     function formatTime(dateObj) { return dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
 
     function renderMessage(msg, container) {
         const msgDate = msg.timestamp ? new Date(msg.timestamp) : new Date(); const dateStr = msgDate.toDateString();
-        if (lastRenderedDate !== dateStr) {
-            const div = document.createElement('div'); div.className = 'date-divider'; div.innerHTML = `<span>${formatDateHeader(msgDate)}</span>`;
-            container.appendChild(div); lastRenderedDate = dateStr;
-        }
+        if (lastRenderedDate !== dateStr) { const div = document.createElement('div'); div.className = 'date-divider'; div.innerHTML = `<span>${formatDateHeader(msgDate)}</span>`; container.appendChild(div); lastRenderedDate = dateStr; }
         const li = document.createElement('li'); li.className = 'msg-item';
         const displayName = msg.sender || msg.name; 
         const fullDateString = `${formatDateHeader(msgDate)} at ${formatTime(msgDate)}`;
@@ -341,6 +388,14 @@
     function startApp() {
         const token = localStorage.getItem('path_token'); if(!token) return;
         myId = parseJwt(token).id;
+        // Populate User Bar
+        const uname = localStorage.getItem('path_username') || "User";
+        document.getElementById('mini-username').innerText = uname;
+        document.getElementById('mini-avatar').innerText = uname[0].toUpperCase();
+        document.getElementById('set-username').innerHTML = `${uname} <span class="p-badge">APP</span>`;
+        document.getElementById('set-username-2').innerText = uname;
+        document.getElementById('set-avatar').innerText = uname[0].toUpperCase();
+
         document.getElementById('auth-overlay').style.display = 'none';
         document.getElementById('main-app').style.display = 'flex'; 
         socket = io(SERVER_URL);
@@ -359,69 +414,46 @@
         if(res.ok) { myData = await res.json(); renderDashboard(); renderDMList(); }
     }
 
-    // --- UPDATED DM SIDEBAR LOGIC (With Close) ---
     function renderDMList() {
-        const list = document.getElementById('dm-list');
-        list.innerHTML = '';
+        const list = document.getElementById('dm-list'); list.innerHTML = '';
         if (!myData.friends) return;
         myData.friends.forEach(f => {
-            // Check if DM is closed
             if (closedDMs.includes(f._id)) return;
-
             const isOnline = globalOnlineUsers.includes(f._id);
             const li = document.createElement('li');
             const currentChat = document.getElementById('chat-header').innerText.replace('@ ', '');
             const isActive = (f.username === currentChat && document.getElementById('chat-view').style.display === 'flex');
             li.className = `dm-item ${isOnline ? 'online' : ''} ${isActive ? 'active' : ''}`;
-            
-            // Note: Stop propagation on X button to prevent opening chat
-            li.innerHTML = `
-                <div class="dm-avatar-s">${f.username[0].toUpperCase()}<div class="dm-status-s"></div></div>
-                <div>${f.username}</div>
-                <div class="dm-close-icon" onclick="event.stopPropagation(); closeDM('${f._id}')">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </div>
-            `;
+            li.innerHTML = `<div class="dm-avatar-s">${f.username[0].toUpperCase()}<div class="dm-status-s"></div></div><div>${f.username}</div><div class="dm-close-icon" onclick="event.stopPropagation(); closeDM('${f._id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>`;
             li.onclick = () => openChat(f._id, f.username);
             list.appendChild(li);
         });
     }
 
-    // NEW: Function to close a DM
     function closeDM(friendId) {
         if(!closedDMs.includes(friendId)) {
             closedDMs.push(friendId);
             renderDMList();
-            
-            // If the closed chat was currently open, go back to dashboard
             const currentHeader = document.getElementById('chat-header').innerText;
             const friend = myData.friends.find(f => f._id === friendId);
-            if(friend && currentHeader === `@ ${friend.username}`) {
-                showDashboard();
-            }
+            if(friend && currentHeader === `@ ${friend.username}`) { showDashboard(); }
         }
     }
 
-    function openDMModal() {
-        document.getElementById('create-dm-modal').style.display = 'flex';
-        document.getElementById('dm-search').value = '';
-        document.getElementById('btn-create-dm').classList.remove('ready');
-        selectedDMUserId = null;
-        renderFriendPicker();
-    }
+    // --- SETTINGS MODAL LOGIC ---
+    function openSettingsModal() { document.getElementById('settings-modal').style.display = 'flex'; }
+    function closeSettingsModal() { document.getElementById('settings-modal').style.display = 'none'; }
+
+    function openDMModal() { document.getElementById('create-dm-modal').style.display = 'flex'; document.getElementById('dm-search').value = ''; document.getElementById('btn-create-dm').classList.remove('ready'); selectedDMUserId = null; renderFriendPicker(); }
     function closeDMModal() { document.getElementById('create-dm-modal').style.display = 'none'; }
     
     function renderFriendPicker() {
-        const container = document.getElementById('friend-picker');
-        container.innerHTML = '';
+        const container = document.getElementById('friend-picker'); container.innerHTML = '';
         const filter = document.getElementById('dm-search').value.toLowerCase();
-        if(!myData.friends || myData.friends.length === 0) {
-            container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);">No friends found.</div>`; return;
-        }
+        if(!myData.friends || myData.friends.length === 0) { container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);">No friends found.</div>`; return; }
         myData.friends.forEach(f => {
             if(f.username.toLowerCase().includes(filter)) {
-                const item = document.createElement('div');
-                item.className = 'picker-item';
+                const item = document.createElement('div'); item.className = 'picker-item';
                 item.onclick = () => selectFriendForDM(f._id, f.username, item);
                 item.innerHTML = `<div class="picker-avatar">${f.username[0].toUpperCase()}</div><div><div style="font-weight:bold; color:var(--text-main);">${f.username}</div></div>`;
                 container.appendChild(item);
@@ -438,37 +470,20 @@
 
     function handleCreateDM() {
         if(selectedDMUserId) {
-            // Remove from closed list if it was closed
-            const idx = closedDMs.indexOf(selectedDMUserId.id);
-            if (idx > -1) closedDMs.splice(idx, 1);
-            
-            closeDMModal();
-            openChat(selectedDMUserId.id, selectedDMUserId.username);
+            const idx = closedDMs.indexOf(selectedDMUserId.id); if (idx > -1) closedDMs.splice(idx, 1);
+            closeDMModal(); openChat(selectedDMUserId.id, selectedDMUserId.username);
         }
     }
 
     function filterFriends() { renderFriendPicker(); }
-    // ----------------------------------
 
-    function setTab(t) {
-        currentTab = t;
-        document.querySelectorAll('.friend-tab').forEach(el => { el.classList.remove('active'); if(el.innerText.toLowerCase() === t) el.classList.add('active'); });
-        showDashboard();
-    }
-    function showDashboard() {
-        document.getElementById('dashboard-view').style.display = 'block'; document.getElementById('chat-view').style.display = 'none';
-        document.getElementById('top-dash').style.display = 'flex'; document.getElementById('top-chat').style.display = 'none';
-        renderDashboard(); renderDMList();
-    }
+    function setTab(t) { currentTab = t; document.querySelectorAll('.friend-tab').forEach(el => { el.classList.remove('active'); if(el.innerText.toLowerCase() === t) el.classList.add('active'); }); showDashboard(); }
+    function showDashboard() { document.getElementById('dashboard-view').style.display = 'block'; document.getElementById('chat-view').style.display = 'none'; document.getElementById('top-dash').style.display = 'flex'; document.getElementById('top-chat').style.display = 'none'; renderDashboard(); renderDMList(); }
     async function openChat(friendId, friendName) {
         document.getElementById('dashboard-view').style.display = 'none'; document.getElementById('chat-view').style.display = 'flex';
         document.getElementById('top-dash').style.display = 'none'; document.getElementById('top-chat').style.display = 'flex';
         document.getElementById('chat-header').innerText = `@ ${friendName}`;
-        
-        // Ensure chat is visible in sidebar (remove from closed list)
-        const idx = closedDMs.indexOf(friendId);
-        if (idx > -1) closedDMs.splice(idx, 1);
-
+        const idx = closedDMs.indexOf(friendId); if (idx > -1) closedDMs.splice(idx, 1);
         renderDMList();
         const messagesList = document.getElementById('messages'); messagesList.innerHTML = ''; lastRenderedDate = null; 
         const roomId = [myId, friendId].sort().join('_');
@@ -485,10 +500,7 @@
 
     function renderDashboard() {
         const container = document.getElementById('friend-list-content'); container.innerHTML = '';
-        if(currentTab === 'add') {
-            container.innerHTML = `<div style="text-align:center; padding:40px;"><h3>Add Friend</h3><input id="af-u" class="auth-input" style="width:250px" placeholder="Username"><br><button onclick="sendRequest()" class="auth-btn" style="width:150px; margin-top:15px;">Send Request</button></div>`;
-            return;
-        }
+        if(currentTab === 'add') { container.innerHTML = `<div style="text-align:center; padding:40px;"><h3>Add Friend</h3><input id="af-u" class="auth-input" style="width:250px" placeholder="Username"><br><button onclick="sendRequest()" class="auth-btn" style="width:150px; margin-top:15px;">Send Request</button></div>`; return; }
         let list = [];
         if(currentTab === 'online') list = (myData.friends || []).filter(f => globalOnlineUsers.includes(f._id));
         else if(currentTab === 'all') list = myData.friends || [];
@@ -501,18 +513,14 @@
             let actions = '';
             if(currentTab === 'all' || currentTab === 'online') {
                 actions = `<div class="f-actions"><div class="action-icon" onclick="openChat('${id}', '${u}')" title="Message"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div><div class="dropdown"><div class="action-icon" onclick="toggleDropdown('${id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></div><div id="drop-${id}" class="dropdown-menu"><div class="dropdown-item" onclick="confirmAction('Remove Friend', 'Unfriend ${u}?', () => removeFriend('${id}'))">Remove Friend</div><div class="dropdown-item danger" onclick="confirmAction('Block User', 'Block ${u}?', () => blockUser('${id}'))">Block User</div></div></div></div>`;
-            } else if(currentTab === 'pending') {
-                actions = `<div class="f-actions"><button class="btn-action btn-accept" onclick="acceptFriend('${id}')">Accept</button><button class="btn-action btn-deny" onclick="denyFriend('${id}')">Deny</button></div>`;
-            } else if(currentTab === 'blocked') { actions = `<button class="btn-action btn-accept" onclick="unblockUser('${id}')" style="background:var(--path-blue); width:100px;">Unblock</button>`; }
+            } else if(currentTab === 'pending') { actions = `<div class="f-actions"><button class="btn-action btn-accept" onclick="acceptFriend('${id}')">Accept</button><button class="btn-action btn-deny" onclick="denyFriend('${id}')">Deny</button></div>`; } 
+            else if(currentTab === 'blocked') { actions = `<button class="btn-action btn-accept" onclick="unblockUser('${id}')" style="background:var(--path-blue); width:100px;">Unblock</button>`; }
             el.innerHTML = `<div class="f-avatar">${u[0].toUpperCase()}${isOnline ? '<div class="status-dot"></div>' : ''}</div><div class="f-name">${u}</div>${actions}`;
             container.appendChild(el);
         });
     }
 
-    async function sendRequest() {
-        const u = document.getElementById('af-u').value; const res = await fetch(`${SERVER_URL}/add-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ targetUsername: u }) });
-        const d = await res.json(); alert(d.msg); fetchMyData();
-    }
+    async function sendRequest() { const u = document.getElementById('af-u').value; const res = await fetch(`${SERVER_URL}/add-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ targetUsername: u }) }); const d = await res.json(); alert(d.msg); fetchMyData(); }
     async function acceptFriend(id) { await fetch(`${SERVER_URL}/accept-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ requesterId: id }) }); fetchMyData(); }
     async function denyFriend(id) { await fetch(`${SERVER_URL}/deny-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ requesterId: id }) }); fetchMyData(); }
     async function removeFriend(id) { await fetch(`${SERVER_URL}/remove-friend`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('path_token') }, body: JSON.stringify({ friendId: id }) }); fetchMyData(); }
