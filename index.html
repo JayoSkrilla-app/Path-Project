@@ -59,7 +59,7 @@
     .nav-item.logout:hover { background: var(--error); color: white; }
     .separator { width: 32px; height: 1px; background: var(--border); margin: 5px 0 15px 0; }
 
-    /* DM Sidebar (Updated) */
+    /* DM Sidebar */
     #sub-sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
     .dm-header { padding: 15px; font-size: 12px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid transparent; cursor: default; }
     .dm-add { cursor: pointer; font-size: 18px; transition: 0.2s; line-height: 1; padding: 2px 5px; border-radius: 3px; } 
@@ -77,18 +77,27 @@
     .dm-item:hover .dm-close-icon { opacity: 1; }
     .dm-close-icon:hover { color: var(--error); background: transparent; }
 
-    /* NEW: User Profile Bar (Bottom of DM Sidebar) */
+    /* NEW: User Profile Bar (Updated) */
     #user-bar { 
         height: 52px; background: var(--bg-user-bar); border-top: 1px solid var(--border); 
-        display: flex; align-items: center; padding: 0 10px; cursor: pointer; transition: 0.2s;
+        display: flex; align-items: center; padding: 0 10px; cursor: default; /* No pointer on whole bar */
     }
-    #user-bar:hover { background: var(--hover-highlight); }
     .ub-avatar { width: 32px; height: 32px; background: var(--path-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; position: relative; }
+    
+    /* Active Status Bubble (Same size/style as others) */
     .ub-status { width: 10px; height: 10px; background: #3ba55c; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-user-bar); }
+    
     .ub-info { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
     .ub-name { font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
     .ub-desc { font-size: 11px; color: var(--text-muted); }
-    .ub-settings { color: var(--text-muted); padding: 8px; border-radius: 4px; transition: 0.2s; }
+    
+    /* Settings Icon (Centered & Clickable) */
+    .ub-settings { 
+        color: var(--text-muted); 
+        width: 32px; height: 32px; /* Fixed square for centering */
+        display: flex; align-items: center; justify-content: center; /* Center the icon */
+        border-radius: 4px; transition: 0.2s; cursor: pointer; 
+    }
     .ub-settings:hover { background: var(--bg-panel); color: var(--text-main); }
 
     /* Main View */
@@ -306,13 +315,13 @@
         </div>
         <ul id="dm-list"></ul>
         
-        <div id="user-bar" onclick="openSettingsModal()">
+        <div id="user-bar">
             <div class="ub-avatar" id="mini-avatar">U<div class="ub-status"></div></div>
             <div class="ub-info">
                 <div class="ub-name" id="mini-username">Username</div>
                 <div class="ub-desc">Online</div>
             </div>
-            <div class="ub-settings">
+            <div class="ub-settings" onclick="openSettingsModal()">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </div>
         </div>
@@ -391,7 +400,7 @@
         // Populate User Bar
         const uname = localStorage.getItem('path_username') || "User";
         document.getElementById('mini-username').innerText = uname;
-        document.getElementById('mini-avatar').innerText = uname[0].toUpperCase();
+        document.getElementById('mini-avatar').childNodes[0].nodeValue = uname[0].toUpperCase();
         document.getElementById('set-username').innerHTML = `${uname} <span class="p-badge">APP</span>`;
         document.getElementById('set-username-2').innerText = uname;
         document.getElementById('set-avatar').innerText = uname[0].toUpperCase();
