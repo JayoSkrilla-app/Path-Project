@@ -92,16 +92,17 @@
     /* --- CHAT VIEW --- */
     #chat-view { flex-grow: 1; display: none; flex-direction: column; background: var(--bg-dark); }
     #messages { list-style: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; }
-    .msg-item { display: flex; gap: 12px; margin-bottom: 5px; margin-top: 5px; } /* Slightly tighter spacing for dates */
+    .msg-item { display: flex; gap: 12px; margin-bottom: 5px; margin-top: 5px; }
     #chat-form-container { padding: 20px; border-top: 1px solid var(--border); }
     .chat-box { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; }
     .chat-box input { background: transparent; border: none; color: white; flex-grow: 1; outline: none; }
 
-    /* --- NEW: DATE & TIMESTAMP STYLES --- */
+    /* --- UPDATED: Date & Timestamp Styles --- */
     .date-divider { display: flex; align-items: center; color: var(--text-muted); font-size: 12px; margin: 25px 0 10px 0; user-select: none; }
     .date-divider::before, .date-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
     .date-divider span { padding: 0 12px; font-weight: 600; }
-    .timestamp { font-size: 11px; color: var(--text-muted); margin-left: 8px; font-weight: normal; opacity: 0.7; }
+    /* Changed margin-left to 4px to bring time closer to name */
+    .timestamp { font-size: 11px; color: var(--text-muted); margin-left: 4px; font-weight: normal; opacity: 0.7; }
 
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 2000; align-items: center; justify-content: center; }
     .modal { background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border); width: 350px; text-align: center; }
@@ -194,7 +195,7 @@
     let socket, myId, currentTab = 'online';
     let myData = { friends: [], requests: [], blocked: [] };
     let globalOnlineUsers = [];
-    let lastRenderedDate = null; // Tracks dates for dividers
+    let lastRenderedDate = null;
 
     function parseJwt(t) { try { return JSON.parse(atob(t.split('.')[1])); } catch (e) { return null; } }
     
@@ -216,7 +217,7 @@
     }
     function confirmAction(title, desc, actionFn) { document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc; document.getElementById('modal-confirm-btn').onclick = () => { actionFn(); closeModal(); }; document.getElementById('confirm-modal').style.display = 'flex'; }
 
-    // --- NEW: Helper Functions for Dates ---
+    // Helper Functions
     function formatDateHeader(dateObj) {
         const today = new Date();
         const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
@@ -229,12 +230,11 @@
         return dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     }
 
-    // Unified Render Function (Handles Logic for Both History & Live)
+    // --- UPDATED RENDER: Date First, Then Time ---
     function renderMessage(msg, container) {
         const msgDate = msg.timestamp ? new Date(msg.timestamp) : new Date();
         const dateStr = msgDate.toDateString();
 
-        // If date changed since last message, insert Divider
         if (lastRenderedDate !== dateStr) {
             const div = document.createElement('div');
             div.className = 'date-divider';
@@ -244,19 +244,21 @@
         }
 
         const li = document.createElement('li'); li.className = 'msg-item';
-        // Display Name + Timestamp + Message
         const displayName = msg.sender || msg.name; 
+        
+        // Changed Order: Date Header String + Time
+        const fullDateString = `${formatDateHeader(msgDate)} at ${formatTime(msgDate)}`;
+
         li.innerHTML = `
             <div class="f-avatar">${displayName[0].toUpperCase()}</div>
             <div>
                 <b style="color:var(--neon-glow)">${displayName}</b>
-                <span class="timestamp">${formatTime(msgDate)}</span>
+                <span class="timestamp">${fullDateString}</span>
                 <br>
                 <span>${msg.text}</span>
             </div>`;
         container.appendChild(li);
     }
-    // ----------------------------------------
 
     async function handleLogin() {
         const u = document.getElementById('l-user').value, p = document.getElementById('l-pass').value;
@@ -289,10 +291,8 @@
         socket.emit('identify', myId);
         socket.on('user status change', (ids) => { globalOnlineUsers = ids; renderDashboard(); });
         
-        // UPDATED: Live messages use the new renderer
         socket.on('chat message', (msg) => {
             const container = document.getElementById('messages');
-            // If live message has no time from server, default to Now
             if(!msg.timestamp) msg.timestamp = new Date(); 
             renderMessage(msg, container);
             container.scrollTop = container.scrollHeight;
@@ -323,7 +323,6 @@
         renderDashboard();
     }
 
-    // UPDATED: Fetches history and uses new renderer
     async function openChat(friendId, friendName) {
         document.getElementById('dashboard-view').style.display = 'none';
         document.getElementById('chat-view').style.display = 'flex';
@@ -333,16 +332,18 @@
         
         const messagesList = document.getElementById('messages');
         messagesList.innerHTML = '';
-        lastRenderedDate = null; // Reset date divider tracking
+        lastRenderedDate = null; 
         
         const roomId = [myId, friendId].sort().join('_');
         
-        const res = await fetch(`${SERVER_URL}/messages/${roomId}`, { headers: { 'x-auth-token': localStorage.getItem('path_token') } });
-        if(res.ok) {
-            const history = await res.json();
-            history.forEach(msg => renderMessage(msg, messagesList));
-            messagesList.scrollTop = messagesList.scrollHeight;
-        }
+        try {
+            const res = await fetch(`${SERVER_URL}/messages/${roomId}`, { headers: { 'x-auth-token': localStorage.getItem('path_token') } });
+            if(res.ok) {
+                const history = await res.json();
+                history.forEach(msg => renderMessage(msg, messagesList));
+                messagesList.scrollTop = messagesList.scrollHeight;
+            }
+        } catch(e) { console.error("History fetch error:", e); }
 
         socket.emit('join room', roomId);
         document.getElementById('chat-form').onsubmit = (e) => {
