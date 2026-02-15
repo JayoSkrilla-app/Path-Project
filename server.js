@@ -12,15 +12,19 @@ const User = require('./user');
 app.use(cors()); 
 app.use(express.json()); 
 
-mongoose.connect(process.env.MONGO_URI).then(() => console.log('DB Connected!'));
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ DB Connected!'))
+  .catch(err => console.error('❌ DB Connection Error:', err));
 
+// --- ROBUST MESSAGE MODEL (Prevents "Overwrite" crashes) ---
 const MessageSchema = new mongoose.Schema({
   roomId: { type: String, required: true },
   sender: { type: String, required: true },
   text: { type: String, required: true },
   timestamp: { type: Date, default: Date.now }
 });
-const Message = mongoose.model('Message', MessageSchema);
+const Message = mongoose.models.Message || mongoose.model('Message', MessageSchema);
+// -----------------------------------------------------------
 
 const auth = (req, res, next) => {
     const token = req.header('x-auth-token');
@@ -59,11 +63,15 @@ app.get('/my-data', auth, async (req, res) => {
     res.json({ friends: u.friends || [], requests: u.friendRequests || [], blocked: u.blocked || [] });
 });
 
+// HISTORY ROUTE
 app.get('/messages/:roomId', auth, async (req, res) => {
     try {
         const messages = await Message.find({ roomId: req.params.roomId }).sort({ timestamp: 1 });
         res.json(messages);
-    } catch(e) { res.status(500).json({ msg: "Error fetching messages" }); }
+    } catch(e) { 
+        console.error("History fetch error:", e);
+        res.status(500).json({ msg: "Error fetching messages" }); 
+    }
 });
 
 app.post('/add-friend', auth, async (req, res) => {
@@ -137,15 +145,19 @@ io.on('connection', (socket) => {
     socket.join(roomId);
   });
   
+  // --- UPDATED: Save to DB with Logs ---
   socket.on('private message', async ({ roomId, sender, text }) => {
     try {
+        console.log(`Attempting to save msg from ${sender} in ${roomId}`);
         const newMsg = new Message({ roomId, sender, text });
-        await newMsg.save(); 
+        await newMsg.save();
+        console.log("✅ Message saved to DB");
         io.to(roomId).emit('chat message', { name: sender, text });
-    } catch(e) { console.error("Save error", e); }
+    } catch(e) { console.error("❌ Save error:", e); }
   });
+  // ------------------------------------------
 
   socket.on('disconnect', () => { onlineUsers.delete(socket.userId); io.emit('user status change', Array.from(onlineUsers.keys())); });
 });
 
-http.listen(process.env.PORT || 3000);
+http.listen(process.env.PORT || 3000, () => console.log('Server running...'));
