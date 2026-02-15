@@ -58,7 +58,7 @@
     .nav-item.logout:hover { background: var(--error); color: white; }
     .separator { width: 32px; height: 1px; background: var(--border); margin: 5px 0 15px 0; }
 
-    /* DM Sidebar */
+    /* DM Sidebar (Updated Width) */
     #sub-sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
     .dm-header { padding: 15px; font-size: 12px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid transparent; cursor: default; }
     .dm-add { cursor: pointer; font-size: 18px; transition: 0.2s; line-height: 1; padding: 2px 5px; border-radius: 3px; } 
@@ -73,16 +73,15 @@
     .dm-status-s { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-panel); display: none; }
     .dm-item.online .dm-status-s { display: block; }
 
-    /* UPDATED: Close Icon Styles */
+    /* Close Icon Styles */
     .dm-close-icon { 
         margin-left: auto; 
         opacity: 0; 
         transition: 0.2s; 
         color: var(--text-muted); 
-        padding: 4px; /* Padding remains for click area, but no visible background */
+        padding: 4px; 
     }
     .dm-item:hover .dm-close-icon { opacity: 1; }
-    /* Change: No background, turns Red on hover */
     .dm-close-icon:hover { color: var(--error); background: transparent; }
 
     /* Main View */
@@ -178,7 +177,7 @@
       </div>
       <div style="color:var(--text-muted); font-size:13px; margin-bottom:10px;">Select a friend to start a conversation.</div>
       <div class="input-wrapper" style="margin-bottom:5px;">
-        <input type="text" id="dm-search" onkeyup="filterFriends()" placeholder="Type the username of a friend" class="auth-input" style="background:var(--bg-dark) !important;">
+        <input type="text" id="dm-search" autocomplete="off" onkeyup="filterFriends()" placeholder="Type the username of a friend" class="auth-input" style="background:var(--bg-dark) !important;">
       </div>
       <div id="friend-picker" class="friend-picker-list">
         </div>
