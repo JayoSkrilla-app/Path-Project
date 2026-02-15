@@ -58,14 +58,14 @@
     .nav-item.logout:hover { background: var(--error); color: white; }
     .separator { width: 32px; height: 1px; background: var(--border); margin: 5px 0 15px 0; }
 
-    /* DM Sidebar (Updated Width) */
+    /* DM Sidebar */
     #sub-sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
     .dm-header { padding: 15px; font-size: 12px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid transparent; cursor: default; }
     .dm-add { cursor: pointer; font-size: 18px; transition: 0.2s; line-height: 1; padding: 2px 5px; border-radius: 3px; } 
     .dm-add:hover { color: var(--text-main); background: var(--hover-highlight); }
 
     #dm-list { list-style: none; padding: 10px 8px; margin: 0; overflow-y: auto; flex-grow: 1; }
-    .dm-item { display: flex; align-items: center; padding: 8px 10px; border-radius: 4px; cursor: pointer; color: var(--text-muted); margin-bottom: 4px; transition: 0.2s; position: relative; } /* Added relative position for x icon */
+    .dm-item { display: flex; align-items: center; padding: 8px 10px; border-radius: 4px; cursor: pointer; color: var(--text-muted); margin-bottom: 4px; transition: 0.2s; position: relative; }
     .dm-item:hover { background: var(--hover-highlight); color: var(--text-main); }
     .dm-item.active { background: rgba(0, 123, 255, 0.15); color: white; }
     .dm-item.active .dm-avatar-s { border-color: var(--path-blue); }
@@ -73,17 +73,17 @@
     .dm-status-s { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-panel); display: none; }
     .dm-item.online .dm-status-s { display: block; }
 
-    /* New Close Icon Styles */
+    /* UPDATED: Close Icon Styles */
     .dm-close-icon { 
         margin-left: auto; 
         opacity: 0; 
         transition: 0.2s; 
         color: var(--text-muted); 
-        padding: 4px; 
-        border-radius: 4px; 
+        padding: 4px; /* Padding remains for click area, but no visible background */
     }
     .dm-item:hover .dm-close-icon { opacity: 1; }
-    .dm-close-icon:hover { color: var(--text-main); background: rgba(255,255,255,0.1); }
+    /* Change: No background, turns Red on hover */
+    .dm-close-icon:hover { color: var(--error); background: transparent; }
 
     /* Main View */
     #view-main { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg-dark); }
@@ -270,7 +270,6 @@
     const SERVER_URL = window.location.origin;
     let socket, myId, currentTab = 'online';
     let myData = { friends: [], requests: [], blocked: [] };
-    // NEW: closedDMs array to track manually closed conversations
     let closedDMs = [];
     let globalOnlineUsers = [];
     let lastRenderedDate = null;
