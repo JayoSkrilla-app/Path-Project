@@ -5,11 +5,20 @@
   <style>
     /* --- PATH PROJECT THEME --- */
     :root {
-      --bg-dark: #0d1117; --bg-panel: #161b22; --bg-sidebar: #05070a;    
-      --path-blue: #007bff; --neon-glow: #00d4ff; --text-main: #e6edf3;     
-      --text-muted: #8b949e; --input-bg: #0d1117; --border: #30363d;        
-      --error: #ff4b4b; --success: #238636; --modal-overlay: rgba(0, 0, 0, 0.85);
+      --bg-dark: #0d1117;       
+      --bg-panel: #161b22;      
+      --bg-sidebar: #05070a;    
+      --path-blue: #007bff; 
+      --neon-glow: #00d4ff; 
+      --text-main: #e6edf3;     
+      --text-muted: #8b949e; 
+      --input-bg: #0d1117; 
+      --border: #30363d;        
+      --error: #ff4b4b; 
+      --success: #238636; 
+      --modal-overlay: rgba(0, 0, 0, 0.85);
       --btn-grey: #21262d;
+      --hover-highlight: rgba(255, 255, 255, 0.04);
     }
 
     body { font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -29,33 +38,65 @@
     .auth-input:focus { border-color: var(--path-blue); }
     input:-webkit-autofill { -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important; transition: background-color 5000s; }
 
-    /* SVG Toggle */
-    .toggle-pass { 
-        position: absolute; right: 12px; top: 0; bottom: 0; width: 24px; 
-        cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; 
-        transition: color 0.2s; z-index: 2; user-select: none; -webkit-user-select: none;
-    }
+    .toggle-pass { position: absolute; right: 12px; top: 0; bottom: 0; width: 24px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: color 0.2s; z-index: 2; user-select: none; -webkit-user-select: none; }
     .toggle-pass:hover { color: var(--path-blue); }
     .toggle-pass svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; pointer-events: none; }
 
     .req-error { color: var(--error); font-size: 12px; text-align: left; margin-bottom: 15px; background: rgba(255, 75, 75, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 75, 75, 0.2); display: none; }
-
     .auth-btn { width: 100%; padding: 12px; background: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .switch-link { margin-top: 25px; cursor: pointer; color: var(--text-muted); font-size: 14px; display: inline-block; }
     .switch-link span { color: var(--path-blue); font-weight: bold; text-decoration: underline; }
 
-    /* --- SIDEBAR --- */
-    #sidebar { width: 72px; background: var(--bg-sidebar); display: flex; flex-direction: column; align-items: center; padding-top: 15px; border-right: 1px solid var(--border); }
+    /* --- LAYOUT STRUCTURE --- */
+    #main-app { display: none; width: 100%; height: 100%; display: flex; } 
+
+    /* 1. Icon Sidebar (Left) */
+    #sidebar { width: 72px; background: var(--bg-sidebar); display: flex; flex-direction: column; align-items: center; padding-top: 15px; border-right: 1px solid var(--border); flex-shrink: 0; }
     .nav-item { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; cursor: pointer; background: var(--bg-panel); border: 1px solid var(--border); transition: 0.2s; color: var(--text-muted); }
     .nav-item:hover, .nav-item.active { border-radius: 16px; background: var(--path-blue); color: white; }
     .nav-item.logout { margin-top: auto; margin-bottom: 20px; border-color: var(--error); color: var(--error); }
     .nav-item.logout:hover { background: var(--error); color: white; }
     .separator { width: 32px; height: 1px; background: var(--border); margin: 5px 0 15px 0; }
 
-    /* --- DASHBOARD LAYOUT --- */
-    #main-app { display: none; width: 100%; height: 100%; }
-    #view-main { flex-grow: 1; display: flex; flex-direction: column; }
-    .top-bar { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; background: var(--bg-panel); }
+    /* 2. DM List Sidebar (Middle) - UPDATED THEME */
+    #sub-sidebar { width: 240px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+    
+    .dm-header { 
+        padding: 15px; font-size: 12px; font-weight: bold; color: var(--text-muted); 
+        text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; 
+        border-bottom: 1px solid transparent;
+    }
+    .dm-header:hover { color: var(--text-main); }
+    .dm-add { cursor: pointer; font-size: 18px; transition: 0.2s; line-height: 1; } 
+    .dm-add:hover { color: var(--success); }
+
+    #dm-list { list-style: none; padding: 10px 8px; margin: 0; overflow-y: auto; flex-grow: 1; }
+    
+    .dm-item { 
+        display: flex; align-items: center; padding: 8px 10px; border-radius: 4px; 
+        cursor: pointer; color: var(--text-muted); margin-bottom: 4px; transition: 0.2s; 
+    }
+    .dm-item:hover { background: var(--hover-highlight); color: var(--text-main); }
+    
+    /* Matches active icon style */
+    .dm-item.active { background: rgba(0, 123, 255, 0.15); color: white; }
+    .dm-item.active .dm-avatar-s { border-color: var(--path-blue); }
+
+    .dm-avatar-s { 
+        width: 32px; height: 32px; border-radius: 50%; background: var(--bg-dark); 
+        display: flex; align-items: center; justify-content: center; margin-right: 12px; 
+        font-size: 12px; font-weight: bold; position: relative; border: 1px solid var(--border); 
+        transition: 0.2s;
+    }
+    .dm-status-s { 
+        width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; 
+        position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-panel); display: none; 
+    }
+    .dm-item.online .dm-status-s { display: block; }
+
+    /* 3. Main View (Right) */
+    #view-main { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg-dark); }
+    .top-bar { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; background: var(--bg-panel); flex-shrink: 0; }
     .friend-tab { padding: 6px 12px; margin: 0 4px; cursor: pointer; color: var(--text-muted); font-size: 14px; border-radius: 6px; font-weight: 500;}
     .friend-tab.active { background: rgba(255,255,255,0.1); color: white; font-weight: 600;}
     .add-btn { background: var(--success); color: white; padding: 6px 14px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; margin-left: auto; }
@@ -64,13 +105,10 @@
     #dashboard-view { flex-grow: 1; overflow-y: auto; padding: 20px; }
     .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; position: relative; background: rgba(255,255,255,0.02); }
     .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right: 15px; position: relative; }
-    
-    /* STATUS DOT: 10px */
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-dark); }
-    
     .f-name { font-weight: 600; flex-grow: 1; font-size: 15px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* --- BUTTON STYLING --- */
+    /* Actions */
     .f-actions { display: flex; align-items: center; gap: 8px; }
     .btn-action { width: 90px; padding: 8px 0; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-align: center; transition: 0.2s; }
     .btn-accept { background: var(--success); color: white; }
@@ -79,7 +117,6 @@
     .btn-deny:hover { background: var(--error); }
     .btn-unblock { background: var(--path-blue); color: white; }
 
-    /* --- ACTIONS MENU --- */
     .action-icon { cursor: pointer; color: var(--text-muted); padding: 5px; border-radius: 4px; display: flex; align-items: center; }
     .action-icon:hover { color: white; background: var(--border); }
     .dropdown { position: relative; display: inline-block; }
@@ -89,7 +126,7 @@
     .dropdown-item:hover { background: var(--path-blue); }
     .dropdown-item.danger:hover { background: var(--error); }
 
-    /* --- CHAT VIEW --- */
+    /* Chat View */
     #chat-view { flex-grow: 1; display: none; flex-direction: column; background: var(--bg-dark); }
     #messages { list-style: none; padding: 20px; overflow-y: auto; flex-grow: 1; margin: 0; }
     .msg-item { display: flex; gap: 12px; margin-bottom: 5px; margin-top: 5px; }
@@ -97,11 +134,9 @@
     .chat-box { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; }
     .chat-box input { background: transparent; border: none; color: white; flex-grow: 1; outline: none; }
 
-    /* --- UPDATED: Date & Timestamp Styles --- */
     .date-divider { display: flex; align-items: center; color: var(--text-muted); font-size: 12px; margin: 25px 0 10px 0; user-select: none; }
     .date-divider::before, .date-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
     .date-divider span { padding: 0 12px; font-weight: 600; }
-    /* Changed margin-left to 4px to bring time closer to name */
     .timestamp { font-size: 11px; color: var(--text-muted); margin-left: 4px; font-weight: normal; opacity: 0.7; }
 
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 2000; align-items: center; justify-content: center; }
@@ -171,6 +206,15 @@
         </div>
     </div>
 
+    <div id="sub-sidebar">
+        <div class="dm-header">
+            <span>Direct Messages</span>
+            <span class="dm-add" onclick="setTab('all'); showDashboard();" title="New DM">+</span>
+        </div>
+        <ul id="dm-list">
+            </ul>
+    </div>
+
     <div id="view-main">
         <div class="top-bar" id="top-dash">
             <span style="font-weight: bold; margin-right: 20px;">Friends</span>
@@ -230,7 +274,7 @@
         return dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     }
 
-    // --- UPDATED RENDER: Date First, Then Time ---
+    // --- RENDER FUNCTION ---
     function renderMessage(msg, container) {
         const msgDate = msg.timestamp ? new Date(msg.timestamp) : new Date();
         const dateStr = msgDate.toDateString();
@@ -245,8 +289,6 @@
 
         const li = document.createElement('li'); li.className = 'msg-item';
         const displayName = msg.sender || msg.name; 
-        
-        // Changed Order: Date Header String + Time
         const fullDateString = `${formatDateHeader(msgDate)} at ${formatTime(msgDate)}`;
 
         li.innerHTML = `
@@ -286,10 +328,11 @@
         if(!token) return;
         myId = parseJwt(token).id;
         document.getElementById('auth-overlay').style.display = 'none';
-        document.getElementById('main-app').style.display = 'flex';
+        document.getElementById('main-app').style.display = 'flex'; 
         socket = io(SERVER_URL);
         socket.emit('identify', myId);
-        socket.on('user status change', (ids) => { globalOnlineUsers = ids; renderDashboard(); });
+
+        socket.on('user status change', (ids) => { globalOnlineUsers = ids; renderDashboard(); renderDMList(); });
         
         socket.on('chat message', (msg) => {
             const container = document.getElementById('messages');
@@ -303,7 +346,28 @@
 
     async function fetchMyData() {
         const res = await fetch(`${SERVER_URL}/my-data`, { headers: { 'x-auth-token': localStorage.getItem('path_token') } });
-        if(res.ok) { myData = await res.json(); renderDashboard(); }
+        if(res.ok) { myData = await res.json(); renderDashboard(); renderDMList(); }
+    }
+
+    function renderDMList() {
+        const list = document.getElementById('dm-list');
+        list.innerHTML = '';
+        if (!myData.friends) return;
+        myData.friends.forEach(f => {
+            const isOnline = globalOnlineUsers.includes(f._id);
+            const li = document.createElement('li');
+            
+            const currentChat = document.getElementById('chat-header').innerText.replace('@ ', '');
+            const isActive = (f.username === currentChat && document.getElementById('chat-view').style.display === 'flex');
+            
+            li.className = `dm-item ${isOnline ? 'online' : ''} ${isActive ? 'active' : ''}`;
+            li.onclick = () => openChat(f._id, f.username);
+            li.innerHTML = `
+                <div class="dm-avatar-s">${f.username[0].toUpperCase()}<div class="dm-status-s"></div></div>
+                <div>${f.username}</div>
+            `;
+            list.appendChild(li);
+        });
     }
 
     function setTab(t) {
@@ -321,6 +385,7 @@
         document.getElementById('top-dash').style.display = 'flex';
         document.getElementById('top-chat').style.display = 'none';
         renderDashboard();
+        renderDMList(); 
     }
 
     async function openChat(friendId, friendName) {
@@ -330,6 +395,8 @@
         document.getElementById('top-chat').style.display = 'flex';
         document.getElementById('chat-header').innerText = `@ ${friendName}`;
         
+        renderDMList();
+
         const messagesList = document.getElementById('messages');
         messagesList.innerHTML = '';
         lastRenderedDate = null; 
