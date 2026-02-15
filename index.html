@@ -58,20 +58,32 @@
     .nav-item.logout:hover { background: var(--error); color: white; }
     .separator { width: 32px; height: 1px; background: var(--border); margin: 5px 0 15px 0; }
 
-    /* DM Sidebar */
-    #sub-sidebar { width: 240px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+    /* DM Sidebar (Updated Width) */
+    #sub-sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
     .dm-header { padding: 15px; font-size: 12px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid transparent; cursor: default; }
     .dm-add { cursor: pointer; font-size: 18px; transition: 0.2s; line-height: 1; padding: 2px 5px; border-radius: 3px; } 
     .dm-add:hover { color: var(--text-main); background: var(--hover-highlight); }
 
     #dm-list { list-style: none; padding: 10px 8px; margin: 0; overflow-y: auto; flex-grow: 1; }
-    .dm-item { display: flex; align-items: center; padding: 8px 10px; border-radius: 4px; cursor: pointer; color: var(--text-muted); margin-bottom: 4px; transition: 0.2s; }
+    .dm-item { display: flex; align-items: center; padding: 8px 10px; border-radius: 4px; cursor: pointer; color: var(--text-muted); margin-bottom: 4px; transition: 0.2s; position: relative; } /* Added relative position for x icon */
     .dm-item:hover { background: var(--hover-highlight); color: var(--text-main); }
     .dm-item.active { background: rgba(0, 123, 255, 0.15); color: white; }
     .dm-item.active .dm-avatar-s { border-color: var(--path-blue); }
     .dm-avatar-s { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 12px; font-weight: bold; position: relative; border: 1px solid var(--border); transition: 0.2s; }
     .dm-status-s { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-panel); display: none; }
     .dm-item.online .dm-status-s { display: block; }
+
+    /* New Close Icon Styles */
+    .dm-close-icon { 
+        margin-left: auto; 
+        opacity: 0; 
+        transition: 0.2s; 
+        color: var(--text-muted); 
+        padding: 4px; 
+        border-radius: 4px; 
+    }
+    .dm-item:hover .dm-close-icon { opacity: 1; }
+    .dm-close-icon:hover { color: var(--text-main); background: rgba(255,255,255,0.1); }
 
     /* Main View */
     #view-main { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg-dark); }
@@ -258,6 +270,8 @@
     const SERVER_URL = window.location.origin;
     let socket, myId, currentTab = 'online';
     let myData = { friends: [], requests: [], blocked: [] };
+    // NEW: closedDMs array to track manually closed conversations
+    let closedDMs = [];
     let globalOnlineUsers = [];
     let lastRenderedDate = null;
     let selectedDMUserId = null; 
@@ -335,22 +349,48 @@
         if(res.ok) { myData = await res.json(); renderDashboard(); renderDMList(); }
     }
 
-    // --- DM SIDEBAR LOGIC ---
+    // --- UPDATED DM SIDEBAR LOGIC (With Close) ---
     function renderDMList() {
-        const list = document.getElementById('dm-list'); list.innerHTML = '';
+        const list = document.getElementById('dm-list');
+        list.innerHTML = '';
         if (!myData.friends) return;
         myData.friends.forEach(f => {
+            // Check if DM is closed
+            if (closedDMs.includes(f._id)) return;
+
             const isOnline = globalOnlineUsers.includes(f._id);
             const li = document.createElement('li');
             const currentChat = document.getElementById('chat-header').innerText.replace('@ ', '');
             const isActive = (f.username === currentChat && document.getElementById('chat-view').style.display === 'flex');
             li.className = `dm-item ${isOnline ? 'online' : ''} ${isActive ? 'active' : ''}`;
+            
+            // Note: Stop propagation on X button to prevent opening chat
+            li.innerHTML = `
+                <div class="dm-avatar-s">${f.username[0].toUpperCase()}<div class="dm-status-s"></div></div>
+                <div>${f.username}</div>
+                <div class="dm-close-icon" onclick="event.stopPropagation(); closeDM('${f._id}')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </div>
+            `;
             li.onclick = () => openChat(f._id, f.username);
-            li.innerHTML = `<div class="dm-avatar-s">${f.username[0].toUpperCase()}<div class="dm-status-s"></div></div><div>${f.username}</div>`;
             list.appendChild(li);
         });
     }
 
+    // NEW: Function to close a DM
+    function closeDM(friendId) {
+        if(!closedDMs.includes(friendId)) {
+            closedDMs.push(friendId);
+            renderDMList();
+            
+            // If the closed chat was currently open, go back to dashboard
+            const currentHeader = document.getElementById('chat-header').innerText;
+            const friend = myData.friends.find(f => f._id === friendId);
+            if(friend && currentHeader === `@ ${friend.username}`) {
+                showDashboard();
+            }
+        }
+    }
 
     function openDMModal() {
         document.getElementById('create-dm-modal').style.display = 'flex';
@@ -365,19 +405,14 @@
         const container = document.getElementById('friend-picker');
         container.innerHTML = '';
         const filter = document.getElementById('dm-search').value.toLowerCase();
-        
         if(!myData.friends || myData.friends.length === 0) {
-            container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);">No friends found.</div>`;
-            return;
+            container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);">No friends found.</div>`; return;
         }
-
         myData.friends.forEach(f => {
             if(f.username.toLowerCase().includes(filter)) {
                 const item = document.createElement('div');
                 item.className = 'picker-item';
-        
                 item.onclick = () => selectFriendForDM(f._id, f.username, item);
-                
                 item.innerHTML = `<div class="picker-avatar">${f.username[0].toUpperCase()}</div><div><div style="font-weight:bold; color:var(--text-main);">${f.username}</div></div>`;
                 container.appendChild(item);
             }
@@ -388,11 +423,15 @@
         selectedDMUserId = { id, username };
         document.querySelectorAll('.picker-item').forEach(el => el.classList.remove('selected'));
         element.classList.add('selected');
-        document.getElementById('btn-create-dm').classList.add('ready'); // Enable button
+        document.getElementById('btn-create-dm').classList.add('ready');
     }
 
     function handleCreateDM() {
         if(selectedDMUserId) {
+            // Remove from closed list if it was closed
+            const idx = closedDMs.indexOf(selectedDMUserId.id);
+            if (idx > -1) closedDMs.splice(idx, 1);
+            
             closeDMModal();
             openChat(selectedDMUserId.id, selectedDMUserId.username);
         }
@@ -415,6 +454,11 @@
         document.getElementById('dashboard-view').style.display = 'none'; document.getElementById('chat-view').style.display = 'flex';
         document.getElementById('top-dash').style.display = 'none'; document.getElementById('top-chat').style.display = 'flex';
         document.getElementById('chat-header').innerText = `@ ${friendName}`;
+        
+        // Ensure chat is visible in sidebar (remove from closed list)
+        const idx = closedDMs.indexOf(friendId);
+        if (idx > -1) closedDMs.splice(idx, 1);
+
         renderDMList();
         const messagesList = document.getElementById('messages'); messagesList.innerHTML = ''; lastRenderedDate = null; 
         const roomId = [myId, friendId].sort().join('_');
