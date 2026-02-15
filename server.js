@@ -16,13 +16,14 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ DB Connected!'))
   .catch(err => console.error('❌ DB Connection Error:', err));
 
-// --- ROBUST MESSAGE MODEL (Prevents "Overwrite" crashes) ---
+// --- 1. ROBUST MESSAGE MODEL (Prevents crashes on reload) ---
 const MessageSchema = new mongoose.Schema({
   roomId: { type: String, required: true },
   sender: { type: String, required: true },
   text: { type: String, required: true },
   timestamp: { type: Date, default: Date.now }
 });
+// This checks if the model exists before creating it again
 const Message = mongoose.models.Message || mongoose.model('Message', MessageSchema);
 // -----------------------------------------------------------
 
@@ -63,13 +64,14 @@ app.get('/my-data', auth, async (req, res) => {
     res.json({ friends: u.friends || [], requests: u.friendRequests || [], blocked: u.blocked || [] });
 });
 
-// HISTORY ROUTE
+// --- 2. UPDATED HISTORY ROUTE (With Logs) ---
 app.get('/messages/:roomId', auth, async (req, res) => {
     try {
+        console.log(`📥 Fetching history for room: ${req.params.roomId}`); // Check Logs for this!
         const messages = await Message.find({ roomId: req.params.roomId }).sort({ timestamp: 1 });
         res.json(messages);
     } catch(e) { 
-        console.error("History fetch error:", e);
+        console.error("History Error:", e);
         res.status(500).json({ msg: "Error fetching messages" }); 
     }
 });
@@ -145,17 +147,15 @@ io.on('connection', (socket) => {
     socket.join(roomId);
   });
   
-  // --- UPDATED: Save to DB with Logs ---
+  // --- 3. UPDATED SAVE LOGIC (With Logs) ---
   socket.on('private message', async ({ roomId, sender, text }) => {
     try {
-        console.log(`Attempting to save msg from ${sender} in ${roomId}`);
+        console.log(`💾 Saving msg from ${sender} to ${roomId}`); // Check Logs!
         const newMsg = new Message({ roomId, sender, text });
         await newMsg.save();
-        console.log("✅ Message saved to DB");
         io.to(roomId).emit('chat message', { name: sender, text });
-    } catch(e) { console.error("❌ Save error:", e); }
+    } catch(e) { console.error("❌ Save error", e); }
   });
-  // ------------------------------------------
 
   socket.on('disconnect', () => { onlineUsers.delete(socket.userId); io.emit('user status change', Array.from(onlineUsers.keys())); });
 });

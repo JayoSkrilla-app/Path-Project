@@ -191,18 +191,12 @@
 
     function parseJwt(t) { try { return JSON.parse(atob(t.split('.')[1])); } catch (e) { return null; } }
     
-    // FIXED: Toggle logic swapped to match user preference.
     function togglePass(el, id) {
         const input = document.getElementById(id);
-        const isPass = input.type === "password"; // Currently dots
-        input.type = isPass ? "text" : "password"; // Toggle type
-
+        const isPass = input.type === "password";
+        input.type = isPass ? "text" : "password";
         const eyeOpen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-        // Clean Slash Icon (No pupil)
         const eyeSlash = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-        
-        // If it was password (isPass=true) and became text, show Open Eye.
-        // If it was text and became password, show Slash Eye.
         el.innerHTML = isPass ? eyeOpen : eyeSlash;
     }
 
@@ -276,14 +270,35 @@
         renderDashboard();
     }
 
-    function openChat(friendId, friendName) {
+    // --- UPDATED OPEN CHAT (History Fix) ---
+    async function openChat(friendId, friendName) {
         document.getElementById('dashboard-view').style.display = 'none';
         document.getElementById('chat-view').style.display = 'flex';
         document.getElementById('top-dash').style.display = 'none';
         document.getElementById('top-chat').style.display = 'flex';
         document.getElementById('chat-header').innerText = `@ ${friendName}`;
-        document.getElementById('messages').innerHTML = '';
+        
+        const messagesList = document.getElementById('messages');
+        messagesList.innerHTML = ''; // Clear previous messages
+        
         const roomId = [myId, friendId].sort().join('_');
+        
+        // --- NEW: Fetch and render history ---
+        try {
+            const res = await fetch(`${SERVER_URL}/messages/${roomId}`, { headers: { 'x-auth-token': localStorage.getItem('path_token') } });
+            if(res.ok) {
+                const history = await res.json();
+                history.forEach(msg => {
+                    const li = document.createElement('li'); li.className = 'msg-item';
+                    // Note: Database uses 'msg.sender', real-time uses 'msg.name'. Adjusted here.
+                    li.innerHTML = `<div class="f-avatar">${msg.sender[0].toUpperCase()}</div><div><b style="color:var(--neon-glow)">${msg.sender}</b><br><span>${msg.text}</span></div>`;
+                    messagesList.appendChild(li);
+                });
+                messagesList.scrollTop = messagesList.scrollHeight; // Scroll to bottom
+            }
+        } catch(e) { console.error("History fetch error:", e); }
+        // ------------------------------------
+
         socket.emit('join room', roomId);
         document.getElementById('chat-form').onsubmit = (e) => {
             e.preventDefault();
