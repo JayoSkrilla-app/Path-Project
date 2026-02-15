@@ -152,6 +152,18 @@
     .dm-create-btn { padding: 10px 20px; background: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; opacity: 0.5; pointer-events: none; transition: 0.2s; }
     .dm-create-btn.ready { opacity: 1; pointer-events: all; }
     .dm-create-btn:hover { background: #0069d9; }
+
+    /* --- NEW: MODAL CONFIRM BUTTONS --- */
+    .modal-footer { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
+    .modal-btn { padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; font-size: 14px; }
+    
+    /* Cancel Button (Light Hover) */
+    .modal-btn.cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+    .modal-btn.cancel:hover { color: var(--text-main); background: var(--hover-highlight); }
+    
+    /* Confirm Button (Red Hover) */
+    .modal-btn.confirm { background: var(--btn-grey); color: var(--error); border: 1px solid var(--border); }
+    .modal-btn.confirm:hover { background: var(--error); color: white; border-color: var(--error); }
   </style>
 </head>
 <body>
@@ -160,9 +172,9 @@
     <div class="modal">
       <h2 id="modal-title" style="margin-top:0;">Confirm</h2>
       <p id="modal-desc" style="color:var(--text-muted);"></p>
-      <div style="display: flex; justify-content: center; gap: 15px; margin-top:20px;">
-        <button onclick="closeModal()" style="padding:10px 20px; background:transparent; color:white; border:1px solid var(--border); cursor:pointer; border-radius:6px;">Cancel</button>
-        <button id="modal-confirm-btn" style="padding:10px 20px; background:var(--error); color:white; border:none; cursor:pointer; border-radius:6px; font-weight:bold;">Confirm</button>
+      <div class="modal-footer">
+        <button onclick="closeModal()" class="modal-btn cancel">Cancel</button>
+        <button id="modal-confirm-btn" class="modal-btn confirm">Confirm</button>
       </div>
     </div>
   </div>
