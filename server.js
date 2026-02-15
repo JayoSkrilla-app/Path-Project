@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('./user'); 
+const Message = require('./message'); 
 
 app.use(cors()); 
 app.use(express.json()); 
@@ -49,6 +50,13 @@ app.post('/login', async (req, res) => {
 app.get('/my-data', auth, async (req, res) => {
     const u = await User.findById(req.user.id).populate('friends', 'username').populate('blocked', 'username'); 
     res.json({ friends: u.friends || [], requests: u.friendRequests || [], blocked: u.blocked || [] });
+});
+
+app.get('/messages/:roomId', auth, async (req, res) => {
+    try {
+        const messages = await Message.find({ roomId: req.params.roomId }).sort({ timestamp: 1 });
+        res.json(messages);
+    } catch(e) { res.status(500).json({ msg: "Error fetching messages" }); }
 });
 
 app.post('/add-friend', auth, async (req, res) => {
@@ -121,9 +129,15 @@ io.on('connection', (socket) => {
     socket.rooms.forEach(room => { if(room !== socket.id) socket.leave(room); });
     socket.join(roomId);
   });
-  socket.on('private message', ({ roomId, sender, text }) => {
-    io.to(roomId).emit('chat message', { name: sender, text });
+  
+  socket.on('private message', async ({ roomId, sender, text }) => {
+    try {
+        const newMsg = new Message({ roomId, sender, text });
+        await newMsg.save();
+        io.to(roomId).emit('chat message', { name: sender, text });
+    } catch(e) { console.error(e); }
   });
+
   socket.on('disconnect', () => { onlineUsers.delete(socket.userId); io.emit('user status change', Array.from(onlineUsers.keys())); });
 });
 
