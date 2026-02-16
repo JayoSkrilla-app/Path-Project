@@ -16,16 +16,15 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ DB Connected!'))
   .catch(err => console.error('❌ DB Connection Error:', err));
 
-// --- 1. ROBUST MESSAGE MODEL (Prevents crashes on reload) ---
+// --- 1. ROBUST MESSAGE MODEL (Updated with Avatar) ---
 const MessageSchema = new mongoose.Schema({
   roomId: { type: String, required: true },
   sender: { type: String, required: true },
+  avatar: { type: String }, // NEW: Stores the Base64 profile picture string
   text: { type: String, required: true },
   timestamp: { type: Date, default: Date.now }
 });
-// This checks if the model exists before creating it again
 const Message = mongoose.models.Message || mongoose.model('Message', MessageSchema);
-// -----------------------------------------------------------
 
 const auth = (req, res, next) => {
     const token = req.header('x-auth-token');
@@ -60,14 +59,14 @@ app.post('/login', async (req, res) => {
 
 // --- SOCIAL LOGIC ---
 app.get('/my-data', auth, async (req, res) => {
-    const u = await User.findById(req.user.id).populate('friends', 'username').populate('blocked', 'username'); 
+    // Updated to populate avatar if your User model supports it
+    const u = await User.findById(req.user.id).populate('friends', 'username avatar').populate('blocked', 'username'); 
     res.json({ friends: u.friends || [], requests: u.friendRequests || [], blocked: u.blocked || [] });
 });
 
-// --- 2. UPDATED HISTORY ROUTE (With Logs) ---
 app.get('/messages/:roomId', auth, async (req, res) => {
     try {
-        console.log(`📥 Fetching history for room: ${req.params.roomId}`); // Check Logs for this!
+        console.log(`📥 Fetching history for room: ${req.params.roomId}`);
         const messages = await Message.find({ roomId: req.params.roomId }).sort({ timestamp: 1 });
         res.json(messages);
     } catch(e) { 
@@ -142,18 +141,27 @@ io.on('connection', (socket) => {
   socket.on('identify', (id) => { 
     if(id){ socket.userId = id; onlineUsers.set(id, socket.id); io.emit('user status change', Array.from(onlineUsers.keys())); }
   });
+
   socket.on('join room', (roomId) => {
     socket.rooms.forEach(room => { if(room !== socket.id) socket.leave(room); });
     socket.join(roomId);
   });
   
-  // --- 3. UPDATED SAVE LOGIC (With Logs) ---
-  socket.on('private message', async ({ roomId, sender, text }) => {
+  // NEW: Profile Update Handler
+  socket.on('update profile', async ({ username, avatar }) => {
     try {
-        console.log(`💾 Saving msg from ${sender} to ${roomId}`); // Check Logs!
-        const newMsg = new Message({ roomId, sender, text });
+        await User.findByIdAndUpdate(socket.userId, { avatar });
+        console.log(`👤 Profile updated for ${username}`);
+    } catch(e) { console.error("❌ Profile update error", e); }
+  });
+
+  // --- UPDATED SAVE LOGIC (With Avatar Support) ---
+  socket.on('private message', async ({ roomId, sender, avatar, text }) => {
+    try {
+        console.log(`💾 Saving msg from ${sender} to ${roomId}`); 
+        const newMsg = new Message({ roomId, sender, avatar, text }); 
         await newMsg.save();
-        io.to(roomId).emit('chat message', { name: sender, text });
+        io.to(roomId).emit('chat message', { sender, avatar, text });
     } catch(e) { console.error("❌ Save error", e); }
   });
 

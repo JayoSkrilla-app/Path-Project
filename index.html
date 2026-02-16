@@ -8,7 +8,7 @@
       --bg-dark: #0d1117;       
       --bg-panel: #161b22;      
       --bg-sidebar: #05070a;    
-      --bg-user-bar: #090c10;   /* NEW: Slightly darker for bottom bar */
+      --bg-user-bar: #090c10;
       --path-blue: #007bff; 
       --neon-glow: #00d4ff; 
       --text-main: #e6edf3;     
@@ -55,12 +55,10 @@
     #sidebar { width: 72px; background: var(--bg-sidebar); display: flex; flex-direction: column; align-items: center; padding-top: 15px; border-right: 1px solid var(--border); flex-shrink: 0; }
     .nav-item { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; cursor: pointer; background: var(--bg-panel); border: 1px solid var(--border); transition: 0.2s; color: var(--text-muted); }
     .nav-item:hover, .nav-item.active { border-radius: 16px; background: var(--path-blue); color: white; }
-    .nav-item.logout { margin-top: auto; margin-bottom: 20px; border-color: var(--error); color: var(--error); }
-    .nav-item.logout:hover { background: var(--error); color: white; }
     .separator { width: 32px; height: 1px; background: var(--border); margin: 5px 0 15px 0; }
 
     /* DM Sidebar */
-    #sub-sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+    #sub-sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; position: relative; }
     .dm-header { padding: 15px; font-size: 12px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid transparent; cursor: default; }
     .dm-add { cursor: pointer; font-size: 18px; transition: 0.2s; line-height: 1; padding: 2px 5px; border-radius: 3px; } 
     .dm-add:hover { color: var(--text-main); background: var(--hover-highlight); }
@@ -70,35 +68,63 @@
     .dm-item:hover { background: var(--hover-highlight); color: var(--text-main); }
     .dm-item.active { background: rgba(0, 123, 255, 0.15); color: white; }
     .dm-item.active .dm-avatar-s { border-color: var(--path-blue); }
-    .dm-avatar-s { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 12px; font-weight: bold; position: relative; border: 1px solid var(--border); transition: 0.2s; }
+    .dm-avatar-s { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 12px; font-weight: bold; position: relative; border: 1px solid var(--border); transition: 0.2s; background-size: cover; background-position: center; }
     .dm-status-s { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-panel); display: none; }
     .dm-item.online .dm-status-s { display: block; }
     .dm-close-icon { margin-left: auto; opacity: 0; transition: 0.2s; color: var(--text-muted); padding: 4px; }
     .dm-item:hover .dm-close-icon { opacity: 1; }
     .dm-close-icon:hover { color: var(--error); background: transparent; }
 
-    /* NEW: User Profile Bar (Updated) */
+    /* User Profile Bar */
     #user-bar { 
         height: 52px; background: var(--bg-user-bar); border-top: 1px solid var(--border); 
-        display: flex; align-items: center; padding: 0 10px; cursor: default; /* No pointer on whole bar */
+        display: flex; align-items: center; padding: 0 10px; cursor: default; 
     }
-    .ub-avatar { width: 32px; height: 32px; background: var(--path-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; position: relative; }
-    
-    /* Active Status Bubble (Same size/style as others) */
+    .ub-profile-trigger {
+        display: flex; align-items: center; flex-grow: 1; cursor: pointer; padding: 4px; border-radius: 4px; transition: 0.2s;
+    }
+    .ub-profile-trigger:hover { background: var(--hover-highlight); }
+
+    .ub-avatar { width: 32px; height: 32px; background: var(--path-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; position: relative; background-size: cover; background-position: center; }
     .ub-status { width: 10px; height: 10px; background: #3ba55c; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-user-bar); }
-    
     .ub-info { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
     .ub-name { font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
     .ub-desc { font-size: 11px; color: var(--text-muted); }
     
-    /* Settings Icon (Centered & Clickable) */
     .ub-settings { 
-        color: var(--text-muted); 
-        width: 32px; height: 32px; /* Fixed square for centering */
-        display: flex; align-items: center; justify-content: center; /* Center the icon */
+        color: var(--text-muted); width: 32px; height: 32px; 
+        display: flex; align-items: center; justify-content: center;
         border-radius: 4px; transition: 0.2s; cursor: pointer; 
     }
     .ub-settings:hover { background: var(--bg-panel); color: var(--text-main); }
+
+    /* MINI PROFILE POPUP */
+    #mini-profile {
+        display: none; position: absolute; bottom: 60px; left: 10px; width: 300px;
+        background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px;
+        z-index: 1500; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .mp-banner { height: 60px; background: var(--path-blue); }
+    .mp-header { padding: 10px 16px; position: relative; margin-bottom: 10px; }
+    .mp-avatar { 
+        width: 80px; height: 80px; border-radius: 50%; border: 6px solid var(--bg-panel); 
+        background: var(--bg-sidebar); position: absolute; top: -40px; left: 16px; 
+        display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:bold; color:var(--text-main);
+        background-size: cover; background-position: center;
+    }
+    .mp-status-indicator { 
+        width: 24px; height: 24px; background: #3ba55c; border-radius: 50%; 
+        border: 4px solid var(--bg-panel); position: absolute; bottom: 0; right: 0; 
+    }
+    .mp-content { padding: 16px; padding-top: 40px; } 
+    .mp-name { font-size: 20px; font-weight: bold; color: var(--text-main); }
+    .mp-divider { height: 1px; background: var(--border); margin: 10px 0; }
+    .mp-menu-item { 
+        display: flex; align-items: center; padding: 8px; cursor: pointer; border-radius: 4px; 
+        color: var(--text-muted); font-size: 13px; font-weight: 500; 
+    }
+    .mp-menu-item:hover { background: var(--hover-highlight); color: var(--text-main); }
+    .mp-menu-item svg { width: 16px; height: 16px; margin-right: 10px; }
 
     /* Main View */
     #view-main { flex-grow: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg-dark); }
@@ -110,7 +136,7 @@
     /* Dashboard & Chat */
     #dashboard-view { flex-grow: 1; overflow-y: auto; padding: 20px; }
     .friend-item { display: flex; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; position: relative; background: rgba(255,255,255,0.02); }
-    .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right: 15px; position: relative; }
+    .f-avatar { width: 35px; height: 35px; background: var(--path-blue); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right: 15px; position: relative; background-size: cover; background-position: center; }
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3ba55c; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-dark); }
     .f-name { font-weight: 600; flex-grow: 1; font-size: 15px; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     
@@ -157,7 +183,7 @@
     .picker-item:hover { background: var(--hover-highlight); }
     .picker-item.selected { background: rgba(0, 123, 255, 0.2); border-left: 3px solid var(--path-blue); }
     .picker-item:last-child { border-bottom: none; }
-    .picker-avatar { width: 32px; height: 32px; background: var(--path-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; font-size: 13px; }
+    .picker-avatar { width: 32px; height: 32px; background: var(--path-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; font-size: 13px; background-size: cover; background-position: center; }
     .dm-modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; }
     .dm-create-btn { padding: 10px 20px; background: var(--path-blue); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; opacity: 0.5; pointer-events: none; transition: 0.2s; }
     .dm-create-btn.ready { opacity: 1; pointer-events: all; }
@@ -171,7 +197,7 @@
     .modal-btn.confirm { background: var(--btn-grey); color: var(--error); border: 1px solid var(--border); }
     .modal-btn.confirm:hover { background: var(--error); color: white; border-color: var(--error); }
 
-    /* NEW: SETTINGS MODAL */
+    /* SETTINGS MODAL */
     .settings-container { width: 600px; display: flex; text-align: left; overflow: hidden; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-panel); }
     .settings-sidebar { width: 180px; background: var(--bg-sidebar); padding: 20px 10px; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
     .settings-content { flex-grow: 1; padding: 40px; background: var(--bg-dark); }
@@ -183,12 +209,27 @@
     .profile-card { background: var(--bg-panel); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; margin-top: 20px; }
     .banner { height: 80px; background: var(--path-blue); }
     .p-info { padding: 15px 20px; position: relative; }
-    .p-avatar { width: 70px; height: 70px; background: var(--bg-sidebar); border-radius: 50%; border: 6px solid var(--bg-panel); position: absolute; top: -40px; left: 15px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: var(--text-main); }
+    .p-avatar { width: 70px; height: 70px; background: var(--bg-sidebar); border-radius: 50%; border: 6px solid var(--bg-panel); position: absolute; top: -40px; left: 15px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: var(--text-main); background-size: cover; background-position: center; }
     .p-details { margin-top: 35px; }
     .p-username { font-size: 20px; font-weight: bold; color: var(--text-main); }
-    .p-badge { background: #5865f2; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; text-transform: uppercase; margin-left: 8px; vertical-align: middle; }
     .edit-btn { float: right; background: var(--btn-grey); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; }
     .edit-btn:hover { background: var(--border); }
+
+    /* EDIT PROFILE MODAL STYLES */
+    #edit-profile-modal { z-index: 3000; } 
+    .edit-modal-box { width: 600px; display:flex; gap: 20px; padding: 30px; text-align: left; }
+    .edit-preview { flex: 1; background: var(--bg-dark); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    .edit-form { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+    .edit-label { font-size: 12px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; display: block; }
+    .color-input { width: 100%; height: 40px; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; background: var(--input-bg); }
+    
+    /* Overlay for Avatar Upload */
+    .avatar-upload-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%;
+        background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: 0.2s; cursor: pointer; color: white; font-size: 12px; text-transform: uppercase; font-weight: bold;
+    }
+    .p-avatar:hover .avatar-upload-overlay { opacity: 1; }
   </style>
 </head>
 <body>
@@ -223,12 +264,48 @@
     </div>
   </div>
 
+  <div id="edit-profile-modal" class="modal-overlay">
+    <div class="modal edit-modal-box">
+        <div class="edit-preview">
+            <div id="edit-preview-banner" class="banner"></div>
+            <div class="p-info" style="padding-top: 40px;">
+                <div id="edit-preview-avatar" class="p-avatar" style="top: -35px; left: 15px;" onclick="document.getElementById('file-input').click()">
+                    U
+                    <div class="avatar-upload-overlay">Change</div>
+                </div>
+                <div class="p-details" style="margin-top: 25px;">
+                    <div id="edit-preview-name" class="p-username" style="font-size: 18px;">Username</div>
+                    <div style="color:var(--text-muted); font-size:12px;">Path Project User</div>
+                </div>
+            </div>
+        </div>
+        <div class="edit-form">
+            <h2 style="margin: 0 0 10px 0;">Edit Profile</h2>
+            <div>
+                <label class="edit-label">Display Name</label>
+                <input id="edit-input-name" class="auth-input" type="text" onkeyup="updatePreview()">
+            </div>
+            <div>
+                <label class="edit-label">Banner Color</label>
+                <input id="edit-input-color" class="color-input" type="color" onchange="updatePreview()">
+            </div>
+            
+            <input type="file" id="file-input" hidden accept="image/*" onchange="handleFileSelect(event)">
+            <div id="nsfw-warning" style="color:var(--error); font-size:12px; display:none;">Unsafe content detected.</div>
+
+            <div style="margin-top: auto; display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="modal-btn cancel" onclick="closeEditProfile()">Cancel</button>
+                <button class="modal-btn confirm" style="background: var(--success); border-color: var(--success); color: white;" onclick="saveProfileChanges()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
   <div id="settings-modal" class="modal-overlay">
     <div class="settings-container">
         <div class="settings-sidebar">
             <div style="padding: 0 12px 10px 12px; font-weight: bold; color: var(--text-muted); font-size: 12px; text-transform: uppercase;">User Settings</div>
             <div class="set-item active">My Account</div>
-            <div class="set-item">Privacy</div>
             <div class="set-item logout" onclick="logout()">Log Out</div>
         </div>
         <div class="settings-content">
@@ -240,12 +317,12 @@
             </div>
             
             <div class="profile-card">
-                <div class="banner"></div>
+                <div id="set-banner" class="banner"></div>
                 <div class="p-info">
                     <div class="p-avatar" id="set-avatar">U</div>
-                    <button class="edit-btn">Edit Profile</button>
+                    <button class="edit-btn" onclick="openEditProfile()">Edit Profile</button>
                     <div class="p-details">
-                        <div class="p-username" id="set-username">Username <span class="p-badge">APP</span></div>
+                        <div class="p-username" id="set-username">Username</div>
                         <div style="color:var(--text-muted); font-size:13px; margin-top:5px;">Path Project User</div>
                     </div>
                     <div style="margin-top: 20px; background: var(--bg-dark); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
@@ -289,7 +366,7 @@
       </div>
       <div class="input-wrapper">
         <input type="password" id="r-confirm" placeholder="Confirm Password" class="auth-input">
-        <span class="toggle-pass" onclick="togglePass(this, 'r-confirm')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
+        <span class="toggle-pass" onclick="togglePass(this, 'r-confirm')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg></span>
       </div>
       <div id="reg-error-box" class="req-error"></div>
       <button onclick="handleRegister()" class="auth-btn">Create Account</button>
@@ -303,9 +380,6 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         </div>
         <div class="separator"></div>
-        <div class="nav-item logout" onclick="logout()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        </div>
     </div>
 
     <div id="sub-sidebar">
@@ -316,13 +390,40 @@
         <ul id="dm-list"></ul>
         
         <div id="user-bar">
-            <div class="ub-avatar" id="mini-avatar">U<div class="ub-status"></div></div>
-            <div class="ub-info">
-                <div class="ub-name" id="mini-username">Username</div>
-                <div class="ub-desc">Online</div>
+            <div class="ub-profile-trigger" onclick="toggleMiniProfile()">
+                <div class="ub-avatar" id="mini-avatar">U<div class="ub-status"></div></div>
+                <div class="ub-info">
+                    <div class="ub-name" id="mini-username">Username</div>
+                    <div class="ub-desc">Online</div>
+                </div>
             </div>
             <div class="ub-settings" onclick="openSettingsModal()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </div>
+        </div>
+        
+        <div id="mini-profile">
+            <div id="mp-banner" class="mp-banner"></div>
+            <div class="mp-header">
+                <div class="mp-avatar" id="mp-avatar">U<div class="mp-status-indicator"></div></div>
+            </div>
+            <div class="mp-content">
+                <div class="mp-name" id="mp-username">Username</div>
+                <div style="font-size:13px; color:var(--text-muted); margin-bottom: 10px;">#0000</div>
+                <div class="mp-divider"></div>
+                <div class="mp-menu-item" onclick="openEditProfile(); document.getElementById('mini-profile').style.display='none';">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    Edit Profile
+                </div>
+                <div class="mp-menu-item">
+                    <div style="width:16px; height:16px; background:#3ba55c; border-radius:50%; margin-right:10px; border:2px solid var(--bg-panel);"></div>
+                    Set Online Status
+                </div>
+                <div class="mp-divider"></div>
+                <div class="mp-menu-item" onclick="logout()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Switch Accounts
+                </div>
             </div>
         </div>
     </div>
@@ -346,6 +447,9 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/nsfwjs@latest/dist/nsfwjs.min.js"></script>
+
   <script>
     const SERVER_URL = window.location.origin;
     let socket, myId, currentTab = 'online';
@@ -354,6 +458,8 @@
     let globalOnlineUsers = [];
     let lastRenderedDate = null;
     let selectedDMUserId = null; 
+    let nsfwModel;
+    let tempAvatarBase64 = null; 
 
     function parseJwt(t) { try { return JSON.parse(atob(t.split('.')[1])); } catch (e) { return null; } }
     function togglePass(el, id) { const input = document.getElementById(id); const isPass = input.type === "password"; input.type = isPass ? "text" : "password"; el.innerHTML = isPass ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'; }
@@ -372,7 +478,11 @@
         const li = document.createElement('li'); li.className = 'msg-item';
         const displayName = msg.sender || msg.name; 
         const fullDateString = `${formatDateHeader(msgDate)} at ${formatTime(msgDate)}`;
-        li.innerHTML = `<div class="f-avatar">${displayName[0].toUpperCase()}</div><div><b style="color:var(--neon-glow)">${displayName}</b><span class="timestamp">${fullDateString}</span><br><span>${msg.text}</span></div>`;
+        
+        const avatarStyle = msg.avatar ? `style="background-image: url(${msg.avatar}); background-size: cover; background-position: center;"` : '';
+        const avatarContent = msg.avatar ? '' : displayName[0].toUpperCase();
+
+        li.innerHTML = `<div class="f-avatar" ${avatarStyle}>${avatarContent}</div><div><b style="color:var(--neon-glow)">${displayName}</b><span class="timestamp">${fullDateString}</span><br><span>${msg.text}</span></div>`;
         container.appendChild(li);
     }
 
@@ -394,21 +504,49 @@
         if(res.ok) handleLogin(); else { const d = await res.json(); errBox.innerText = d.msg; errBox.style.display = 'block'; }
     }
 
+    // LOAD NSFW MODEL IN BACKGROUND
+    async function initAI() { try { nsfwModel = await nsfwjs.load(); } catch(e) { console.error("AI Model failed to load", e); } }
+    initAI();
+
     function startApp() {
         const token = localStorage.getItem('path_token'); if(!token) return;
         myId = parseJwt(token).id;
-        // Populate User Bar
+        
         const uname = localStorage.getItem('path_username') || "User";
+        const char = uname[0].toUpperCase();
+        const savedColor = localStorage.getItem('path_banner_color') || '#007bff';
+        const savedAvatar = localStorage.getItem('path_avatar');
+
+        const setAllAvatars = (val, isImage) => {
+            const els = ['mini-avatar', 'set-avatar', 'mp-avatar'];
+            els.forEach(id => {
+                const el = document.getElementById(id);
+                if(isImage) {
+                    el.style.backgroundImage = `url(${val})`;
+                    el.innerText = ''; 
+                    if(id==='mini-avatar') el.innerHTML = `<div class="ub-status"></div>`;
+                    if(id==='mp-avatar') el.innerHTML = `<div class="mp-status-indicator"></div>`;
+                } else {
+                    el.style.backgroundImage = 'none';
+                    el.innerHTML = `${val}${id==='mini-avatar'?'<div class="ub-status"></div>':''}${id==='mp-avatar'?'<div class="mp-status-indicator"></div>':''}`;
+                }
+            });
+        };
+
         document.getElementById('mini-username').innerText = uname;
-        document.getElementById('mini-avatar').childNodes[0].nodeValue = uname[0].toUpperCase();
-        document.getElementById('set-username').innerHTML = `${uname} <span class="p-badge">APP</span>`;
-        document.getElementById('set-username-2').innerText = uname;
-        document.getElementById('set-avatar').innerText = uname[0].toUpperCase();
+        document.getElementById('set-username').innerText = uname;
+        document.getElementById('mp-username').innerText = uname;
+
+        if(savedAvatar) setAllAvatars(savedAvatar, true);
+        else setAllAvatars(char, false);
+        
+        applyBannerColor(savedColor);
 
         document.getElementById('auth-overlay').style.display = 'none';
         document.getElementById('main-app').style.display = 'flex'; 
         socket = io(SERVER_URL);
         socket.emit('identify', myId);
+        
         socket.on('user status change', (ids) => { globalOnlineUsers = ids; renderDashboard(); renderDMList(); });
         socket.on('chat message', (msg) => {
             const container = document.getElementById('messages');
@@ -433,79 +571,121 @@
             const currentChat = document.getElementById('chat-header').innerText.replace('@ ', '');
             const isActive = (f.username === currentChat && document.getElementById('chat-view').style.display === 'flex');
             li.className = `dm-item ${isOnline ? 'online' : ''} ${isActive ? 'active' : ''}`;
-            li.innerHTML = `<div class="dm-avatar-s">${f.username[0].toUpperCase()}<div class="dm-status-s"></div></div><div>${f.username}</div><div class="dm-close-icon" onclick="event.stopPropagation(); closeDM('${f._id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>`;
+            
+            const avStyle = f.avatar ? `style="background-image: url(${f.avatar})"` : '';
+            const avText = f.avatar ? '' : f.username[0].toUpperCase();
+
+            li.innerHTML = `<div class="dm-avatar-s" ${avStyle}>${avText}<div class="dm-status-s"></div></div><div>${f.username}</div><div class="dm-close-icon" onclick="event.stopPropagation(); closeDM('${f._id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>`;
             li.onclick = () => openChat(f._id, f.username);
             list.appendChild(li);
         });
     }
 
-    function closeDM(friendId) {
-        if(!closedDMs.includes(friendId)) {
-            closedDMs.push(friendId);
-            renderDMList();
-            const currentHeader = document.getElementById('chat-header').innerText;
-            const friend = myData.friends.find(f => f._id === friendId);
-            if(friend && currentHeader === `@ ${friend.username}`) { showDashboard(); }
+    function closeDM(friendId) { if(!closedDMs.includes(friendId)) { closedDMs.push(friendId); renderDMList(); const currentHeader = document.getElementById('chat-header').innerText; const friend = myData.friends.find(f => f._id === friendId); if(friend && currentHeader === `@ ${friend.username}`) { showDashboard(); } } }
+    function toggleMiniProfile() { const popup = document.getElementById('mini-profile'); popup.style.display = (popup.style.display === 'block') ? 'none' : 'block'; }
+    
+    document.addEventListener('click', function(event) {
+        const popup = document.getElementById('mini-profile');
+        const trigger = document.querySelector('.ub-profile-trigger');
+        if (popup && popup.style.display === 'block' && !popup.contains(event.target) && !trigger.contains(event.target)) {
+            popup.style.display = 'none';
         }
-    }
+    });
 
-    // --- SETTINGS MODAL LOGIC ---
     function openSettingsModal() { document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettingsModal() { document.getElementById('settings-modal').style.display = 'none'; }
 
-    function openDMModal() { document.getElementById('create-dm-modal').style.display = 'flex'; document.getElementById('dm-search').value = ''; document.getElementById('btn-create-dm').classList.remove('ready'); selectedDMUserId = null; renderFriendPicker(); }
-    function closeDMModal() { document.getElementById('create-dm-modal').style.display = 'none'; }
-    
-    function renderFriendPicker() {
-        const container = document.getElementById('friend-picker'); container.innerHTML = '';
-        const filter = document.getElementById('dm-search').value.toLowerCase();
-        if(!myData.friends || myData.friends.length === 0) { container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);">No friends found.</div>`; return; }
-        myData.friends.forEach(f => {
-            if(f.username.toLowerCase().includes(filter)) {
-                const item = document.createElement('div'); item.className = 'picker-item';
-                item.onclick = () => selectFriendForDM(f._id, f.username, item);
-                item.innerHTML = `<div class="picker-avatar">${f.username[0].toUpperCase()}</div><div><div style="font-weight:bold; color:var(--text-main);">${f.username}</div></div>`;
-                container.appendChild(item);
-            }
-        });
+    // --- EDIT PROFILE LOGIC ---
+    function openEditProfile() {
+        document.getElementById('edit-profile-modal').style.display = 'flex';
+        const uname = localStorage.getItem('path_username');
+        const color = localStorage.getItem('path_banner_color') || '#007bff';
+        const avatar = localStorage.getItem('path_avatar');
+        
+        document.getElementById('edit-input-name').value = uname;
+        document.getElementById('edit-input-color').value = color;
+        tempAvatarBase64 = avatar || null; 
+        
+        updatePreview();
     }
-    
-    function selectFriendForDM(id, username, element) {
-        selectedDMUserId = { id, username };
-        document.querySelectorAll('.picker-item').forEach(el => el.classList.remove('selected'));
-        element.classList.add('selected');
-        document.getElementById('btn-create-dm').classList.add('ready');
-    }
+    function closeEditProfile() { document.getElementById('edit-profile-modal').style.display = 'none'; }
 
-    function handleCreateDM() {
-        if(selectedDMUserId) {
-            const idx = closedDMs.indexOf(selectedDMUserId.id); if (idx > -1) closedDMs.splice(idx, 1);
-            closeDMModal(); openChat(selectedDMUserId.id, selectedDMUserId.username);
+    function updatePreview() {
+        const newName = document.getElementById('edit-input-name').value;
+        const newColor = document.getElementById('edit-input-color').value;
+        document.getElementById('edit-preview-name').innerText = newName || 'Username';
+        document.getElementById('edit-preview-banner').style.background = newColor;
+        
+        const previewAv = document.getElementById('edit-preview-avatar');
+        if(tempAvatarBase64) {
+            previewAv.innerText = '';
+            previewAv.style.backgroundImage = `url(${tempAvatarBase64})`;
+            previewAv.innerHTML = `<div class="avatar-upload-overlay">Change</div>`;
+        } else {
+            previewAv.style.backgroundImage = 'none';
+            previewAv.innerHTML = `${newName ? newName[0].toUpperCase() : '?'}<div class="avatar-upload-overlay">Change</div>`;
         }
     }
 
-    function filterFriends() { renderFriendPicker(); }
+    async function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        const warnBox = document.getElementById('nsfw-warning');
+        warnBox.style.display = 'none';
 
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = async () => {
+                if(nsfwModel) {
+                    const predictions = await nsfwModel.classify(img);
+                    const isUnsafe = predictions.some(p => (p.className === 'Porn' || p.className === 'Hentai' || p.className === 'Sexy') && p.probability > 0.4);
+                    if(isUnsafe) {
+                        warnBox.style.display = 'block';
+                        return; 
+                    }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = 128; canvas.height = 128;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, 128, 128);
+                tempAvatarBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                updatePreview();
+            };
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function saveProfileChanges() {
+        const newName = document.getElementById('edit-input-name').value;
+        const newColor = document.getElementById('edit-input-color').value;
+        if(newName) {
+            localStorage.setItem('path_username', newName);
+            localStorage.setItem('path_banner_color', newColor);
+            if(tempAvatarBase64) localStorage.setItem('path_avatar', tempAvatarBase64);
+            
+            startApp();
+            closeEditProfile();
+            
+            if(socket) socket.emit('update profile', { username: newName, avatar: tempAvatarBase64 });
+        }
+    }
+
+    function applyBannerColor(color) {
+        const banners = document.querySelectorAll('.banner, .mp-banner');
+        banners.forEach(b => b.style.background = color);
+    }
+
+    function openDMModal() { document.getElementById('create-dm-modal').style.display = 'flex'; document.getElementById('dm-search').value = ''; document.getElementById('btn-create-dm').classList.remove('ready'); selectedDMUserId = null; renderFriendPicker(); }
+    function closeDMModal() { document.getElementById('create-dm-modal').style.display = 'none'; }
+    function renderFriendPicker() { const container = document.getElementById('friend-picker'); container.innerHTML = ''; const filter = document.getElementById('dm-search').value.toLowerCase(); if(!myData.friends || myData.friends.length === 0) { container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);">No friends found.</div>`; return; } myData.friends.forEach(f => { if(f.username.toLowerCase().includes(filter)) { const item = document.createElement('div'); item.className = 'picker-item'; item.onclick = () => selectFriendForDM(f._id, f.username, item); item.innerHTML = `<div class="picker-avatar">${f.username[0].toUpperCase()}</div><div><div style="font-weight:bold; color:var(--text-main);">${f.username}</div></div>`; container.appendChild(item); } }); }
+    function selectFriendForDM(id, username, element) { selectedDMUserId = { id, username }; document.querySelectorAll('.picker-item').forEach(el => el.classList.remove('selected')); element.classList.add('selected'); document.getElementById('btn-create-dm').classList.add('ready'); }
+    function handleCreateDM() { if(selectedDMUserId) { const idx = closedDMs.indexOf(selectedDMUserId.id); if (idx > -1) closedDMs.splice(idx, 1); closeDMModal(); openChat(selectedDMUserId.id, selectedDMUserId.username); } }
+    function filterFriends() { renderFriendPicker(); }
     function setTab(t) { currentTab = t; document.querySelectorAll('.friend-tab').forEach(el => { el.classList.remove('active'); if(el.innerText.toLowerCase() === t) el.classList.add('active'); }); showDashboard(); }
     function showDashboard() { document.getElementById('dashboard-view').style.display = 'block'; document.getElementById('chat-view').style.display = 'none'; document.getElementById('top-dash').style.display = 'flex'; document.getElementById('top-chat').style.display = 'none'; renderDashboard(); renderDMList(); }
-    async function openChat(friendId, friendName) {
-        document.getElementById('dashboard-view').style.display = 'none'; document.getElementById('chat-view').style.display = 'flex';
-        document.getElementById('top-dash').style.display = 'none'; document.getElementById('top-chat').style.display = 'flex';
-        document.getElementById('chat-header').innerText = `@ ${friendName}`;
-        const idx = closedDMs.indexOf(friendId); if (idx > -1) closedDMs.splice(idx, 1);
-        renderDMList();
-        const messagesList = document.getElementById('messages'); messagesList.innerHTML = ''; lastRenderedDate = null; 
-        const roomId = [myId, friendId].sort().join('_');
-        try {
-            const res = await fetch(`${SERVER_URL}/messages/${roomId}`, { headers: { 'x-auth-token': localStorage.getItem('path_token') } });
-            if(res.ok) { const history = await res.json(); history.forEach(msg => renderMessage(msg, messagesList)); messagesList.scrollTop = messagesList.scrollHeight; }
-        } catch(e) { console.error("History fetch error:", e); }
-        socket.emit('join room', roomId);
-        document.getElementById('chat-form').onsubmit = (e) => {
-            e.preventDefault(); const text = document.getElementById('chat-input').value;
-            if(text) { socket.emit('private message', { roomId, sender: localStorage.getItem('path_username'), text }); document.getElementById('chat-input').value = ''; }
-        };
-    }
+    async function openChat(friendId, friendName) { document.getElementById('dashboard-view').style.display = 'none'; document.getElementById('chat-view').style.display = 'flex'; document.getElementById('top-dash').style.display = 'none'; document.getElementById('top-chat').style.display = 'flex'; document.getElementById('chat-header').innerText = `@ ${friendName}`; const idx = closedDMs.indexOf(friendId); if (idx > -1) closedDMs.splice(idx, 1); renderDMList(); const messagesList = document.getElementById('messages'); messagesList.innerHTML = ''; lastRenderedDate = null; const roomId = [myId, friendId].sort().join('_'); try { const res = await fetch(`${SERVER_URL}/messages/${roomId}`, { headers: { 'x-auth-token': localStorage.getItem('path_token') } }); if(res.ok) { const history = await res.json(); history.forEach(msg => renderMessage(msg, messagesList)); messagesList.scrollTop = messagesList.scrollHeight; } } catch(e) { console.error("History fetch error:", e); } socket.emit('join room', roomId); document.getElementById('chat-form').onsubmit = (e) => { e.preventDefault(); const text = document.getElementById('chat-input').value; const myAvatar = localStorage.getItem('path_avatar'); if(text) { socket.emit('private message', { roomId, sender: localStorage.getItem('path_username'), avatar: myAvatar, text }); document.getElementById('chat-input').value = ''; } }; }
 
     function renderDashboard() {
         const container = document.getElementById('friend-list-content'); container.innerHTML = '';
@@ -520,11 +700,14 @@
             const u = item.username || "User"; const id = (currentTab === 'pending') ? item.from : (item._id || item.from);
             const isOnline = globalOnlineUsers.includes(id); const el = document.createElement('div'); el.className = 'friend-item';
             let actions = '';
-            if(currentTab === 'all' || currentTab === 'online') {
-                actions = `<div class="f-actions"><div class="action-icon" onclick="openChat('${id}', '${u}')" title="Message"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div><div class="dropdown"><div class="action-icon" onclick="toggleDropdown('${id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></div><div id="drop-${id}" class="dropdown-menu"><div class="dropdown-item" onclick="confirmAction('Remove Friend', 'Unfriend ${u}?', () => removeFriend('${id}'))">Remove Friend</div><div class="dropdown-item danger" onclick="confirmAction('Block User', 'Block ${u}?', () => blockUser('${id}'))">Block User</div></div></div></div>`;
-            } else if(currentTab === 'pending') { actions = `<div class="f-actions"><button class="btn-action btn-accept" onclick="acceptFriend('${id}')">Accept</button><button class="btn-action btn-deny" onclick="denyFriend('${id}')">Deny</button></div>`; } 
+            if(currentTab === 'all' || currentTab === 'online') { actions = `<div class="f-actions"><div class="action-icon" onclick="openChat('${id}', '${u}')" title="Message"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div><div class="dropdown"><div class="action-icon" onclick="toggleDropdown('${id}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></div><div id="drop-${id}" class="dropdown-menu"><div class="dropdown-item" onclick="confirmAction('Remove Friend', 'Unfriend ${u}?', () => removeFriend('${id}'))">Remove Friend</div><div class="dropdown-item danger" onclick="confirmAction('Block User', 'Block ${u}?', () => blockUser('${id}'))">Block User</div></div></div></div>`; } 
+            else if(currentTab === 'pending') { actions = `<div class="f-actions"><button class="btn-action btn-accept" onclick="acceptFriend('${id}')">Accept</button><button class="btn-action btn-deny" onclick="denyFriend('${id}')">Deny</button></div>`; } 
             else if(currentTab === 'blocked') { actions = `<button class="btn-action btn-accept" onclick="unblockUser('${id}')" style="background:var(--path-blue); width:100px;">Unblock</button>`; }
-            el.innerHTML = `<div class="f-avatar">${u[0].toUpperCase()}${isOnline ? '<div class="status-dot"></div>' : ''}</div><div class="f-name">${u}</div>${actions}`;
+            
+            const avStyle = item.avatar ? `style="background-image: url(${item.avatar}); background-size: cover; background-position: center;"` : '';
+            const avText = item.avatar ? '' : u[0].toUpperCase();
+
+            el.innerHTML = `<div class="f-avatar" ${avStyle}>${avText}${isOnline ? '<div class="status-dot"></div>' : ''}</div><div class="f-name">${u}</div>${actions}`;
             container.appendChild(el);
         });
     }
